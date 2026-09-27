@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>پروژه جدید</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      background: radial-gradient(ellipse at 30% 10%, #1a1050 0%, #0a0830 25%, #050420 50%, #020210 100%);
+      font-family: "Vazirmatn", sans-serif;
+      font-weight: 400;
+      color: #ffffff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+    }
+
+    button, input { font-family: inherit; color: inherit; }
+    button { background: none; border: none; cursor: pointer; }
+    input { outline: none; border: none; background: transparent; width: 100%; min-width: 0; max-width: 100%; font-size: 16px; }
+    input::placeholder { color: rgba(255, 255, 255, 0.4); font-size: 16px; }
+
+    .screen {
+      width: 100%;
+      max-width: 480px;
+      padding-top: max(48px, env(safe-area-inset-top, 0px));
+      min-height: 100dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 96px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+
+    .header {
+      height: 80px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    .back {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(20, 40, 80, 0.7);
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      box-shadow: 0 0 10px rgba(80, 160, 255, 0.2);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      flex: none;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .back:hover {
+      box-shadow: 0 0 16px rgba(80, 160, 255, 0.45);
+      transform: translateY(-1px);
+    }
+    .brand {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .brand svg { flex: none; filter: drop-shadow(0 0 12px #8a5aec); }
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+      font-style: normal;
+    }
+    .brand p {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: none;
+    }
+    .bell {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+    }
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff2d55;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+    .dots-btn {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+    }
+
+    .project-switch {
+      margin: 12px 16px 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .switch-opt {
+      min-height: 48px;
+      border-radius: 12px;
+      padding: 8px 6px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.72);
+      transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .switch-opt.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
+    }
+    .project-panel[hidden] { display: none; }
+    .specs-hub {
+      margin: 10px 16px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .specs-choice {
+      min-height: 40px;
+      border-radius: 12px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.78);
+      background: rgba(10, 25, 55, 0.45);
+      border: 1px solid rgba(80, 160, 255, 0.22);
+      transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .specs-choice svg { flex: none; width: 16px; height: 16px; }
+    .specs-choice.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      border-color: rgba(180, 160, 255, 0.45);
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
+    }
+    .specs-sub[hidden] { display: none; }
+    .project-panel .chat-card,
+    .project-panel .cal-card {
+      margin: 12px 16px 0;
+    }
+    .project-panel .cal-card { padding: 16px; }
+    .project-panel .cal-head strong { font-size: 15px; }
+    .project-panel .month-nav span { font-size: 14px; }
+    .project-panel .month-nav button { width: 28px; height: 28px; }
+    .project-panel .weekdays span { font-size: 11px; }
+    .project-panel .day {
+      height: 40px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .info-card {
+      margin: 12px 16px 0;
+      border-radius: 22px;
+      padding: 18px;
+      background: linear-gradient(160deg, rgba(30, 50, 110, 0.9), rgba(15, 25, 60, 0.95));
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      box-shadow: 0 0 35px rgba(80, 140, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .hero-art {
+      width: 110px;
+      height: 110px;
+      position: relative;
+      flex: none;
+    }
+    .hero-art .scene {
+      width: 110px;
+      height: 110px;
+      display: block;
+      overflow: visible;
+      filter: drop-shadow(0 0 12px rgba(140, 100, 255, 0.7));
+    }
+    .folder {
+      transform: skewY(-8deg);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .plus-badge {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      right: 2px;
+      bottom: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #aa6aff, #8a4aec);
+      border: 1px solid rgba(255, 220, 255, 0.7);
+      box-shadow: 0 0 14px rgba(160, 100, 255, 0.7);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      z-index: 2;
+    }
+
+    .fields {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pair {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .info-card { flex-wrap: wrap; }
+    .date-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .date-row input[type="date"] {
+      color-scheme: dark;
+    }
+    .field { flex: 1; min-width: 0; }
+    .field > span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+      white-space: nowrap;
+    }
+    .control {
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.6);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      position: relative;
+      display: flex;
+      align-items: center;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .control:focus-within {
+      border-color: rgba(120, 190, 255, 0.55);
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.28);
+    }
+    .control input {
+      height: 100%;
+      padding: 0 30px 0 10px;
+      font-size: 16px;
+      color: #ffffff;
+    }
+    .control.has-chev input { padding-left: 22px; }
+    .control .lead,
+    .control .chev {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .control .lead { right: 8px; }
+    .control .chev { left: 8px; }
+
+    .members-card {
+      margin: 12px 16px 0;
+      border-radius: 20px;
+      padding: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.88), rgba(12, 22, 55, 0.93));
+      border: 1px solid rgba(100, 180, 255, 0.28);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .members-head {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+    .members-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .members-title h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+    .members-title p {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+    .add-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.3);
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .add-btn:hover {
+      box-shadow: 0 0 18px rgba(80, 160, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .tabs {
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .tab {
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0 4px;
+      min-width: 0;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .tab span { white-space: nowrap; }
+    .tab svg { flex: none; }
+    .tab:hover { transform: translateY(-1px); }
+    .tab.managers {
+      flex: 1;
+      background: linear-gradient(135deg, #5a3aaa, #7a4acc);
+      border: 1px solid rgba(180, 160, 255, 0.5);
+      box-shadow: 0 0 14px rgba(140, 100, 255, 0.4);
+      color: #ffffff;
+    }
+    .tab.managers:hover { box-shadow: 0 0 20px rgba(140, 100, 255, 0.6); }
+    .tab.leads {
+      flex: 1;
+      background: linear-gradient(135deg, #4a2a8a, #6a3aaa);
+      border: 1px solid rgba(140, 120, 255, 0.4);
+      color: #e0d0ff;
+      box-shadow: 0 0 10px rgba(120, 80, 200, 0.25);
+    }
+    .tab.leads:hover { box-shadow: 0 0 16px rgba(140, 100, 220, 0.45); }
+    .tab.watch {
+      flex: 1;
+      background: linear-gradient(135deg, #1a5a8a, #2a7aaa);
+      border: 1px solid rgba(80, 200, 255, 0.4);
+      color: #c0f0ff;
+      box-shadow: 0 0 10px rgba(40, 160, 220, 0.25);
+    }
+    .tab.watch:hover { box-shadow: 0 0 16px rgba(80, 200, 255, 0.45); }
+    .tab.regular {
+      flex: 1.3;
+      background: linear-gradient(135deg, #1a6a6a, #2a8a8a);
+      border: 1px solid rgba(80, 220, 200, 0.4);
+      color: #a0ffe0;
+      box-shadow: 0 0 10px rgba(40, 180, 160, 0.25);
+    }
+    .tab.regular:hover { box-shadow: 0 0 16px rgba(80, 220, 200, 0.45); }
+
+    .sections {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sec-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .cols {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr) 78px 50px 14px;
+      gap: 4px;
+      align-items: center;
+    }
+    .col-head {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 0 8px;
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .col-head span { min-width: 0; }
+    .m-row {
+      height: 56px;
+      border-radius: 12px;
+      background: rgba(15, 35, 70, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.18);
+      padding: 8px 10px;
+      align-items: center;
+    }
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(100, 180, 255, 0.4);
+      background: linear-gradient(135deg, #1a3a6a, #0a1a3a);
+      flex: none;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+    .avatar svg { width: 36px; height: 36px; display: block; }
+    .name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.3;
+      min-width: 0;
+    }
+    .duty {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.35;
+      min-width: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .dur, .by {
+      font-size: 11px;
+      min-width: 0;
+      line-height: 1.3;
+    }
+    .dur {
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+    }
+    .dur span {
+      min-width: 0;
+      white-space: nowrap;
+    }
+    .by { color: rgba(255, 255, 255, 0.6); }
+    .row-more {
+      width: 14px;
+      height: 14px;
+      display: grid;
+      place-items: center;
+      color: rgba(255, 255, 255, 0.4);
+      justify-self: end;
+    }
+
+    .split {
+      margin: 12px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .member-search {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.28);
+      color: #ffffff;
+      font-size: 14px;
+    }
+    .member-search::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .member-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .member-pick {
+      width: 100%;
+      text-align: right;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .member-pick.on {
+      border-color: rgba(120, 220, 180, 0.7);
+      box-shadow: 0 0 12px rgba(80, 200, 160, 0.25);
+    }
+    .member-pick em { font-style: normal; color: rgba(255,255,255,0.55); font-size: 12px; }
+    .tool.recording {
+      box-shadow: 0 0 16px rgba(255, 80, 100, 0.7);
+      border-color: rgba(255, 120, 140, 0.8);
+    }
+    .voice-steps {
+      width: 100%;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(180, 220, 255, 0.9);
+    }
+    .cal-card {
+      width: 100%;
+      flex-shrink: 0;
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(160deg, rgba(20, 40, 90, 0.85), rgba(10, 20, 50, 0.9));
+      border: 1px solid rgba(100, 180, 255, 0.28);
+      box-shadow: 0 0 18px rgba(80, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .cal-head {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      color: #4ad4ff;
+    }
+    .cal-head strong {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .month-nav {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .month-nav span {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .month-nav button {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.28);
+    }
+    .cal-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: rgba(168, 212, 255, 0.9);
+    }
+    .cal-range {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .cal-range strong { display: block; font-size: 13px; margin-top: 2px; }
+    .weekdays, .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .weekdays { margin-bottom: 4px; }
+    .weekdays span {
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.45);
+      text-align: center;
+      line-height: 1;
+    }
+    .day {
+      height: 40px;
+      border-radius: 10px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: rgba(10, 25, 55, 0.35);
+      cursor: pointer;
+    }
+    .day.blank {
+      background: transparent;
+      pointer-events: none;
+      cursor: default;
+    }
+    .day.in-range {
+      background: rgba(120, 80, 255, 0.28);
+      color: #ffffff;
+    }
+    .day.on {
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(140, 100, 255, 0.5);
+    }
+    .day.today::after {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #4ad4ff;
+      bottom: 1px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 4px #4ad4ff;
+    }
+
+    .chat-card {
+      flex-grow: 1;
+      min-width: 0;
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.88), rgba(12, 22, 55, 0.93));
+      border: 1px solid rgba(100, 180, 255, 0.28);
+      box-shadow: 0 0 20px rgba(80, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .chat-head {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #4ad4ff;
+    }
+    .chat-head strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .msg {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .bot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a4aaa, #1a3a8a);
+      border: 2px solid rgba(100, 180, 255, 0.5);
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.4);
+      display: grid;
+      place-items: center;
+      flex: none;
+      color: #ffffff;
+    }
+    .bubble {
+      max-width: 85%;
+      border-radius: 16px 4px 16px 16px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, rgba(30, 50, 110, 0.9), rgba(15, 30, 70, 0.95));
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    .bubble p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.7;
+    }
+    .bubble time {
+      display: block;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 4px;
+    }
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .tool {
+      width: 54px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(25, 50, 90, 0.7), rgba(12, 30, 60, 0.8));
+      border: 1px solid rgba(80, 160, 255, 0.3);
+      box-shadow: 0 0 10px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #4ad4ff;
+      flex: none;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .tool span {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1;
+    }
+    .tool:hover {
+      box-shadow: 0 0 16px rgba(60, 140, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+    .send {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a3acc 0%, #8a5aec 50%, #aa7aff 100%);
+      border: 1px solid rgba(200, 180, 255, 0.6);
+      box-shadow: 0 0 20px rgba(140, 100, 255, 0.6);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      flex: none;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .send:hover {
+      box-shadow: 0 0 28px rgba(140, 100, 255, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .live-member {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .live-member em { color: rgba(255,255,255,0.55); font-style: normal; font-size: 11px; }
+    .member-note {
+      margin: 10px 4px 0;
+      font-size: 12px;
+      line-height: 1.7;
+      color: rgba(168, 212, 255, 0.9);
+    }
+    .submit {
+      position: sticky;
+      bottom: 12px;
+      z-index: 5;
+      margin: 14px 16px 0;
+      height: 56px;
+      width: calc(100% - 32px);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #2a5acc 0%, #5a3acc 40%, #8a3acc 70%, #aa5acc 100%);
+      border: 1px solid rgba(180, 160, 255, 0.5);
+      box-shadow:
+        0 0 35px rgba(120, 80, 255, 0.45),
+        0 4px 20px rgba(80, 40, 180, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .submit:hover {
+      box-shadow:
+        0 0 50px rgba(120, 80, 255, 0.7),
+        0 4px 20px rgba(80, 40, 180, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body data-page="new-project">
+  <main class="screen">
+    <header class="header">
+      <a class="back" href="admin-mobile.html" aria-label="بازگشت">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 4.5 L12 9 L7 13.5"/>
+        </svg>
+      </a>
+      <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#8a5aec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="6" width="16" height="16" rx="3"/>
+          <path d="M3.5 11.5h16"/>
+          <path d="M8.5 4v4M14.5 4v4"/>
+          <path d="M20 17.5h6M23 14.5v6"/>
+        </svg>
+        <div>
+          <h1>پروژه جدید</h1>
+          <p>تعریف و راه‌اندازی پروژه جدید</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <button class="bell" type="button" aria-label="اعلان‌ها">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9a6 6 0 1 1 12 0c0 7 2 7 2 9H4c0-2 2-2 2-9"/>
+            <path d="M10 20a2 2 0 0 0 4 0"/>
+          </svg>
+          <span class="badge">3</span>
+        </button>
+        <button class="dots-btn" type="button" aria-label="بیشتر">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="#ffffff">
+            <circle cx="10" cy="4.5" r="1.5"/>
+            <circle cx="10" cy="10" r="1.5"/>
+            <circle cx="10" cy="15.5" r="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="project-switch" role="tablist" aria-label="بخش‌های پروژه">
+      <button class="switch-opt on" id="tab-specs" type="button" role="tab" aria-selected="true" aria-controls="panel-specs" data-panel="specs">مشخصات پروژه</button>
+      <button class="switch-opt" id="tab-members" type="button" role="tab" aria-selected="false" aria-controls="panel-members" data-panel="members">اعضای سامانه</button>
+      <button class="switch-opt" id="tab-calendar" type="button" role="tab" aria-selected="false" aria-controls="panel-calendar" data-panel="calendar">تقویم پروژه</button>
+    </nav>
+
+    <div class="project-panel" id="panel-specs" data-panel="specs" role="tabpanel" aria-labelledby="tab-specs">
+    <nav class="specs-hub" role="tablist" aria-label="بخش‌های مشخصات پروژه">
+      <button class="specs-choice" id="tab-spec-fields" type="button" role="tab" aria-selected="false" aria-controls="panel-spec-fields" data-spec="fields">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3.2" y="4" width="15.6" height="14" rx="2.2"/>
+          <path d="M7 8.2h8M7 11.2h8M7 14.2h5"/>
+        </svg>
+        خود مشخصات
+      </button>
+      <button class="specs-choice" id="tab-spec-chat" type="button" role="tab" aria-selected="false" aria-controls="panel-spec-chat" data-spec="chat">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4.2 5h13.6A1.6 1.6 0 0 1 19.4 6.6v8.2a1.6 1.6 0 0 1-1.6 1.6H9.4L4.2 20V6.6A1.6 1.6 0 0 1 5.8 5z"/>
+        </svg>
+        گفتگو و توضیحات
+      </button>
+    </nav>
+    <div class="specs-sub" id="panel-spec-fields" data-spec="fields" role="tabpanel" aria-labelledby="tab-spec-fields" hidden>
+    <section class="info-card">
+      <div class="hero-art" aria-hidden="true">
+        <svg class="scene" viewBox="0 0 110 110">
+          <defs>
+            <linearGradient id="ped" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a4a9a"/>
+              <stop offset="100%" stop-color="#0a2050"/>
+            </linearGradient>
+            <linearGradient id="fb" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3a2a8a"/>
+              <stop offset="100%" stop-color="#1a1a5a"/>
+            </linearGradient>
+            <linearGradient id="fm" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#5a3aaa"/>
+              <stop offset="100%" stop-color="#3a2a8a"/>
+            </linearGradient>
+            <linearGradient id="ff" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7a4acc"/>
+              <stop offset="100%" stop-color="#5a3aaa"/>
+            </linearGradient>
+            <filter id="b4" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4"/>
+            </filter>
+            <filter id="b2" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2"/>
+            </filter>
+          </defs>
+          <ellipse cx="55" cy="96" rx="42.5" ry="10" fill="none" stroke="rgba(140,120,255,0.5)" stroke-width="2" filter="url(#b4)"/>
+          <ellipse cx="55" cy="98" rx="40" ry="8" fill="url(#ped)" stroke="rgba(100,180,255,0.4)" stroke-width="1"/>
+          <rect class="folder" x="18" y="8" width="60" height="65" rx="8" fill="url(#fb)" stroke="rgba(140,120,255,0.5)" stroke-width="1"/>
+          <rect class="folder" x="28" y="16" width="55" height="60" rx="8" fill="url(#fm)" stroke="rgba(180,160,255,0.6)" stroke-width="1"/>
+          <rect class="folder" x="38" y="24" width="50" height="55" rx="8" fill="url(#ff)" stroke="rgba(200,180,255,0.7)" stroke-width="1"/>
+          <ellipse cx="48" cy="34" rx="15" ry="5" fill="#ffffff" opacity="0.15" filter="url(#b2)"/>
+        </svg>
+        <div class="plus-badge">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+            <path d="M7 2.2v9.6M2.2 7h9.6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="fields">
+        <div class="pair">
+          <label class="field">
+            <span>نام پروژه *</span>
+            <div class="control">
+              <span class="lead">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8.2 2.2l3.6 3.6L5 12.6H1.4V9z"/>
+                  <path d="M7 3.4l3.6 3.6"/>
+                </svg>
+              </span>
+              <input id="project-name" type="text" maxlength="200" placeholder="نام پروژه را وارد کنید..." aria-label="نام پروژه">
+            </div>
+          </label>
+          <label class="field">
+            <span>هدف پروژه *</span>
+            <div class="control">
+              <span class="lead">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.3">
+                  <circle cx="7" cy="7" r="5.2"/>
+                  <circle cx="7" cy="7" r="2.4"/>
+                  <circle cx="7" cy="7" r="0.7" fill="rgba(255,255,255,0.4)" stroke="none"/>
+                </svg>
+              </span>
+              <input id="project-desc" type="text" placeholder="هدف پروژه را توضیح دهید..." aria-label="هدف پروژه">
+            </div>
+          </label>
+        </div>
+        <div class="date-row">
+          <label class="field">
+            <span>زمان آغاز *</span>
+            <div class="control">
+              <input id="project-start" type="date" aria-label="زمان آغاز" required>
+            </div>
+          </label>
+          <label class="field">
+            <span>زمان پایان *</span>
+            <div class="control">
+              <input id="project-end" type="date" aria-label="زمان پایان" required>
+            </div>
+          </label>
+        </div>
+        <input id="project-type" type="hidden" value="اجرایی">
+        <input id="project-status" type="hidden" value="در انتظار شروع">
+      </div>
+    </section>
+    </div>
+
+    <div class="specs-sub" id="panel-spec-chat" data-spec="chat" role="tabpanel" aria-labelledby="tab-spec-chat" hidden>
+    <section class="chat-card">
+      <div class="chat-head">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4.5h12a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 16 14.5H8.5L4.5 17.5V6A1.5 1.5 0 0 1 6 4.5z"/>
+        </svg>
+        <strong>گفتگو و توضیحات</strong>
+      </div>
+      <div class="msg">
+        <div class="bot" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="6.5" width="12" height="9" rx="2.5"/>
+            <circle cx="8" cy="10.5" r="1" fill="#ffffff" stroke="none"/>
+            <circle cx="12" cy="10.5" r="1" fill="#ffffff" stroke="none"/>
+            <path d="M10 3.2v3.3"/>
+            <circle cx="10" cy="2.8" r="1" fill="#ffffff" stroke="none"/>
+            <path d="M7.2 15.5v1.6M12.8 15.5v1.6"/>
+          </svg>
+        </div>
+        <div class="bubble">
+          <p>هرگونه توضیح، راهنمایی یا سوال درباره پروژه را اینجا بنویسید...</p>
+          <time>09:41</time>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="tool" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2.5h6l4 4V16a1.5 1.5 0 0 1-1.5 1.5h-8.5A1.5 1.5 0 0 1 4.5 16V4A1.5 1.5 0 0 1 6 2.5z"/>
+            <path d="M12 2.5V6.5h4"/>
+            <path d="M7.5 11h5M7.5 14h5"/>
+          </svg>
+          <span>متن</span>
+        </button>
+        <button class="tool" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 3h5l3.5 3.5V15a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 15V4.5A1.5 1.5 0 0 1 7 3z"/>
+            <path d="M12 3v3.5h3.5"/>
+            <path d="M4 7.5H3.2A1.2 1.2 0 0 0 2 8.7v7.1A1.2 1.2 0 0 0 3.2 17H12"/>
+          </svg>
+          <span>فایل</span>
+        </button>
+        <button class="tool" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="4" width="15" height="12" rx="2"/>
+            <circle cx="7" cy="8" r="1.4"/>
+            <path d="M2.5 14l4.2-3.4 2.6 2.2 2.4-1.8 5.8 4"/>
+          </svg>
+          <span>عکس</span>
+        </button>
+        <button class="tool" type="button">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="5" width="10" height="10" rx="2"/>
+            <path d="M12.5 8.5 L17.5 6 V14 L12.5 11.5 Z"/>
+          </svg>
+          <span>ویدیو</span>
+        </button>
+        <button class="tool" id="project-voice" type="button" aria-label="ضبط صدا">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="7.5" y="2.5" width="5" height="9" rx="2.5"/>
+            <path d="M5 9.5a5 5 0 0 0 10 0"/>
+            <path d="M10 14.5V17.5M7.5 17.5h5"/>
+          </svg>
+          <span>صدا</span>
+        </button>
+        <button class="send" id="project-send" type="button" aria-label="ارسال">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="#ffffff">
+            <path d="M2.2 8.6 L16.2 2.2 L10.2 16.2 L8.4 10.2 Z"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+    </div>
+    </div>
+
+    <div class="project-panel" id="panel-members" data-panel="members" role="tabpanel" aria-labelledby="tab-members" hidden>
+    <section class="members-card">
+      <div class="members-head">
+        <div class="members-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="8" r="3"/>
+            <circle cx="16.5" cy="9" r="2.3"/>
+            <path d="M3.5 19c.7-3 3-4.8 5.5-4.8S14 16 14.6 19"/>
+            <path d="M14 15.2c1.5-.4 3.2.1 4.3 1.5.7.9 1.1 2 1.3 2.3"/>
+          </svg>
+          <div>
+            <h2>اعضا و نقش‌ها</h2>
+            <p>اعضا را بر اساس نقش مشخص کنید.</p>
+          </div>
+        </div>
+        <button class="add-btn" id="project-add-member" type="button">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round">
+            <path d="M7 2.2v9.6M2.2 7h9.6"/>
+          </svg>
+          افزودن عضو
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round">
+            <circle cx="7" cy="4.6" r="2"/>
+            <path d="M2.8 12c.5-2.2 2-3.4 4.2-3.4s3.7 1.2 4.2 3.4"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="member-note">سازنده بعد از ثبت، مدیر همین پروژه می‌شود. با افزودن عضو، نام‌ها را انتخاب کنید.</p>
+      <input class="member-search" id="project-member-search" type="search" placeholder="جستجو در اعضا..." aria-label="جستجو در اعضا">
+      <div id="project-member-picker" class="member-picker" hidden></div>
+      <div id="project-member-list"></div>
+    </section>
+    </div>
+
+    <div class="project-panel" id="panel-calendar" data-panel="calendar" role="tabpanel" aria-labelledby="tab-calendar" hidden>
+      <aside class="cal-card">
+        <div class="cal-head">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4ad4ff" stroke-width="1.5" stroke-linecap="round">
+            <rect x="2" y="3" width="12" height="11" rx="2"/>
+            <path d="M2 6.5h12M5 1.8v2.4M11 1.8v2.4"/>
+          </svg>
+          <strong>تقویم پروژه</strong>
+        </div>
+        <div class="month-nav">
+          <button type="button" aria-label="ماه قبل">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 2.5 L8 6 L4.5 9.5"/>
+            </svg>
+          </button>
+          <span>مهر ۱۴۰۴</span>
+          <button type="button" aria-label="ماه بعد">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7.5 2.5 L4 6 L7.5 9.5"/>
+            </svg>
+          </button>
+        </div>
+        <div class="weekdays">
+          <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
+        </div>
+        <div class="days">
+          <span class="day"></span><span class="day"></span><span class="day"></span>
+          <span class="day">۱</span><span class="day">۲</span><span class="day">۳</span><span class="day">۴</span>
+          <span class="day">۵</span><span class="day">۶</span><span class="day">۷</span><span class="day">۸</span><span class="day">۹</span><span class="day">۱۰</span><span class="day">۱۱</span>
+          <span class="day">۱۲</span><span class="day">۱۳</span><span class="day">۱۴</span><span class="day on">۱۵</span><span class="day">۱۶</span><span class="day">۱۷</span><span class="day today">۱۸</span>
+          <span class="day">۱۹</span><span class="day">۲۰</span><span class="day">۲۱</span><span class="day">۲۲</span><span class="day">۲۳</span><span class="day">۲۴</span><span class="day">۲۵</span>
+          <span class="day">۲۶</span><span class="day">۲۷</span><span class="day">۲۸</span><span class="day">۲۹</span><span class="day">۳۰</span><span class="day"></span><span class="day"></span>
+        </div>
+      </aside>
+    </div>
+
+    <button class="submit" id="project-submit" type="button">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.5 10.5 L8.2 14.2 L15.8 6"/>
+      </svg>
+      ایجاد پروژه
+    </button>
+  </main>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".project-switch .switch-opt");
+      var panels = document.querySelectorAll(".project-panel");
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var name = button.getAttribute("data-panel");
+          buttons.forEach(function (item) {
+            var on = item === button;
+            item.classList.toggle("on", on);
+            item.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          panels.forEach(function (panel) {
+            panel.hidden = panel.getAttribute("data-panel") !== name;
+          });
+        });
+      });
+      var specButtons = document.querySelectorAll(".specs-hub .specs-choice");
+      var specPanels = document.querySelectorAll(".specs-sub");
+      specButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var name = button.getAttribute("data-spec");
+          specButtons.forEach(function (item) {
+            var on = item === button;
+            item.classList.toggle("on", on);
+            item.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          specPanels.forEach(function (panel) {
+            panel.hidden = panel.getAttribute("data-spec") !== name;
+          });
+        });
+      });
+    })();
+  </script>
+
+<script>
+window.addEventListener("load", function () {
+  var buttons = document.querySelectorAll(".specs-choice");
+  var first = buttons[0].getBoundingClientRect();
+  buttons[1].click();
+  var chat = document.getElementById("panel-spec-chat");
+  var fields = document.getElementById("panel-spec-fields");
+  document.title = "h=" + Math.round(first.height) + " w=" + Math.round(first.width) + " chatHidden=" + chat.hidden + " fieldsHidden=" + fields.hidden + " on=" + buttons[1].classList.contains("on");
+});
+</script>
+</body>
+</html>
