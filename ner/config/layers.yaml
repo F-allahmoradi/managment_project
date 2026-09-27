@@ -1,0 +1,47 @@
+# لایه‌های استخراج متن پروژه. هر لایه جدول هدف جدا دارد. INSERT نیست.
+# ژانر و نیت و بیان سه درخواست مدل جدا هستند تا با هم و با احساس قاطی نشوند.
+
+span:
+  enabled: true
+  tables:
+    - entity_mentions
+    - entities
+  also:
+    - keywords
+  notes: موجودیت نام‌دار از جمله OBJECT؛ کلمهٔ کلیدی عبارت آزاد است نه نوع موجودیت.
+
+topic:
+  enabled: true
+  tables:
+    - text_analysis_topics
+  catalog: topics.yaml
+  notes: فقط برگ درخت ذخیره می‌شود؛ مسیر والد برای نمایش از کد نقطه‌ای ساخته می‌شود.
+
+stance:
+  enabled: true
+  tables:
+    - text_analysis_sentiments
+    - text_analysis_emotions
+  catalog: stance.yaml
+  notes: یک قطبیت برای کل متن؛ هیجان جدا و چندتایی است.
+
+discourse:
+  enabled: true
+  tables:
+    - text_analysis_discourses
+  catalog: discourse.yaml
+  notes: ژانر / نوع پیام؛ یک اصلی. اگر قالب موجود نخورد نوع نو کشف می‌شود.
+
+intent:
+  enabled: true
+  tables:
+    - text_analysis_intents
+  catalog: intents.yaml
+  notes: غرض مسیر رسیدگی؛ تکرار سؤال/پیشنهاد/هشدار نیست.
+
+rhetoric:
+  enabled: true
+  tables:
+    - text_analysis_rhetorics
+  catalog: rhetoric.yaml
+  notes: صنعت بیان است نه نیت و نه ژانر؛ معنای مقصود برای لایه‌های دیگر.

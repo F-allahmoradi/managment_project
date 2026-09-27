@@ -1,0 +1,115 @@
+.dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: var(--dock-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 8px 40px;
+  background: linear-gradient(180deg, rgba(5, 13, 26, 0.9), rgba(2, 8, 24, 0.95));
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-top: 1px solid rgba(0, 180, 255, 0.15);
+  box-shadow: 0 -4px 30px rgba(0, 100, 200, 0.1);
+}
+
+.dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 24px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.dock-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-4px);
+}
+
+.dock-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.dock-ico svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dock-item:hover .dock-ico {
+  background: linear-gradient(135deg, rgba(0, 180, 255, 0.2), rgba(191, 0, 255, 0.2));
+  border-color: rgba(0, 180, 255, 0.5);
+  box-shadow: 0 0 30px rgba(0, 180, 255, 0.3);
+  color: #00b4ff;
+}
+
+.dock-item strong {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s ease;
+}
+
+.dock-item:hover strong {
+  color: #ffffff;
+}
+
+.dock-item em {
+  font-style: normal;
+  font-size: 10px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .dock {
+    height: auto;
+    min-height: var(--dock-h);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+    padding: 10px 24px 16px;
+  }
+
+  .dock-item {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 4px;
+    gap: 3px;
+  }
+
+  .dock-ico {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dock-item strong {
+    font-size: 11px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dock-item em {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

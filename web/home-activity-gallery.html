@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=420, height=900">
+  <title>۴ از ۵ — Ostad Alireza idpour</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 30%, #1a1040 0%, #0a0620 40%, #030210 100%);
+      font-family: "Vazirmatn", sans-serif;
+      font-weight: 400;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+    body { display: flex; justify-content: center; align-items: flex-start; }
+    button, input, a { font-family: inherit; }
+    button { background: none; border: none; color: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+    input { border: none; outline: none; background: none; color: #fff; }
+    input::placeholder { color: rgba(255,255,255,0.4); }
+    ::-webkit-scrollbar { width: 0; height: 0; }
+    * { scrollbar-width: none; }
+
+    .stage {
+      width: 420px;
+      height: 900px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .a-status {
+      height: 28px;
+      flex: none;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      background: transparent;
+    }
+    .a-status time {
+      font-size: 13px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+    .a-icons {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 5px;
+      direction: ltr;
+      color: #fff;
+    }
+    .a-icons svg { display: block; }
+    .batt-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      margin-inline-start: 1px;
+    }
+    .net-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .g-bar {
+      height: 56px;
+      flex: none;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px;
+      background: rgba(0,0,0,0.4);
+    }
+    .g-back, .g-tool {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
+    .g-title { text-align: center; min-width: 0; }
+    .g-title strong {
+      display: block;
+      direction: ltr;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+    .g-title span {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+    }
+    .g-tools { display: flex; align-items: center; gap: 14px; }
+
+    .counter {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      pointer-events: none;
+    }
+
+    .phone-slot {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 20px;
+    }
+    .phone {
+      width: 360px;
+      height: 720px;
+      border-radius: 40px;
+      background: linear-gradient(160deg, #0a1530 0%, #050a1a 100%);
+      border: 2px solid rgba(120,160,255,0.4);
+      box-shadow:
+        0 0 60px rgba(80,120,255,0.35),
+        0 0 120px rgba(60,80,200,0.2),
+        inset 0 0 30px rgba(80,140,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .phone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 22%);
+      pointer-events: none;
+      z-index: 4;
+    }
+    .island {
+      width: 90px;
+      height: 24px;
+      background: #000;
+      border-radius: 14px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+    }
+
+    .m-status {
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      direction: ltr;
+      position: relative;
+      z-index: 3;
+    }
+    .m-status time {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .m-icons { display: flex; align-items: center; gap: 5px; }
+
+    .app-scroll {
+      height: calc(720px - 40px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 2;
+      padding-bottom: 28px;
+    }
+
+    .app-header {
+      height: 70px;
+      padding: 0 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a6a, #0a1a3a);
+      border: 2px solid rgba(100,180,255,0.4);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .who-text { text-align: right; }
+    .who-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+    .role {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-top: 2px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+    }
+    .app-title { text-align: center; min-width: 0; flex: 1; }
+    .app-title h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .app-title p {
+      margin-top: 2px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: none;
+    }
+    .hex {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 0 8px #4aa8ff);
+    }
+    .bell {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+    }
+    .badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ff2d55;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+
+    .primary {
+      padding: 0 14px;
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .cta {
+      flex: 1;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      gap: 6px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .cta span { white-space: nowrap; }
+    .cta-meet {
+      background: linear-gradient(135deg, #0a4a4a 0%, #1a8a7a 50%, #2aaa9a 100%);
+      border: 1px solid rgba(100,240,220,0.5);
+      box-shadow: 0 0 18px rgba(80,220,200,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .cta-proj {
+      background: linear-gradient(135deg, #3a1a6a 0%, #5a2a9a 50%, #7a3aaa 100%);
+      border: 1px solid rgba(160,120,255,0.5);
+      box-shadow: 0 0 18px rgba(140,100,255,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .cta:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .cta-meet:hover { box-shadow: 0 0 24px rgba(80,220,200,0.55), inset 0 1px 0 rgba(255,255,255,0.2); }
+    .cta-proj:hover { box-shadow: 0 0 24px rgba(140,100,255,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
+
+    .activities {
+      margin: 0 14px;
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(160deg, rgba(20,40,80,0.85), rgba(10,20,50,0.9));
+      border: 1px solid rgba(100,180,255,0.3);
+      box-shadow: 0 0 25px rgba(80,160,255,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .sec-head {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .sec-title svg { filter: drop-shadow(0 0 6px rgba(74,212,255,0.7)); }
+    .tabs {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tab, .filter-ico {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tab {
+      border-radius: 20px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab.on {
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #5a3aaa, #7a4acc);
+      border: 1px solid rgba(180,160,255,0.5);
+      font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(120,100,255,0.4);
+    }
+    .tab.off {
+      padding: 6px 12px;
+      background: rgba(20,40,80,0.5);
+      border: 1px solid rgba(80,160,255,0.25);
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+    }
+    .tab:hover { transform: translateY(-1px); }
+    .tab.on:hover { box-shadow: 0 0 14px rgba(120,100,255,0.55); }
+    .filter-ico {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
+    .list { display: flex; flex-direction: column; gap: 8px; }
+    .item {
+      height: 62px;
+      border-radius: 12px;
+      background: rgba(15,35,70,0.6);
+      border: 1px solid rgba(80,160,255,0.2);
+      padding: 8px 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(12px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(80,160,255,0.28);
+    }
+    .item[hidden] { display: none; }
+    .item-ico { flex: none; display: grid; place-items: center; }
+    .item-text { flex: 1 1 auto; min-width: 0; }
+    .item-text strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+    }
+    .item-time {
+      display: block;
+      font-size: 9px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.2;
+    }
+    .item-sub {
+      display: block;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tag {
+      flex: none;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tag-meet {
+      background: linear-gradient(135deg, #5a3aaa, #7a4acc);
+      border: 1px solid rgba(160,140,255,0.5);
+      color: #e0d0ff;
+    }
+    .tag-proj {
+      background: linear-gradient(135deg, #1a6a4a, #2a8a5a);
+      border: 1px solid rgba(80,220,140,0.5);
+      color: #a0ffc0;
+    }
+    .tag-mem {
+      background: linear-gradient(135deg, #1a4a7a, #2a6aaa);
+      border: 1px solid rgba(80,160,255,0.5);
+      color: #a0d0ff;
+    }
+    .chev { flex: none; display: grid; place-items: center; }
+
+    .chat {
+      margin: 14px;
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(160deg, rgba(25,50,110,0.9), rgba(12,25,60,0.95));
+      border: 1px solid rgba(100,180,255,0.35);
+      box-shadow: 0 0 30px rgba(80,160,255,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chat:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 39px rgba(80,160,255,0.33), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .chat-head {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chat-id { display: flex; align-items: center; gap: 8px; }
+    .bot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a5aaa, #1a3a7a);
+      border: 1px solid rgba(100,180,255,0.5);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 10px rgba(74,168,255,0.45);
+      flex: none;
+    }
+    .chat-id h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+    .chat-id p {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+    .expand { width: 18px; height: 18px; display: grid; place-items: center; }
+
+    .thread { display: flex; flex-direction: column; }
+    .bubble {
+      max-width: 85%;
+      align-self: flex-start;
+      border-radius: 14px 4px 14px 14px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, rgba(30,60,120,0.95), rgba(15,35,70,0.98));
+      border: 1px solid rgba(100,180,255,0.35);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .bot-sm {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a5aaa, #1a3a7a);
+      border: 1px solid rgba(100,180,255,0.5);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .sender {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #4ad4ff;
+      margin-bottom: 4px;
+    }
+    .bubble .msg {
+      font-size: 12px;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.7;
+    }
+
+    .composer {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+    .plus, .send {
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .plus {
+      width: 36px;
+      height: 36px;
+      background: rgba(30,60,110,0.7);
+      border: 1px solid rgba(100,180,255,0.4);
+    }
+    .plus:hover, .ico-btn:hover { transform: translateY(-1px); }
+    .ico-btn {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      transition: transform 0.2s ease;
+    }
+    .field {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 38px;
+      border-radius: 19px;
+      background: rgba(10,25,55,0.6);
+      border: 1px solid rgba(80,160,255,0.25);
+      padding: 0 14px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .field::placeholder { color: rgba(255,255,255,0.4); font-size: 12px; }
+    .send {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      border: 1px solid rgba(200,180,255,0.5);
+      box-shadow: 0 0 14px rgba(140,100,255,0.5);
+    }
+    .send:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(140,100,255,0.65);
+    }
+
+    .a-nav {
+      height: 48px;
+      flex: none;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+    }
+    .a-nav span { display: grid; place-items: center; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="a-status">
+      <time>14:24</time>
+      <div class="a-icons" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="3" fill="#fff"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+          <path d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 1.74.46 3.38 1.26 4.8L2 22l5.55-1.45a10 10 0 0 0 4.49 1.08h.01c5.46 0 9.89-4.4 9.89-9.83C21.94 6.4 17.5 2 12.04 2zm5.76 13.92c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.12-1.81-.11-.41-.14-.95-.31-1.63-.61-2.87-1.24-4.74-4.13-4.88-4.32-.14-.19-1.16-1.54-1.16-2.94s.73-2.08 1-2.37c.24-.27.64-.39.86-.39.1 0 .2 0 .29.01.24.01.36-.06.56.43.21.52.72 1.8.78 1.93.06.13.1.28.02.45-.08.17-.12.28-.24.43-.12.15-.25.33-.36.44-.12.12-.24.25-.1.48.14.24.62 1.02 1.33 1.66.92.82 1.69 1.07 1.93 1.19.24.12.38.1.52-.06.14-.17.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.4.66 1.64.78.24.12.4.18.46.28.06.1.06.58-.18 1.26z"/>
+        </svg>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5.2" stroke="#fff" stroke-width="1.3"/>
+          <path d="M7 6.2V10" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="7" cy="4.5" r="0.7" fill="#fff"/>
+        </svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M6.2 9.1a5.8 5.8 0 0 1 11.4-1.6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M18 9.2c0 4.2 1.3 5.6 1.5 6H8.2" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 17.4a2.2 2.2 0 0 0 4 0" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M4 4.5 20 19.5" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="net-label">4G</span>
+        <svg width="14" height="14" viewBox="0 0 16 14" fill="#fff">
+          <rect x="0.5" y="9" width="2.4" height="4.2" rx="0.4"/>
+          <rect x="4.3" y="6.4" width="2.4" height="6.8" rx="0.4"/>
+          <rect x="8.1" y="3.6" width="2.4" height="9.6" rx="0.4"/>
+          <rect x="11.9" y="0.8" width="2.4" height="12.4" rx="0.4"/>
+        </svg>
+        <svg width="14" height="14" viewBox="0 0 16 12" fill="none">
+          <path d="M1.2 4.4C3.6 2 12.4 2 14.8 4.4" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M3.4 6.7C5 5.2 11 5.2 12.6 6.7" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M5.6 8.9C6.5 8.1 9.5 8.1 10.4 8.9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="8" cy="10.7" r="1" fill="#fff"/>
+        </svg>
+        <svg width="18" height="12" viewBox="0 0 22 12">
+          <rect x="0.6" y="1" width="16" height="10" rx="2" stroke="#fff" stroke-width="1.1" fill="none"/>
+          <rect x="2" y="2.4" width="11.2" height="7.2" rx="1" fill="#fff"/>
+          <path d="M12.2 4.2h1.6L11.6 8.6H10l1.6-3.2H10.2L12.2 4.2z" fill="#0a0620"/>
+          <path d="M18 3.6h1.3c.5 0 .9.4.9.9v2.9c0 .5-.4.9-.9.9H18V3.6z" fill="#fff" fill-opacity="0.7"/>
+        </svg>
+        <span class="batt-num">94</span>
+      </div>
+    </div>
+
+    <header class="g-bar">
+      <button class="g-back" type="button" aria-label="بازگشت">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M9 6.5 15.5 12 9 17.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="g-title">
+        <strong>Ostad Alireza idpour</strong>
+        <span>دیروز در 15:31</span>
+      </div>
+      <div class="g-tools">
+        <button class="g-tool" type="button" aria-label="ویرایش">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 16.8V20h3.2L18.2 9 15 5.8 4 16.8z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="m13.6 7.2 3.2 3.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="g-tool" type="button" aria-label="اشتراک">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 4.2v10.2" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M8.2 7.6 12 3.8l3.8 3.8" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 12.2v6.2A1.6 1.6 0 0 0 7.6 20h8.8a1.6 1.6 0 0 0 1.6-1.6v-6.2" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="g-tool" type="button" aria-label="بیشتر">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
+            <circle cx="6" cy="12" r="1.5"/>
+            <circle cx="12" cy="12" r="1.5"/>
+            <circle cx="18" cy="12" r="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="counter">۴ از ۵</div>
+
+    <div class="phone-slot">
+      <div class="phone">
+        <div class="island"></div>
+        <div class="m-status">
+          <time>9:41</time>
+          <div class="m-icons" aria-hidden="true">
+            <svg width="15" height="12" viewBox="0 0 16 12" fill="#fff">
+              <rect x="0.4" y="7.2" width="2.5" height="4" rx="0.4" fill-opacity="0.45"/>
+              <rect x="4.2" y="5" width="2.5" height="6.2" rx="0.4" fill-opacity="0.7"/>
+              <rect x="8" y="2.6" width="2.5" height="8.6" rx="0.4"/>
+              <rect x="11.8" y="0.6" width="2.5" height="10.6" rx="0.4"/>
+            </svg>
+            <svg width="14" height="12" viewBox="0 0 16 12" fill="none">
+              <path d="M1.2 4.4C3.6 2 12.4 2 14.8 4.4" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M3.4 6.7C5 5.2 11 5.2 12.6 6.7" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="8" cy="9.6" r="1.05" fill="#fff"/>
+            </svg>
+            <svg width="22" height="12" viewBox="0 0 25 12">
+              <rect x="0.6" y="0.6" width="20.2" height="10.8" rx="2.4" stroke="#fff" stroke-opacity="0.45" fill="none" stroke-width="1"/>
+              <rect x="2" y="2" width="15.2" height="8" rx="1.2" fill="#fff"/>
+              <path d="M22.2 4.1h1.1c.5 0 .9.4.9.9v1.9c0 .5-.4.9-.9.9h-1.1V4.1z" fill="#fff" fill-opacity="0.55"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="app-scroll">
+          <header class="app-header">
+            <div class="who">
+              <div class="avatar" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.15"/>
+                  <path d="M5.2 19.2c1.35-3.15 3.7-4.55 6.8-4.55s5.45 1.4 6.8 4.55"/>
+                </svg>
+              </div>
+              <div class="who-text">
+                <strong>علی احمدی</strong>
+                <div class="role">
+                  <span>مدیر سازمان</span>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M6.4 1.8 3.2 5l3.2 3.2" stroke="rgba(255,255,255,0.55)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="app-title">
+              <h1>سامانه ثبت وقایع</h1>
+              <p>گزارش‌ها، تحلیل‌ها، تصمیم‌های بهتر</p>
+            </div>
+            <div class="tools">
+              <div class="hex" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 36 36" fill="none" stroke="#4aa8ff" stroke-width="1.35" stroke-linejoin="round">
+                  <polygon points="18,2.2 32.2,10.4 32.2,25.6 18,33.8 3.8,25.6 3.8,10.4"/>
+                  <polygon points="18,9.2 26.6,14.2 26.6,23.2 18,28.2 9.4,23.2 9.4,14.2"/>
+                  <path d="M18 2.2V9.2M32.2 10.4 26.6 14.2M32.2 25.6 26.6 23.2M18 33.8V28.2M3.8 25.6 9.4 23.2M3.8 10.4 9.4 14.2"/>
+                  <circle cx="18" cy="18.6" r="1.7" fill="#4aa8ff" stroke="none"/>
+                </svg>
+              </div>
+              <div class="bell" aria-label="۳ اعلان">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round">
+                  <path d="M6.2 9.2a5.8 5.8 0 1 1 11.6 0c0 4.6 1.5 6.2 1.7 6.6H4.5c.2-.4 1.7-2 1.7-6.6z"/>
+                  <path d="M9.6 17.6a2.4 2.4 0 0 0 4.8 0" stroke-linecap="round"/>
+                </svg>
+                <span class="badge">3</span>
+              </div>
+            </div>
+          </header>
+
+          <div class="primary">
+            <a class="cta cta-meet" href="new-meeting.html">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.4" y="5.2" width="17.2" height="15" rx="2.2" stroke="#fff" stroke-width="1.7"/>
+                <path d="M3.4 9.6h17.2M8 3.4v3.2M16 3.4v3.2" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+              <span>جلسه جدید</span>
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M8.8 3.1 5 7l3.8 3.9" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a class="cta cta-proj" href="new-project-mobile.html">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3.2 8.1c0-1.1.9-2 2-2h3.4l1.7 1.8h8.5c1.1 0 2 .9 2 2v7.3c0 1.1-.9 2-2 2H5.2c-1.1 0-2-.9-2-2V8.1z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+              <span>پروژه جدید</span>
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M8.8 3.1 5 7l3.8 3.9" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+
+          <section class="activities">
+            <div class="sec-head">
+              <div class="sec-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8" stroke="#4ad4ff" stroke-width="1.7"/>
+                  <path d="M12 7.5V12l3 2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                آخرین فعالیت‌ها
+              </div>
+            </div>
+            <div class="tabs" role="tablist">
+              <span class="filter-ico" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 7h16M7 12h10M10 17h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <button class="tab on" type="button" data-filter="all" role="tab" aria-selected="true">همه</button>
+              <button class="tab off" type="button" data-filter="project" role="tab">پروژه‌ها</button>
+              <button class="tab off" type="button" data-filter="meeting" role="tab">جلسات</button>
+              <button class="tab off" type="button" data-filter="members" role="tab">اعضا و گروه‌ها</button>
+            </div>
+
+            <div class="list">
+              <a class="item" data-kind="meeting" href="meeting-details.html">
+                <span class="item-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="rgba(140,200,255,0.6)" stroke-width="1.6"/>
+                    <path d="M12 8v4.2l2.6 1.6" stroke="rgba(140,200,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="item-text">
+                  <strong>جلسه هماهنگی معاونت‌ها</strong>
+                  <span class="item-time">امروز ۰۹:۳۷</span>
+                  <span class="item-sub">خلاصه مصوبات جلسه و اقدامات لازم...</span>
+                </span>
+                <span class="tag tag-meet">جلسه</span>
+                <span class="chev">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M6.4 1.6 3 5l3.4 3.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+
+              <a class="item" data-kind="project" href="project-details.html">
+                <span class="item-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="rgba(140,200,255,0.6)" stroke-width="1.6"/>
+                    <path d="M12 8v4.2l2.6 1.6" stroke="rgba(140,200,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="item-text">
+                  <strong>پروژه توسعه ظرفیت‌های اجتماعی</strong>
+                  <span class="item-time">امروز ۱۰:۴۲</span>
+                  <span class="item-sub">بررسی پیشرفت فاز دوم پروژه و بازنگری تکمیلی...</span>
+                </span>
+                <span class="tag tag-proj">پروژه</span>
+                <span class="chev">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M6.4 1.6 3 5l3.4 3.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+
+              <a class="item" data-kind="meeting" href="meeting-details.html">
+                <span class="item-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="rgba(140,200,255,0.6)" stroke-width="1.6"/>
+                    <path d="M12 8v4.2l2.6 1.6" stroke="rgba(140,200,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="item-text">
+                  <strong>جلسه هفته آینده</strong>
+                  <span class="item-time">دیروز ۱۶:۵</span>
+                  <span class="item-sub">برنامه‌ریزی و هماهنگی‌های لازم...</span>
+                </span>
+                <span class="tag tag-meet">جلسه</span>
+                <span class="chev">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M6.4 1.6 3 5l3.4 3.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+
+              <a class="item" data-kind="members" href="members-groups.html">
+                <span class="item-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="rgba(140,200,255,0.6)" stroke-width="1.6"/>
+                    <path d="M12 8v4.2l2.6 1.6" stroke="rgba(140,200,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="item-text">
+                  <strong>اضافه شدن عضو جدید به گروه</strong>
+                  <span class="item-time">دیروز ۱۳:۳۸</span>
+                  <span class="item-sub">کارشناس امور اجتماعی</span>
+                </span>
+                <span class="tag tag-mem">اعضا</span>
+                <span class="chev">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M6.4 1.6 3 5l3.4 3.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+
+              <a class="item" data-kind="project" href="project-details.html">
+                <span class="item-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" stroke="rgba(140,200,255,0.6)" stroke-width="1.6"/>
+                    <path d="M12 8v4.2l2.6 1.6" stroke="rgba(140,200,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="item-text">
+                  <strong>گزارش میدانی از منطقه ۵</strong>
+                  <span class="item-time">۲ روز پیش ۱۱:۰</span>
+                  <span class="item-sub">وضعیت زیرساخت‌ها و نیازهای اصلی...</span>
+                </span>
+                <span class="tag tag-proj">پروژه</span>
+                <span class="chev">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M6.4 1.6 3 5l3.4 3.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+            </div>
+          </section>
+
+          <section class="chat">
+            <div class="chat-head">
+              <div class="chat-id">
+                <div class="bot" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="8" width="14" height="10" rx="3" stroke="#fff" stroke-width="1.6"/>
+                    <circle cx="9.2" cy="13" r="1.1" fill="#fff"/>
+                    <circle cx="14.8" cy="13" r="1.1" fill="#fff"/>
+                    <path d="M12 8V5.2M9.2 5.2h5.6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M3.8 12.5h1.4M18.8 12.5h1.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2>چت با سامانه</h2>
+                  <p>پرسش، تحلیل، گزارش</p>
+                </div>
+              </div>
+              <span class="expand" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 4.5H4.5V9M15 4.5h4.5V9M9 19.5H4.5V15M15 19.5h4.5V15" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="thread">
+              <div class="bubble">
+                <div class="bot-sm" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="8" width="14" height="10" rx="3" stroke="#fff" stroke-width="1.6"/>
+                    <circle cx="9.2" cy="13" r="1.1" fill="#fff"/>
+                    <circle cx="14.8" cy="13" r="1.1" fill="#fff"/>
+                    <path d="M12 8V5.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="sender">
+                    سلام علی احمدی
+                    <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4ad4ff" d="M12 1.4 14.15 9.85 22.6 12 14.15 14.15 12 22.6 9.85 14.15 1.4 12 9.85 9.85 12 1.4z"/>
+                    </svg>
+                  </div>
+                  <p class="msg">من دستیار هوشمند سامانه ثبت وقایع هستم. هر سوالی داری بپرس یا درخواستت را بنویس.</p>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <button class="plus" type="button" aria-label="افزودن">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5.5v13M5.5 12h13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="ico-btn" type="button" aria-label="صدا">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="3.4" width="6" height="11" rx="3" stroke="rgba(255,255,255,0.6)" stroke-width="1.6"/>
+                  <path d="M6.4 11.2a5.6 5.6 0 0 0 11.2 0M12 16.8V20.4" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="ico-btn" type="button" aria-label="تصویر">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="3.6" y="5" width="16.8" height="14" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1.6"/>
+                  <circle cx="8.6" cy="9.2" r="1.4" stroke="rgba(255,255,255,0.6)" stroke-width="1.4"/>
+                  <path d="m4.4 16.2 4.2-3.4 3 2.3 2.5-2 5.2 4.1" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="ico-btn" type="button" aria-label="ویدیو">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="3.2" y="6.2" width="12" height="11.6" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1.6"/>
+                  <path d="M15.2 10.2 20.4 7.6v8.8l-5.2-2.6v-3.6z" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="ico-btn" type="button" aria-label="پیوست">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M8.2 12.4 14.7 6a3.1 3.1 0 0 1 4.4 4.4l-8.2 8.2a4.3 4.3 0 0 1-6.1-6.1l7.7-7.6" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <input class="field" type="text" placeholder="پیام خود را بنویسید..." aria-label="پیام">
+              <button class="send" type="button" aria-label="ارسال">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="transform:scaleX(-1)">
+                  <path fill="#fff" d="M3.2 11.2 20.4 3.4c.7-.3 1.4.4 1.1 1.1l-7.6 17.2c-.3.7-1.3.6-1.5-.1l-2-6.2-6.3-1.8c-.7-.2-.8-1.2-.1-1.4z"/>
+                </svg>
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <nav class="a-nav" aria-label="ناوبری اندروید">
+      <span aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M7 4.5v15M12 4.5v15M17 4.5v15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="7" stroke="#fff" stroke-width="1.8"/>
+        </svg>
+      </span>
+      <span aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M14.5 6.5 8 12l6.5 5.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </nav>
+  </div>
+  <script>
+    var tabs = document.querySelectorAll(".tab");
+    var items = document.querySelectorAll(".item");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var filter = tab.getAttribute("data-filter");
+        tabs.forEach(function (t) {
+          var on = t === tab;
+          t.classList.toggle("on", on);
+          t.classList.toggle("off", !on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        items.forEach(function (item) {
+          item.hidden = filter !== "all" && item.getAttribute("data-kind") !== filter;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

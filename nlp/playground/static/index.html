@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تست فکت، نقل‌قول و قاب مسئله</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>تست فکت، نقل‌قول و قاب مسئله</h1>
+        <p class="muted">
+          متن را بگذار و استخراج را بزن. فکت، نقل‌قول، قاب و علت روی متن
+          و جدول می‌مانند تا شاهد را ببینی. ذخیره پیشنهادی قاب، علت‌های
+          تأییدشده، وظیفه، امتیاز و فکت‌های عددی را با تأیید تو به CRUD می‌فرستد؛
+          بعد از امتیاز، موضوع و موجودیت همان تحلیل پیشنهادی است.
+          فکت‌ها روی همان تحلیل می‌مانند. سرور nlp اینسرت نمی‌کند.
+        </p>
+        <nav class="nav">
+          <a class="nav-link" href="http://127.0.0.1:8777">استخراج</a>
+          <a class="nav-link active" href="/">قاب مسئله</a>
+          <a class="nav-link" href="http://127.0.0.1:8779">جستجو ایندکس</a>
+        </nav>
+      </div>
+      <span class="pill">نمایش جدا از ذخیره</span>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>متن</h2>
+          <div class="actions">
+            <button type="button" id="btn-sample" class="ghost">نمونه ساختگی</button>
+            <button type="button" id="btn-clear" class="ghost">خالی</button>
+          </div>
+        </div>
+        <p id="sample-note" class="hint hidden"></p>
+        <textarea
+          id="text"
+          rows="12"
+          placeholder="گزارش، صورت‌جلسه یا پیام را اینجا بگذار…"
+        ></textarea>
+        <div class="run-row">
+          <button type="button" id="btn-run" class="primary" data-layer="all">همه</button>
+          <button type="button" class="ghost layer-btn" data-layer="facts">فکت</button>
+          <button type="button" class="ghost layer-btn" data-layer="quotes">نقل‌قول</button>
+          <button type="button" class="ghost layer-btn" data-layer="frame">قاب مسئله</button>
+          <button type="button" id="btn-save" class="ghost" disabled>ذخیره پیشنهادی</button>
+          <span id="status" class="muted"></span>
+        </div>
+        <p id="error" class="error hidden"></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>نتیجه روی متن</h2>
+          <div id="legend" class="legend"></div>
+        </div>
+        <div id="chips" class="chips hidden"></div>
+        <div id="highlight" class="highlight empty">هنوز استخراجی نشده.</div>
+      </section>
+    </main>
+
+    <section class="panel wide">
+      <div class="result-tabs">
+        <button type="button" data-pane="facts" class="tab active">فکت‌ها</button>
+        <button type="button" data-pane="causes" class="tab">علت‌ها</button>
+        <button type="button" data-pane="task" class="tab">وظیفه</button>
+        <button type="button" data-pane="score" class="tab">امتیاز</button>
+        <button type="button" data-pane="ner" class="tab">موضوع و موجودیت</button>
+        <button type="button" data-pane="quotes" class="tab">نقل‌قول</button>
+        <button type="button" data-pane="frame" class="tab">قاب مسئله</button>
+        <button type="button" data-pane="trace" class="tab">اجرا</button>
+        <button type="button" data-pane="json" class="tab">JSON</button>
+      </div>
+      <div id="pane-facts" class="pane">
+        <p class="muted">بعد از استخراج و ذخیره پیشنهادی، فکت‌ها با شاهد و صراحت روی همان تحلیل می‌مانند.</p>
+      </div>
+      <div id="pane-causes" class="pane hidden">
+        <p class="muted">فکت‌های علت جدا از مقدارند؛ با همان دکمهٔ ذخیره مسئله می‌شوند.</p>
+      </div>
+      <div id="pane-task" class="pane hidden">
+        <p class="muted">وظیفهٔ پیشنهادی از نیت یا قاب؛ ذخیره با تأیید تو کار را می‌سازد.</p>
+      </div>
+      <div id="pane-score" class="pane hidden">
+        <p class="muted">اهمیت، فوریت، شدت و اثر از کاتالوگ seed؛ حدس مدل نیست. بعد از ذخیرهٔ وظیفه با تأیید تو نوشته می‌شود.</p>
+      </div>
+      <div id="pane-ner" class="pane hidden">
+        <p class="muted">موضوع و موجودیت همان تحلیل ذخیره‌شدهٔ NER؛ بعد از امتیاز پیشنهادی می‌شوند تا به مسئله وصل شوند.</p>
+      </div>
+      <div id="pane-quotes" class="pane hidden"></div>
+      <div id="pane-frame" class="pane hidden"></div>
+      <div id="pane-trace" class="pane hidden"></div>
+      <pre id="pane-json" class="pane hidden mono"></pre>
+    </section>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

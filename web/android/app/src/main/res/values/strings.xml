@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">مدیریت سازمان</string>
+    <string name="title_activity_main">مدیریت سازمان</string>
+    <string name="package_name">ir.management.organization</string>
+    <string name="custom_url_scheme">ir.management.organization</string>
+</resources>

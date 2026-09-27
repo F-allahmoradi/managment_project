@@ -1,0 +1,32 @@
+# کاتالوگ قطبیت، شدت و هیجان؛ کدها همان seed جداول polarities / intensity_levels / emotions.
+
+polarities:
+  - code: positive
+    name: مثبت
+  - code: negative
+    name: منفی
+  - code: neutral
+    name: خنثی
+
+intensity_levels:
+  - code: low
+    name: کم
+    level: 1
+  - code: medium
+    name: متوسط
+    level: 2
+  - code: high
+    name: زیاد
+    level: 3
+
+emotions:
+  - code: frustration
+    name: خستگی و نارضایتی
+  - code: anger
+    name: خشم
+  - code: worry
+    name: نگرانی
+  - code: satisfaction
+    name: رضایت
+  - code: confidence
+    name: اطمینان

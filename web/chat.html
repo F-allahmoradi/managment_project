@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>گفتگو</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-shell.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+</head>
+<body data-page="chat">
+  <main class="screen">
+    <div class="status"><time>سامانه</time></div>
+    <header class="header">
+      <a class="back" href="chats.html" aria-label="بازگشت">→</a>
+      <h1 id="chat-title">گفتگو</h1>
+      <span style="width:38px"></span>
+    </header>
+    <p class="empty-note" id="chat-meta">—</p>
+    <div class="thread" id="chat-thread"></div>
+    <form class="form-card" id="chat-form">
+      <div class="field" id="chat-task-field" hidden>
+        <label for="chat-task">وظیفه مشترک</label>
+        <select id="chat-task"></select>
+      </div>
+      <div class="field">
+        <label for="chat-body">پیام</label>
+        <textarea id="chat-body" required placeholder="پیام را بنویسید"></textarea>
+      </div>
+      <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ارسال</button>
+    </form>
+  </main>
+  <nav class="bnav">
+    <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
+    <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
+    <a class="nitem on" href="chats.html"><span>گفتگو</span></a>
+    <a class="nitem" href="tasks.html"><span>وظایف</span></a>
+    <a class="nitem" href="progress.html"><span>پیشرفت</span></a>
+  </nav>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

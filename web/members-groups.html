@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>اعضا و گروه‌ها</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: radial-gradient(ellipse at 25% 15%, #0f2250 0%, #081230 30%, #030614 100%);
+      font-family: "Vazirmatn", sans-serif;
+      font-weight: 400;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    button, input { font-family: inherit; }
+    button {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .screen {
+      width: min(430px, 100%);
+      padding-top: env(safe-area-inset-top);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding-bottom: 90px;
+      scrollbar-width: none;
+    }
+    .screen::-webkit-scrollbar { width: 0; height: 0; }
+
+
+    .header {
+      height: 60px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+    }
+    .back {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(20, 40, 80, 0.6);
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      display: grid;
+      place-items: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .back:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1;
+    }
+    .htools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bell {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+    }
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff2d55;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+
+    .search-row {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .search {
+      flex-grow: 1;
+      min-width: 0;
+      height: 42px;
+      border-radius: 14px;
+      background: rgba(15, 35, 70, 0.7);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      padding: 0 14px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .search input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      background: none;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 400;
+    }
+    .search input::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .new-group {
+      height: 42px;
+      padding: 0 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3a2a8a, #5a3aaa);
+      border: 1px solid rgba(140, 120, 255, 0.5);
+      box-shadow: 0 0 14px rgba(120, 100, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .new-group:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(120, 100, 255, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .filters {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .chip {
+      height: 34px;
+      padding: 0 16px;
+      border-radius: 10px;
+      background: rgba(15, 35, 70, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .chip.on {
+      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
+      border: 1px solid rgba(100, 160, 255, 0.4);
+      box-shadow: 0 0 10px rgba(80, 140, 255, 0.3);
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 13px rgba(80, 140, 255, 0.39);
+    }
+
+    .cols {
+      display: flex;
+      direction: ltr;
+      gap: 10px;
+      padding: 0 16px;
+      align-items: flex-start;
+    }
+    .members, .detail { direction: rtl; }
+    .members {
+      width: 150px;
+      flex-shrink: 0;
+      max-height: 520px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .members::-webkit-scrollbar { width: 0; height: 0; }
+    .detail { flex: 1; min-width: 0; }
+
+    .gcard, .mem {
+      width: 100%;
+      text-align: right;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .gcard:hover, .mem:hover {
+      transform: translateY(-1px);
+    }
+
+    .gcard {
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: linear-gradient(160deg, rgba(25, 50, 100, 0.85), rgba(12, 25, 55, 0.9));
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      box-shadow: 0 0 12px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .gcard:hover {
+      box-shadow: 0 0 16px rgba(60, 140, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .gcard.sm { padding: 10px; gap: 8px; }
+    .gtext { flex: 1; min-width: 0; }
+    .gtext strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.35;
+    }
+    .gcard.sm .gtext strong { font-size: 11px; }
+    .gtext em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 10px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.3;
+    }
+    .chev { flex: none; }
+
+    .mem-pick {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: right;
+    }
+    .mem {
+      position: relative;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: rgba(15, 35, 70, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .mem:hover {
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .mem.on {
+      background: linear-gradient(135deg, rgba(40, 70, 130, 0.8), rgba(20, 40, 80, 0.9));
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      box-shadow: 0 0 10px rgba(80, 160, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .mem.on:hover {
+      box-shadow: 0 0 14px rgba(80, 160, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .mem:has(.count) { padding-left: 26px; }
+    .ava {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(100, 180, 255, 0.3);
+      background: linear-gradient(135deg, #1a3a6a, #0a1a3a);
+      display: grid;
+      place-items: center;
+      flex: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .ava.lg {
+      width: 56px;
+      height: 56px;
+      border: 2px solid rgba(100, 180, 255, 0.4);
+    }
+    .ava.sm {
+      width: 28px;
+      height: 28px;
+      border-width: 1.5px;
+    }
+    .dot {
+      position: absolute;
+      right: -1px;
+      bottom: -1px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4aff80;
+      border: 2px solid #0a1a3a;
+    }
+    .ava.lg .dot { width: 10px; height: 10px; }
+    .mtext { flex: 1; min-width: 0; }
+    .mtext strong {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mtext em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .count {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      box-shadow: 0 0 8px rgba(140, 100, 255, 0.45);
+      z-index: 1;
+    }
+
+    .pcard {
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(160deg, rgba(25, 50, 100, 0.9), rgba(12, 25, 55, 0.95));
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      box-shadow: 0 0 20px rgba(80, 160, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .who {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .who-text { flex: 1; min-width: 0; }
+    .who-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .who-name strong {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+    .who-text em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .pacts {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .ibtn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(30, 60, 110, 0.6);
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      display: grid;
+      place-items: center;
+      color: inherit;
+      text-decoration: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ibtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(80, 160, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .status-row {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .pill.online {
+      background: rgba(40, 140, 100, 0.3);
+      border: 1px solid rgba(80, 220, 160, 0.4);
+      font-weight: 500;
+      color: #60e0c0;
+    }
+    .pill.meta {
+      background: rgba(30, 60, 110, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.3);
+      color: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .odot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4aff80;
+      box-shadow: 0 0 6px rgba(74, 255, 128, 0.8);
+      flex: none;
+    }
+
+    .ptabs {
+      margin-top: 12px;
+      display: flex;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.7);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .ptab {
+      flex: 1;
+      min-width: 0;
+      height: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.55);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .ptab.on {
+      background: linear-gradient(135deg, #5a3aaa, #7a4acc);
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(120, 100, 255, 0.3);
+    }
+    .ptab:hover { transform: translateY(-1px); }
+
+    .chat {
+      margin-top: 12px;
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(8, 18, 40, 0.7);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .msg {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      max-width: 100%;
+    }
+    .msg.in { align-self: flex-start; }
+    .msg.out { align-self: flex-end; }
+    .bubble {
+      max-width: 75%;
+      padding: 10px 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    .msg.in .bubble {
+      border-radius: 14px 14px 4px 14px;
+      background: linear-gradient(135deg, rgba(30, 60, 120, 0.9), rgba(15, 35, 70, 0.95));
+      border: 1px solid rgba(80, 160, 255, 0.3);
+    }
+    .msg.out .bubble {
+      border-radius: 14px 14px 14px 4px;
+      background: linear-gradient(135deg, rgba(40, 70, 130, 0.85), rgba(20, 45, 90, 0.9));
+      border: 1px solid rgba(100, 180, 255, 0.35);
+    }
+    .bubble:has(.file) { max-width: 100%; }
+    .sender {
+      font-size: 11px;
+      font-weight: 600;
+      color: #4ad4ff;
+      margin-bottom: 4px;
+    }
+    .bubble p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+    }
+    .msg.out .bubble p { color: rgba(255, 255, 255, 0.9); }
+    .foot {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+    .foot span {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .file {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(20, 40, 80, 0.6);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+    }
+    .fico {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      display: grid;
+      place-items: center;
+      flex: none;
+      box-shadow: 0 0 10px rgba(140, 100, 255, 0.35);
+    }
+    .fmeta { flex: 1 1 0; min-width: 0; }
+    .fmeta strong {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fmeta em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .composer {
+      margin-top: 12px;
+      margin-left: -160px;
+      width: calc(100% + 160px);
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(160deg, rgba(20, 45, 90, 0.85), rgba(10, 25, 55, 0.9));
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      box-shadow: 0 0 15px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .irow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .composer .field {
+      flex: 1;
+      min-width: 0;
+      height: 38px;
+      border-radius: 19px;
+      background: rgba(10, 25, 55, 0.6);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      padding: 0 14px;
+      color: #ffffff;
+      font-size: 12px;
+      outline: none;
+    }
+    .composer .field::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+    .form-card {
+      margin: 12px 16px 0;
+    }
+    .form-card .field {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      height: auto;
+      margin-top: 12px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .form-card .field label {
+      display: block;
+      width: 100%;
+      text-align: right;
+      font-size: 12px;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    .form-card .field input,
+    .form-card .field select {
+      display: block;
+      width: 100%;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      background: rgba(5, 15, 40, 0.72);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 0 14px;
+      text-align: right;
+      direction: rtl;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-card .field input::placeholder { color: rgba(255, 255, 255, 0.35); }
+    .form-card .field select {
+      background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.7) 50%), linear-gradient(135deg, rgba(255,255,255,0.7) 50%, transparent 50%);
+      background-position: left 16px center, left 22px center;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-left: 36px;
+    }
+    .form-card .primary-btn,
+    .form-card .ghost-btn {
+      width: 100%;
+      margin: 16px 0 0;
+    }
+    .send {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      border: 1px solid rgba(200, 180, 255, 0.5);
+      box-shadow: 0 0 14px rgba(140, 100, 255, 0.5);
+      display: grid;
+      place-items: center;
+      flex: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .send:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(140, 100, 255, 0.65);
+    }
+    .tools {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tool {
+      width: 56px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(25, 50, 90, 0.7), rgba(12, 30, 60, 0.8));
+      border: 1px solid rgba(80, 160, 255, 0.3);
+      box-shadow: 0 0 10px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tool span {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1;
+    }
+    .tool:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(60, 140, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .tool svg { filter: drop-shadow(0 0 4px rgba(74, 212, 255, 0.45)); }
+    .tool-send {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      border: 1px solid rgba(200, 180, 255, 0.5);
+      box-shadow: 0 0 14px rgba(140, 100, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      display: grid;
+      place-items: center;
+      flex: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tool-send:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(140, 100, 255, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .bnav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(430px, 100%);
+      height: 80px;
+      background: linear-gradient(180deg, rgba(10, 25, 55, 0.95), rgba(5, 12, 30, 0.98));
+      border-top: 1px solid rgba(80, 160, 255, 0.2);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 8px;
+      z-index: 5;
+    }
+    .nitem {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: rgba(255, 255, 255, 0.45);
+      transition: transform 0.2s ease;
+    }
+    .nitem span {
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1.15;
+      text-align: center;
+    }
+    .nitem .bar {
+      width: 20px;
+      height: 2px;
+      border-radius: 2px;
+      margin-top: 2px;
+      background: transparent;
+    }
+    .nitem.on { color: #4ad4ff; }
+    .nitem.on span { font-weight: 600; }
+    .nitem.on svg { filter: drop-shadow(0 0 10px rgba(74, 212, 255, 0.6)); }
+    .nitem.on .bar { background: #4ad4ff; }
+    .nitem:hover { transform: translateY(-1px); }
+
+    :focus-visible {
+      outline: 2px solid rgba(74, 212, 255, 0.75);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body data-page="people">
+  <main class="screen">
+    <header class="header">
+      <a class="back" href="admin-mobile.html" aria-label="بازگشت">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M7 4.2 12.2 9 7 13.8" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <h1>اعضا و گروه‌ها</h1>
+      <div class="htools">
+        <div class="bell" aria-label="۳ اعلان">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6.2 9.2a5.8 5.8 0 1 1 11.6 0c0 4.6 1.5 6.2 1.7 6.6H4.5c.2-.4 1.7-2 1.7-6.6z" stroke="#ffffff" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M9.6 17.6a2.4 2.4 0 0 0 4.8 0" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="badge">3</span>
+        </div>
+        <button type="button" aria-label="منو">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="10" cy="4.2" r="1.35" fill="#ffffff"/>
+            <circle cx="10" cy="10" r="1.35" fill="#ffffff"/>
+            <circle cx="10" cy="15.8" r="1.35" fill="#ffffff"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="search-row">
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="5.2" stroke="rgba(255,255,255,0.4)" stroke-width="1.6"/>
+          <path d="M12.1 12.1 16 16" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input id="people-search" type="search" placeholder="جستجو در اعضا و گروه‌ها..." aria-label="جستجو در اعضا و گروه‌ها">
+      </label>
+      <button class="new-group" type="button">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <circle cx="7" cy="6.2" r="2.15" stroke="#ffffff" stroke-width="1.5"/>
+          <path d="M3.1 14.2c.7-2.3 2.2-3.4 3.9-3.4s3.2 1.1 3.9 3.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13.2 6.1v4.4M11 8.3h4.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        گروه جدید
+      </button>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="فیلتر">
+      <button class="chip on" type="button" role="tab" aria-selected="true">همه</button>
+      <button class="chip" type="button" role="tab" aria-selected="false">اعضا</button>
+      <button class="chip" type="button" role="tab" aria-selected="false">گروه‌ها</button>
+    </div>
+    <form class="form-card" id="person-form">
+      <h2>ساخت مدیر سازمان</h2>
+      <p class="empty-note">این کار فقط برای مدیر کل است. افراد عادی خودشان ثبت‌نام می‌کنند.</p>
+      <div class="field"><label for="person-first">نام</label><input id="person-first" required autocomplete="given-name"></div>
+      <div class="field"><label for="person-last">نام خانوادگی</label><input id="person-last" required autocomplete="family-name"></div>
+      <div class="field"><label for="person-user">نام کاربری</label><input id="person-user" required autocomplete="off"></div>
+      <div class="field"><label for="person-pass">رمز عبور</label><input id="person-pass" type="password" required minlength="8" autocomplete="new-password"></div>
+      <div class="field"><label for="person-phone">تلفن</label><input id="person-phone" inputmode="tel" autocomplete="tel"></div>
+      <div class="field" id="person-role-field">
+        <label for="person-role">نقش در پروژه</label>
+        <input id="person-role" list="project-role-names" placeholder="مثلاً کارشناس یا عضو" maxlength="100">
+      </div>
+      <button class="primary-btn" type="submit">ثبت فرد</button>
+    </form>
+    <form class="form-card" id="member-form">
+      <h2>تعیین دسترسی در پروژه</h2>
+      <p class="empty-note">حساب را خود فرد ساخته است. نقش داخل پروژه را اینجا می‌گذارید.</p>
+      <div class="field" id="member-project-field" hidden>
+        <label for="member-project">پروژه</label>
+        <select id="member-project"></select>
+      </div>
+      <div class="field"><label for="member-user">کاربر</label><select id="member-user"></select></div>
+      <div class="field">
+        <label for="member-role">نقش در پروژه</label>
+        <input id="member-role" list="project-role-names" placeholder="مثلاً کارشناس یا عضو" maxlength="100">
+      </div>
+      <datalist id="project-role-names">
+        <option value="عضو"></option>
+        <option value="ناظر"></option>
+        <option value="مدیر پروژه"></option>
+      </datalist>
+      <button class="ghost-btn" type="submit">افزودن به پروژه</button>
+    </form>
+
+    <div class="cols">
+      <aside class="members" id="people-list" aria-label="فهرست اعضا"></aside>
+
+      <section class="detail">
+        <article class="pcard">
+          <div class="who">
+            <span class="ava lg" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8.2" r="3.1" fill="rgba(255,255,255,0.9)"/>
+                <path d="M5.4 19.2c1.3-3.2 3.5-4.6 6.6-4.6s5.3 1.4 6.6 4.6" fill="rgba(255,255,255,0.9)"/>
+              </svg>
+              <i class="dot"></i>
+            </span>
+            <div class="who-text">
+              <div class="who-name">
+                <strong id="person-detail-name">یک نفر را انتخاب کنید</strong>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M7.6 2 3.6 6l4 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <em id="person-detail-role">—</em>
+            </div>
+          </div>
+          <div class="pacts">
+            <a class="ibtn" id="person-chat-link" href="chats.html" hidden aria-label="گفتگو">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="ibtn" type="button" aria-label="تماس تصویری">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.2" y="6.4" width="11.2" height="11.2" rx="2" stroke="#ffffff" stroke-width="1.6"/>
+                <path d="M14.4 10.2 20.2 7.4v9.2l-5.8-2.8v-3.6z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button class="ibtn" type="button" aria-label="بیشتر">
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="3.2" r="1.15" fill="#ffffff"/>
+                <circle cx="8" cy="8" r="1.15" fill="#ffffff"/>
+                <circle cx="8" cy="12.8" r="1.15" fill="#ffffff"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="status-row">
+            <span class="pill online"><i class="odot"></i>آنلاین</span>
+            <span class="pill meta">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1.4" y="2.2" width="9.2" height="8.2" rx="1.2" stroke="rgba(255,255,255,0.7)" stroke-width="1.1"/>
+                <path d="M1.4 4.6h9.2M3.6 1.4v1.6M8.4 1.4v1.6" stroke="rgba(255,255,255,0.7)" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+              سمت: مدیر کل
+            </span>
+            <span class="pill meta">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="2.4" y="5.2" width="7.2" height="5.2" rx="1.1" stroke="rgba(255,255,255,0.7)" stroke-width="1.1"/>
+                <path d="M4 5.2V3.7a2 2 0 0 1 4 0v1.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+              مسئول پیگیری پروژه‌ها
+            </span>
+          </div>
+
+          <div class="ptabs" role="tablist" aria-label="بخش‌های عضو">
+            <button class="ptab on" type="button" role="tab" aria-selected="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 16.2 4.8 19.2l3.2-1.2A7.6 7.6 0 1 0 7 16.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+              پیام‌ها
+            </button>
+            <button class="ptab" type="button" role="tab" aria-selected="false">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="5" y="3.6" width="14" height="16.8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                <path d="m8.2 12 2.1 2.1 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              وظایف
+            </button>
+            <button class="ptab" type="button" role="tab" aria-selected="false">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                <path d="M14 3.8V8.6h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+              فایل‌ها
+            </button>
+            <button class="ptab" type="button" role="tab" aria-selected="false">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M12 11v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <circle cx="12" cy="8" r="0.9" fill="currentColor"/>
+              </svg>
+              اطلاعات
+            </button>
+          </div>
+        </article>
+
+        <div class="chat" id="person-activity" aria-label="فعالیت"></div>
+
+        <form class="composer" action="#" onsubmit="return false;">
+          <div class="irow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.5)" stroke-width="1.6"/>
+              <circle cx="9.1" cy="10.2" r="0.9" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="14.9" cy="10.2" r="0.9" fill="rgba(255,255,255,0.5)"/>
+              <path d="M8.7 14c.9 1.25 2 1.9 3.3 1.9s2.4-.65 3.3-1.9" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <input class="field" type="text" placeholder="پیام خود را بنویسید..." aria-label="پیام">
+            <button class="send" type="submit" aria-label="ارسال">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#ffffff" d="M20.4 3.6 2.8 10.2c-.9.34-.86 1.62.06 1.9l6.7 2.05 2.15 6.55c.3.9 1.56.94 1.92.06l6.85-17.4c.28-.7-.42-1.4-1.08-1.16z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="tools">
+            <button class="tool" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M14 3.8V8.6H19M8.4 12.2h7.2M8.4 15.6h5" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <span>متن</span>
+            </button>
+            <button class="tool" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="9" y="3.4" width="6" height="10.4" rx="3" stroke="#ffffff" stroke-width="1.6"/>
+                <path d="M6.6 11.2a5.4 5.4 0 0 0 10.8 0M12 16.6V20M9.2 20h5.6" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <span>صدا</span>
+            </button>
+            <button class="tool" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.4" y="4.6" width="17.2" height="14.8" rx="2" stroke="#4ad4ff" stroke-width="1.6"/>
+                <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.4"/>
+                <path d="m4.2 16.4 4.2-3.4 3.1 2.4 2.5-2.1 5.2 4.2" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>تصویر</span>
+            </button>
+            <button class="tool" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.2" y="6.2" width="12" height="11.6" rx="2" stroke="#ffffff" stroke-width="1.6"/>
+                <path d="M15.2 10.1 20.4 7.4v9.2l-5.2-2.7v-3.8z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+              <span>ویدیو</span>
+            </button>
+            <button class="tool-send" type="submit" aria-label="ارسال">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#ffffff" d="M20.4 3.6 2.8 10.2c-.9.34-.86 1.62.06 1.9l6.7 2.05 2.15 6.55c.3.9 1.56.94 1.92.06l6.85-17.4c.28-.7-.42-1.4-1.08-1.16z"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <nav class="bnav" aria-label="ناوبری">
+      <a class="nitem" href="admin-mobile.html">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.7" stroke-linejoin="round" d="M4 10.8 12 4.2l8 6.6V19a1.4 1.4 0 0 1-1.4 1.4h-4.2v-5.2H9.6v5.2H5.4A1.4 1.4 0 0 1 4 19v-8.2z"/>
+        </svg>
+        <span>خانه</span>
+        <i class="bar"></i>
+      </a>
+      <button class="nitem" type="button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3.4 8.2c0-1.1.9-2 2-2h3.2l1.6 1.7h8.4c1.1 0 2 .9 2 2v7.2c0 1.1-.9 2-2 2H5.4c-1.1 0-2-.9-2-2V8.2z" stroke="rgba(255,255,255,0.45)" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+        <span>پروژه‌ها</span>
+        <i class="bar"></i>
+      </button>
+      <a class="nitem" href="meetings.html">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3.6" y="5" width="16.8" height="15" rx="2" stroke="rgba(255,255,255,0.45)" stroke-width="1.7"/>
+          <path d="M3.6 9.4h16.8M8 3.4v3M16 3.4v3" stroke="rgba(255,255,255,0.45)" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span>جلسات</span>
+        <i class="bar"></i>
+      </a>
+      <button class="nitem" type="button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3.6" y="3.6" width="7" height="7" rx="1.4" stroke="rgba(255,255,255,0.45)" stroke-width="1.7"/>
+          <rect x="13.4" y="3.6" width="7" height="7" rx="1.4" stroke="rgba(255,255,255,0.45)" stroke-width="1.7"/>
+          <rect x="3.6" y="13.4" width="7" height="7" rx="1.4" stroke="rgba(255,255,255,0.45)" stroke-width="1.7"/>
+          <rect x="13.4" y="13.4" width="7" height="7" rx="1.4" stroke="rgba(255,255,255,0.45)" stroke-width="1.7"/>
+        </svg>
+        <span>تحلیل‌ها</span>
+        <i class="bar"></i>
+      </button>
+      <button class="nitem" type="button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="rgba(255,255,255,0.45)" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M14 3.8V8.4H19M8.2 12.4h7.2M8.2 16h5.2" stroke="rgba(255,255,255,0.45)" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span>گزارش‌ها</span>
+        <i class="bar"></i>
+      </button>
+      <button class="nitem on" type="button" aria-current="page">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="9" cy="8.1" r="2.5" fill="#4ad4ff"/>
+          <path fill="#4ad4ff" d="M3.9 18.5c1-2.9 2.8-4.3 5.1-4.3s4.1 1.4 5.1 4.3H3.9z"/>
+          <circle cx="16.5" cy="8.7" r="2" fill="#4ad4ff"/>
+          <path fill="#4ad4ff" d="M14.9 14.6c1.45.3 2.65 1.2 3.3 2.9h-1.5c-.45-.9-1.15-1.5-2-1.75.05-.4.12-.75.2-1.15z"/>
+        </svg>
+        <span>اعضا و گروه‌ها</span>
+        <i class="bar"></i>
+      </button>
+    </nav>
+  </main>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

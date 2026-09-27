@@ -1,0 +1,64 @@
+# موضوع‌هایی که از متن کشف شده‌اند و در درخت اصلی نبوده‌اند.
+# با دست حذف نکنید و به گره‌های topics.yaml تقلیل ندهید.
+
+topics:
+- code: parenting
+  name: تربیت فرزند
+  level: 1
+  discovered: true
+  definition: آموزش و حدگذاری برای رفتار فرزند
+  description: آموزش و حدگذاری برای رفتار فرزند
+  cues:
+  - تربیت فرزند
+  aliases:
+  - تربیت فرزند
+- code: greeting
+  name: سلام و احوال‌پرسی
+  level: 1
+  discovered: true
+  definition: سلام و صبح‌بخیر گفتن و احوال‌پرسی روزانه
+  description: سلام و صبح‌بخیر گفتن و احوال‌پرسی روزانه
+  cues:
+  - سلام و صح بخیر
+  aliases:
+  - سلام و احوال‌پرسی
+- code: topic_3d2fbe12c4
+  name: پروژه ب تا جمعه باید گزارش پیشرفت را
+  level: 1
+  discovered: true
+  definition: پروژه ب تا جمعه باید گزارش پیشرفت را
+  description: پروژه ب تا جمعه باید گزارش پیشرفت را
+  cues:
+  - گزارش پیشرفت
+  aliases:
+  - پروژه ب تا جمعه باید گزارش پیشرفت را
+- code: topic_dbfef1f524
+  name: تربیت فرزند
+  level: 1
+  discovered: true
+  definition: آموزش و حدگذاری برای رفتار فرزند
+  description: آموزش و حدگذاری برای رفتار فرزند
+  cues:
+  - تربیت
+  aliases:
+  - تربیت فرزند
+- code: topic_3de95cc364
+  name: پروژه خیلی افتضاح داره پیش میره این چه
+  level: 1
+  discovered: true
+  definition: پروژه خیلی افتضاح داره پیش میره این چه
+  description: پروژه خیلی افتضاح داره پیش میره این چه
+  cues:
+  - پروژه خیلی افتضاح داره پیش میره
+  aliases:
+  - پروژه خیلی افتضاح داره پیش میره این چه
+- code: livestock_in_project
+  name: دام‌داری در پروژه
+  level: 1
+  discovered: true
+  definition: وجود گاو و گوسفند در پروژه
+  description: وجود گاو و گوسفند در پروژه
+  cues:
+  - گاو و گوسفند
+  aliases:
+  - دام‌داری در پروژه

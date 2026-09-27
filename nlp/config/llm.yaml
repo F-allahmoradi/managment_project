@@ -1,0 +1,14 @@
+# مدل زبانی برای فکت، نقل‌قول و قاب مسئله.
+# کلید API اینجا نیست؛ از NLP_LLM_API_KEY یا AVALAI_API_KEY می‌آید.
+#
+# پیش‌فرض: AvalAI، مدل deepseek-v4-flash.
+# بازنویسی اختیاری با محیط:
+#   AVALAI_BASE_URL  AI_MODEL  NLP_LLM_API_KEY
+
+base_url: "https://api.avalai.ir/v1"
+model: "deepseek-v4-flash"
+timeout_seconds: 120
+temperature: 0
+api_key_env: NLP_LLM_API_KEY
+allow_missing_api_key: false
+json_response_format: true

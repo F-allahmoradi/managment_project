@@ -1,0 +1,105 @@
+# ژانرهایی که از متن کشف شده‌اند و در کاتالوگ اصلی نبوده‌اند.
+# با دست حذف نکنید و به قالب‌های discourse.yaml تقلیل ندهید.
+
+discourses:
+- code: offer_of_help
+  name: اعلام آمادگی برای کمک
+  priority: 0
+  discovered: true
+  definition: اعلام تمایل یا قصد گوینده برای ارائه کمک یا خدمت به یک سازمان یا فرد،
+    بدون آنکه درخواستی از طرف مقابل مطرح شده باشد.
+  description: اعلام تمایل یا قصد گوینده برای ارائه کمک یا خدمت به یک سازمان یا فرد،
+    بدون آنکه درخواستی از طرف مقابل مطرح شده باشد.
+  required_slots:
+  - name: کمک‌کننده
+    description: فردی که اعلام آمادگی برای کمک می‌کند.
+  - name: دریافت‌کننده کمک
+    description: سازمان یا فردی که کمک به او پیشنهاد می‌شود.
+  - name: حوزه یا نوع کمک
+    description: زمینه یا نوع خدمتی که قرار است ارائه شود.
+  optional_slots:
+  - name: فعل کمکی
+    description: عمل کمکی که گوینده قصد انجامش را دارد.
+  contrast: []
+  aliases:
+  - اعلام آمادگی برای کمک
+- code: objection
+  name: اعتراض
+  priority: 0
+  discovered: true
+  definition: بیان نارضایتی و اعتراض به رفتار یا وضعیت مشخص، خطاب به فرد مسئول یا
+    مرتبط.
+  description: بیان نارضایتی و اعتراض به رفتار یا وضعیت مشخص، خطاب به فرد مسئول یا
+    مرتبط.
+  required_slots:
+  - name: معترض
+    description: کسی که اعتراض می‌کند.
+  - name: معترض‌علیه
+    description: فردی که اعتراض به او خطاب شده است.
+  - name: موضوع اعتراض
+    description: رفتار یا وضعیتی که مورد اعتراض است.
+  optional_slots:
+  - name: پاسخ طرف مقابل
+    description: واکنش فرد معترض‌علیه به اعتراض.
+  - name: شاهد یا مصداق
+    description: نمونه یا عبارتی که اعتراض را نشان می‌دهد.
+  contrast: []
+  aliases:
+  - اعتراض
+- code: rejection_of_accusation
+  name: رد اتهام
+  priority: 0
+  discovered: true
+  definition: پاسخ به اتهام با رد آن و ارائه دلیل یا اتهام متقابل.
+  description: پاسخ به اتهام با رد آن و ارائه دلیل یا اتهام متقابل.
+  required_slots:
+  - name: مدافع
+    description: کسی که اتهام را رد می‌کند.
+  - name: اتهام
+    description: اتهام مطرح‌شده علیه او یا متعلق به او.
+  - name: رد یا پاسخ
+    description: سخنی که اتهام را رد می‌کند.
+  optional_slots: []
+  contrast: []
+  aliases:
+  - رد اتهام
+- code: task_assignment
+  name: تعیین تکلیف
+  priority: 0
+  discovered: true
+  definition: تعیین یک وظیفه یا تکلیف برای فرد یا واحد مشخص، همراه با مهلت یا بدون
+    آن، بدون ذکر صریح آمر دارای اختیار.
+  description: تعیین یک وظیفه یا تکلیف برای فرد یا واحد مشخص، همراه با مهلت یا بدون
+    آن، بدون ذکر صریح آمر دارای اختیار.
+  required_slots:
+  - name: مأمور
+    description: فرد یا واحدی که وظیفه به او محول شده است.
+  - name: تکلیف
+    description: کاری که باید انجام شود.
+  optional_slots:
+  - name: مهلت
+    description: زمان انجام تکلیف.
+  contrast: []
+  aliases:
+  - تعیین تکلیف
+- code: frustration_expression
+  name: ابراز نارضایتی
+  priority: 0
+  discovered: true
+  definition: بیان نارضایتی از وضعیت یا پیشرفت یک کار بدون خطاب به فرد مسئول و بدون
+    درخواست اقدام.
+  description: بیان نارضایتی از وضعیت یا پیشرفت یک کار بدون خطاب به فرد مسئول و بدون
+    درخواست اقدام.
+  required_slots:
+  - name: موضوع نارضایتی
+    description: چیزی که نارضایتی به آن مربوط است.
+  - name: شرح نارضایتی
+    description: بیان نارضایتی یا ارزیابی منفی از وضعیت.
+  optional_slots:
+  - name: ابرازکننده
+    description: کسی که نارضایتی را بیان می‌کند.
+  - name: مخاطب
+    description: کسی که نارضایتی به او خطاب شده است.
+  contrast: []
+  aliases:
+  - ابراز نارضایتی

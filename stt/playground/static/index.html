@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ضبط و تبدیل گفتار به متن</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>ضبط و تبدیل گفتار به متن</h1>
+        <p class="muted">
+          ۱ ضبط یا انتخاب فایل. ۲ همان فایل به متن تبدیل می‌شود.
+          ۳ متن را ببینید و همراه خود صوت ذخیره کنید.
+        </p>
+      </div>
+      <span class="pill">رونویسی جدا از ذخیره</span>
+    </header>
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>ورودی صوت</h2>
+        </div>
+        <div class="actions">
+          <button type="button" id="btn-record" class="primary">شروع ضبط</button>
+          <label class="ghost file-btn">
+            انتخاب فایل
+            <input id="file" type="file" accept="audio/*,.webm,.wav,.ogg,.mp3" hidden />
+          </label>
+        </div>
+        <p id="status" class="muted">آماده ضبط.</p>
+        <audio id="player" controls class="hidden"></audio>
+        <p id="error" class="error hidden"></p>
+      </section>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>متن استخراج‌شده</h2>
+          <div class="actions">
+            <button type="button" id="btn-save" class="ghost" disabled>ذخیره در پایگاه</button>
+            <button type="button" id="btn-delete" class="ghost" disabled>حذف ذخیره‌شده</button>
+          </div>
+        </div>
+        <textarea id="text" rows="10" placeholder="بعد از تبدیل، متن اینجا می‌آید…"></textarea>
+        <p id="saved" class="muted"></p>
+        <h3 class="subhead">آخرین ذخیره‌های من</h3>
+        <ul id="recent" class="recent"></ul>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

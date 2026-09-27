@@ -1,0 +1,14 @@
+# خروجی لاگ ابزارهای MCP تبدیل گفتار: کنسول (stderr) و فایل.
+# stdout مخصوص JSON-RPC است و اینجا نوشته نمی‌شود.
+# نام افراد، رمز، و متن خام گفتار در لاگ نمی‌آید.
+
+level: INFO
+console: true
+include_trace_in_response: true
+
+file:
+  enabled: true
+  path: logs/mcp.log
+  max_bytes: 1000000
+  backup_count: 5
+

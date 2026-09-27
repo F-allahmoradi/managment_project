@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>سامانه هوشمند مدیریت سازمان</title>
+    <script>
+      (function () {
+        var path = location.pathname;
+        if (path !== "/" && !path.endsWith("/index.html")) return;
+        function isMobile() {
+          var ua = navigator.userAgent || "";
+          if (/Android|iPhone|iPod|iPad|Mobile/i.test(ua)) return true;
+          if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) return true;
+          if (matchMedia("(max-width: 768px)").matches) return true;
+          return matchMedia("(max-width: 1024px) and (pointer: coarse)").matches;
+        }
+        function go() {
+          if (!isMobile()) return;
+          var token = "";
+          try { token = localStorage.getItem("management_access_token") || ""; } catch (e) {}
+          location.replace(token ? "/admin-mobile.html" : "/mobile-auth.html");
+        }
+        go();
+        matchMedia("(max-width: 768px)").addEventListener("change", go);
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

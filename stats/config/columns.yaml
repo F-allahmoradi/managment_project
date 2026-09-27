@@ -1,0 +1,19 @@
+# نام وضعیت‌های seed و آستانه‌های هشدار آمار.
+# عدد از SQL می‌آید؛ این فایل فقط برچسب و حد را نگه می‌دارد.
+
+task_statuses:
+  completed: تکمیل شده
+  cancelled: لغو شده
+
+project_statuses:
+  completed: تکمیل شده
+  cancelled: لغو شده
+
+thresholds:
+  repeated_follow_ups: 3
+  at_risk_overdue_tasks: 1
+
+pagination:
+  default_limit: 10
+  max_limit: 50
+  default_offset: 0

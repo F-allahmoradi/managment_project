@@ -1,0 +1,68 @@
+# ستون‌های خواندن و نوشتن حساب و تراکنش ساده. دفتر کل اینجا نیست.
+
+financial_accounts:
+  table: financial_accounts
+  allowed:
+    - id
+    - name
+    - account_type_id
+    - balance
+    - is_active
+  writable:
+    - name
+    - account_type_id
+    - balance
+    - is_active
+  order_by: [id]
+  order_dir: DESC
+
+financial_transactions:
+  table: financial_transactions
+  allowed:
+    - id
+    - account_id
+    - project_id
+    - user_id
+    - category_id
+    - transaction_type_id
+    - amount
+    - description
+    - transaction_date
+    - created_at
+  writable:
+    - account_id
+    - project_id
+    - user_id
+    - category_id
+    - transaction_type_id
+    - amount
+    - description
+    - transaction_date
+  order_by: [transaction_date, id]
+  order_dir: DESC
+
+financial_categories:
+  table: financial_categories
+  allowed:
+    - id
+    - name
+    - description
+  writable:
+    - name
+    - description
+  unique_messages:
+    financial_categories_name_key: این نام دسته از قبل هست
+  order_by: [id]
+  order_dir: DESC
+
+financial_account_types:
+  table: financial_account_types
+  kind: lookup
+  label: نوع حساب
+  allowed: [id, name, description, is_active]
+
+transaction_types:
+  table: transaction_types
+  kind: lookup
+  label: نوع تراکنش
+  allowed: [id, name]

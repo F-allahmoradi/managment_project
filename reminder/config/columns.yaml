@@ -1,0 +1,94 @@
+# ستون‌های خواندن و نوشتن تعریف یادآوری. ارسال واقعی اینجا نیست.
+
+reminders:
+  table: reminders
+  allowed:
+    - id
+    - project_id
+    - created_by_user_id
+    - reminder_type_id
+    - frequency_id
+    - title
+    - message_template
+    - scheduled_at
+    - next_run_at
+    - last_run_at
+    - status_id
+    - created_at
+  writable:
+    - project_id
+    - created_by_user_id
+    - reminder_type_id
+    - frequency_id
+    - title
+    - message_template
+    - scheduled_at
+    - next_run_at
+    - last_run_at
+    - status_id
+  order_by: [id]
+  order_dir: DESC
+
+reminder_targets:
+  table: reminder_targets
+  allowed:
+    - id
+    - reminder_id
+    - user_id
+    - external_contact_id
+  writable:
+    - reminder_id
+    - user_id
+    - external_contact_id
+  unique_messages:
+    reminder_targets_reminder_user_idx: این کاربر از قبل گیرندهٔ همین یادآوری است
+    reminder_targets_reminder_external_idx: این مخاطب خارجی از قبل گیرندهٔ همین یادآوری است
+
+follow_up_states:
+  table: follow_up_states
+  allowed:
+    - id
+    - reminder_id
+    - user_id
+    - external_contact_id
+    - attempt_count
+    - last_sent_at
+    - responded_at
+    - response_text
+    - status_id
+  writable:
+    - reminder_id
+    - user_id
+    - external_contact_id
+    - attempt_count
+    - last_sent_at
+    - responded_at
+    - response_text
+    - status_id
+  unique_messages:
+    follow_up_states_reminder_user_idx: وضعیت پیگیری این کاربر از قبل هست
+    follow_up_states_reminder_external_idx: وضعیت پیگیری این مخاطب خارجی از قبل هست
+
+reminder_types:
+  table: reminder_types
+  kind: lookup
+  label: نوع یادآوری
+  allowed: [id, name, is_active]
+
+reminder_frequencies:
+  table: reminder_frequencies
+  kind: lookup
+  label: تکرار یادآوری
+  allowed: [id, name, is_active]
+
+reminder_statuses:
+  table: reminder_statuses
+  kind: lookup
+  label: وضعیت یادآوری
+  allowed: [id, name, is_active]
+
+follow_up_state_statuses:
+  table: follow_up_state_statuses
+  kind: lookup
+  label: وضعیت پیگیری گیرنده
+  allowed: [id, name, is_active]

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>جلسه جدید</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: radial-gradient(ellipse at 30% 20%, #1a1050 0%, #0a0830 25%, #050420 50%, #020210 100%);
+      font-family: "Vazirmatn", sans-serif;
+      font-weight: 400;
+      color: #ffffff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea { font-family: inherit; color: inherit; }
+    button { background: none; border: none; cursor: pointer; }
+    input, textarea { outline: none; }
+
+    .shell {
+      width: 1160px;
+      min-height: 860px;
+      margin: 20px auto;
+      border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(15, 25, 60, 0.95), rgba(8, 12, 35, 0.98));
+      border: 1px solid rgba(100, 140, 255, 0.3);
+      box-shadow:
+        0 0 80px rgba(80, 100, 255, 0.3),
+        0 0 160px rgba(60, 80, 200, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: grid;
+      direction: ltr;
+      grid-template-columns: 1fr 380px;
+      grid-template-rows: auto 1fr auto auto;
+      gap: 0;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      height: 80px;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      direction: rtl;
+      background: linear-gradient(180deg, rgba(20, 30, 70, 0.9), rgba(10, 15, 40, 0.95));
+      border-bottom: 1px solid rgba(100, 160, 255, 0.2);
+      backdrop-filter: blur(16px);
+      gap: 10px;
+    }
+    .back {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(20, 40, 80, 0.7);
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      box-shadow: 0 0 10px rgba(80, 160, 255, 0.2);
+      display: grid;
+      place-items: center;
+      flex: none;
+      color: #fff;
+    }
+
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a6a, #0a1a3a);
+      border: 2px solid rgba(100, 180, 255, 0.4);
+      box-shadow: 0 0 15px rgba(80, 160, 255, 0.3);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .who-text { display: flex; flex-direction: column; gap: 2px; }
+    .who-name { font-size: 16px; font-weight: 700; color: #ffffff; line-height: 1.2; }
+    .who-role {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: right;
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand h1 { font-size: 22px; font-weight: 700; color: #ffffff; line-height: 1.3; }
+    .brand p { font-size: 13px; color: rgba(255, 255, 255, 0.55); }
+    .cal-glow { filter: drop-shadow(0 0 10px #4ad4ff); }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 220px;
+      justify-content: flex-start;
+    }
+    .bell {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+    }
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff2d55;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .icon-btn:hover { transform: translateY(-1px); filter: drop-shadow(0 0 8px rgba(74, 212, 255, 0.45)); }
+
+    .body {
+      grid-column: 1;
+      grid-row: 2;
+      padding: 16px 18px 8px 12px;
+      min-height: 0;
+      direction: rtl;
+    }
+    .chat {
+      height: 100%;
+      max-height: 640px;
+      padding: 20px;
+      overflow-y: auto;
+      background: linear-gradient(160deg, rgba(12, 20, 50, 0.9), rgba(6, 10, 30, 0.95));
+      border: 1px solid rgba(80, 140, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: inset 0 0 30px rgba(60, 100, 200, 0.1);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100, 160, 255, 0.45) transparent;
+    }
+    .chat::-webkit-scrollbar { width: 6px; }
+    .chat::-webkit-scrollbar-thumb {
+      background: rgba(100, 160, 255, 0.45);
+      border-radius: 99px;
+    }
+    .chat::-webkit-scrollbar-track { background: transparent; }
+
+    .msg {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .msg.user {
+      flex-direction: row-reverse;
+      align-self: flex-end;
+    }
+
+    .bot-av {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      flex: none;
+      background: linear-gradient(135deg, #2a4aaa, #1a3a8a);
+      border: 2px solid rgba(100, 180, 255, 0.5);
+      box-shadow: 0 0 15px rgba(80, 160, 255, 0.4);
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 0 8px rgba(80, 160, 255, 0.7));
+    }
+    .user-av {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex: none;
+      background: linear-gradient(135deg, #3a6acc, #2a5aaa);
+      border: 2px solid rgba(100, 180, 255, 0.4);
+      display: grid;
+      place-items: center;
+    }
+
+    .bubble {
+      max-width: 70%;
+      border-radius: 4px 18px 18px 18px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(40, 30, 100, 0.9), rgba(25, 20, 70, 0.95));
+      border: 1px solid rgba(140, 120, 255, 0.35);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+    }
+    .bubble.user {
+      max-width: 60%;
+      border-radius: 18px 4px 18px 18px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(30, 60, 140, 0.9), rgba(15, 35, 90, 0.95));
+      border: 1px solid rgba(80, 160, 255, 0.4);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+    .hello { font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+    .line { font-size: 13px; color: rgba(255, 255, 255, 0.85); line-height: 1.8; }
+    .line + .line { margin-top: 4px; }
+    .line.soft { color: rgba(255, 255, 255, 0.88); }
+    .utext { font-size: 13px; font-weight: 600; color: #ffffff; line-height: 1.6; }
+    .utext.mid { font-weight: 500; line-height: 1.7; }
+    .ok-title { font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 10px; }
+    .time {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .bubble.user .time { justify-content: flex-end; }
+
+    .confirm {
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(50, 30, 120, 0.7), rgba(30, 20, 80, 0.8));
+      border: 1px solid rgba(140, 120, 255, 0.4);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+    .confirm-copy { display: flex; flex-direction: column; }
+    .confirm-when { font-size: 13px; font-weight: 600; color: #ffffff; }
+    .confirm-where { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
+    .confirm-topic { font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-top: 4px; }
+
+    .side {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      direction: rtl;
+      scrollbar-width: none;
+    }
+    .side::-webkit-scrollbar { width: 0; display: none; }
+
+    .card {
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(160deg, rgba(20, 40, 90, 0.85), rgba(10, 20, 50, 0.9));
+      border: 1px solid rgba(100, 180, 255, 0.3);
+      box-shadow: 0 0 20px rgba(80, 160, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+    }
+    .card-h {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+    .card-h.leftish { justify-content: flex-start; }
+    .card-h h2 { font-size: 15px; font-weight: 700; color: #ffffff; }
+    .info-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(40, 80, 160, 0.5);
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
+    .month {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .month strong { font-size: 14px; font-weight: 600; color: #ffffff; }
+    .nav-ch {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .nav-ch:hover { transform: translateY(-1px); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45)); }
+
+    .week, .days {
+      display: grid;
+      grid-template-columns: repeat(7, 36px);
+      justify-content: space-between;
+    }
+    .week { margin-bottom: 6px; }
+    .week span {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+    }
+    .days { gap: 4px; }
+    .day {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(15, 35, 70, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .day:hover:not(.blank) { transform: translateY(-1px); box-shadow: 0 0 10px rgba(80, 160, 255, 0.35); }
+    .day.blank { visibility: hidden; }
+    .day.sel {
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      border: 1px solid rgba(200, 180, 255, 0.6);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(140, 100, 255, 0.5);
+    }
+    .day.today::after {
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #4ad4ff;
+      box-shadow: 0 0 6px #4ad4ff;
+    }
+
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
+    .label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 6px;
+    }
+    .req {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ff4060;
+      box-shadow: 0 0 6px #ff4060;
+    }
+    .box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .box:hover { transform: translateY(-1px); box-shadow: 0 0 14px rgba(80, 160, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+    .box input, .box textarea {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+    .box textarea {
+      min-height: 70px;
+      resize: none;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+    .box textarea::placeholder { color: rgba(255, 255, 255, 0.35); font-size: 11px; }
+    .box select {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+    .box select option { color: #0a1428; }
+    .grow { flex: 1; }
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .map-actions {
+      display: flex;
+      gap: 6px;
+      flex: none;
+    }
+    .map-btn {
+      flex: none;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(100, 180, 255, 0.45);
+      background: rgba(20, 50, 110, 0.7);
+      color: #9ee7ff;
+      white-space: nowrap;
+    }
+
+    .dock {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      padding: 16px 24px;
+      background: linear-gradient(180deg, rgba(15, 25, 60, 0.95), rgba(8, 12, 35, 0.98));
+      border-top: 1px solid rgba(100, 160, 255, 0.2);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      direction: rtl;
+      backdrop-filter: blur(16px);
+    }
+    .hint {
+      flex: 1;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      background: transparent;
+      border: 0;
+      min-width: 0;
+    }
+    .hint::placeholder { color: rgba(255, 255, 255, 0.45); }
+    .acts { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+    .act {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(25, 50, 90, 0.7), rgba(12, 30, 60, 0.8));
+      border: 1px solid rgba(80, 160, 255, 0.3);
+      box-shadow: 0 0 10px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      backdrop-filter: blur(12px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .act span { font-size: 10px; font-weight: 500; color: rgba(255, 255, 255, 0.75); }
+    .act:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(60, 140, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .plus {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      box-shadow: 0 0 14px rgba(80, 160, 255, 0.3);
+      display: grid;
+      place-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .plus:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(80, 160, 255, 0.5); }
+    .send {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a3acc, #8a5aec);
+      border: 1px solid rgba(200, 180, 255, 0.5);
+      box-shadow: 0 0 16px rgba(140, 100, 255, 0.5);
+      display: grid;
+      place-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .send:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(140, 100, 255, 0.7); }
+    .mic {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a3acc 0%, #8a5aec 50%, #aa7aff 100%);
+      border: 2px solid rgba(200, 180, 255, 0.6);
+      box-shadow: 0 0 30px rgba(140, 100, 255, 0.6), 0 0 60px rgba(120, 80, 255, 0.3);
+      display: grid;
+      place-items: center;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(140, 100, 255, 0.6), 0 0 60px rgba(120, 80, 255, 0.3); }
+      50% { box-shadow: 0 0 42px rgba(140, 100, 255, 0.85), 0 0 80px rgba(120, 80, 255, 0.5); }
+    }
+
+    .status {
+      grid-column: 1 / -1;
+      grid-row: 4;
+      height: 36px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 0 24px;
+      direction: rtl;
+      background: rgba(5, 10, 25, 0.8);
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4aff80;
+      box-shadow: 0 0 8px #4aff80;
+    }
+    .status span { font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+
+    .meet-submit {
+      width: 100%;
+      height: 52px;
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(180, 160, 255, 0.5);
+      background: linear-gradient(135deg, #2a5acc, #8a3acc);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 0 24px rgba(120, 80, 255, 0.4);
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100dvh;
+        margin: 0;
+        border-radius: 0;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+      }
+      .header {
+        height: 64px;
+        padding: 0 12px;
+        min-width: 0;
+      }
+      .who { display: none; min-width: 0; }
+      .tools { min-width: 0; justify-content: flex-end; }
+      .brand { flex: 1; min-width: 0; gap: 8px; }
+      .brand h1 { font-size: 16px; }
+      .brand p { display: none; }
+      .body { display: none; }
+      .side {
+        grid-column: 1;
+        grid-row: 2;
+        padding: 12px 16px 24px;
+        overflow: visible;
+      }
+      .week, .days {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+      }
+      .day { width: auto; }
+      .dock { display: none; }
+      .status { grid-column: 1; grid-row: 3; }
+    }
+  </style>
+</head>
+<body data-page="new-meeting">
+  <main class="shell">
+    <header class="header">
+      <a class="back" id="meeting-back" href="meetings.html" aria-label="بازگشت">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M7.2 3.4 13 9l-5.8 5.6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <div class="who">
+        <div class="avatar" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8.2" r="3.2" stroke="#ffffff" stroke-width="1.7"/>
+            <path d="M5.2 19.2c1.2-3.3 3.4-4.8 6.8-4.8s5.6 1.5 6.8 4.8" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="who-text">
+          <div class="who-name" id="session-name">کاربر</div>
+          <div class="who-role">
+            مدیر سازمان
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.4 4.4 6 8l3.6-3.6" stroke="rgba(255,255,255,0.55)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="brand">
+        <svg class="cal-glow" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect x="4" y="6" width="20" height="17" rx="3" stroke="#4ad4ff" stroke-width="1.7"/>
+          <path d="M4 11.2h20M9 3.8v4.2M19 3.8v4.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-text">
+          <h1>جلسه جدید</h1>
+          <p>ثبت و برنامه‌ریزی جلسه سازمانی</p>
+        </div>
+      </div>
+
+      <div class="tools">
+        <button class="icon-btn bell" type="button" aria-label="اعلان‌ها">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 16.2V11a6 6 0 1 1 12 0v5.2l1.4 1.6H4.6L6 16.2z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M10 19.2a2 2 0 0 0 4 0" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span class="badge">3</span>
+        </button>
+        <button class="icon-btn" type="button" aria-label="منو">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="5" r="1.4" fill="#ffffff"/>
+            <circle cx="11" cy="11" r="1.4" fill="#ffffff"/>
+            <circle cx="11" cy="17" r="1.4" fill="#ffffff"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="body">
+      <div class="chat">
+        <article class="msg">
+          <div class="bot-av" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M11 2.2v2.2" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="11" cy="2" r="1" fill="#ffffff"/>
+              <rect x="4.2" y="5.2" width="13.6" height="10.2" rx="2.4" stroke="#ffffff" stroke-width="1.6"/>
+              <circle cx="8.4" cy="10" r="1.15" fill="#ffffff"/>
+              <circle cx="13.6" cy="10" r="1.15" fill="#ffffff"/>
+              <path d="M8 16.6v1.6M14 16.6v1.6M7.2 18.4h7.6" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="bubble">
+            <div class="hello" id="session-hello">سلام</div>
+            <p class="line">برای ثبت جلسه، لطفاً موضوع جلسه را بنویسید یا با من صحبت کنید.</p>
+            <p class="line">می‌توانید متن، صدا یا فایل جلسه را هم اضافه کنید.</p>
+            <div class="time">۰۹:۴۱</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card">
+        <div class="card-h">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.4" y="5" width="17.2" height="15.2" rx="2.4" stroke="#4ad4ff" stroke-width="1.7"/>
+            <path d="M3.4 9.5h17.2M8 3.2v3.2M16 3.2v3.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <h2 class="grow">تقویم جلسه</h2>
+          <button class="cal-from" id="fill-from-calendar" type="button">از تقویم گوگل</button>
+        </div>
+        <div class="month">
+          <button class="nav-ch" type="button" aria-label="ماه بعد">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3.2 10.8 8 6 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <strong id="meeting-month">—</strong>
+          <button class="nav-ch" type="button" aria-label="ماه قبل">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3.2 5.2 8 10 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="week">
+          <span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span><span>سه‌شنبه</span><span>چهارشنبه</span><span>پنجشنبه</span><span>جمعه</span>
+        </div>
+        <div class="days" id="days">
+          <span class="day blank"></span><span class="day blank"></span>
+          <button class="day" type="button" data-day="1">۱</button>
+          <button class="day" type="button" data-day="2">۲</button>
+          <button class="day" type="button" data-day="3">۳</button>
+          <button class="day" type="button" data-day="4">۴</button>
+          <button class="day" type="button" data-day="5">۵</button>
+          <button class="day" type="button" data-day="6">۶</button>
+          <button class="day" type="button" data-day="7">۷</button>
+          <button class="day" type="button" data-day="8">۸</button>
+          <button class="day" type="button" data-day="9">۹</button>
+          <button class="day" type="button" data-day="10">۱۰</button>
+          <button class="day" type="button" data-day="11">۱۱</button>
+          <button class="day" type="button" data-day="12">۱۲</button>
+          <button class="day today" type="button" data-day="13">۱۳</button>
+          <button class="day" type="button" data-day="14">۱۴</button>
+          <button class="day" type="button" data-day="15">۱۵</button>
+          <button class="day" type="button" data-day="16">۱۶</button>
+          <button class="day sel" type="button" data-day="17">۱۷</button>
+          <button class="day" type="button" data-day="18">۱۸</button>
+          <button class="day" type="button" data-day="19">۱۹</button>
+          <button class="day" type="button" data-day="20">۲۰</button>
+          <button class="day" type="button" data-day="21">۲۱</button>
+          <button class="day" type="button" data-day="22">۲۲</button>
+          <button class="day" type="button" data-day="23">۲۳</button>
+          <button class="day" type="button" data-day="24">۲۴</button>
+          <button class="day" type="button" data-day="25">۲۵</button>
+          <button class="day" type="button" data-day="26">۲۶</button>
+          <button class="day" type="button" data-day="27">۲۷</button>
+          <button class="day" type="button" data-day="28">۲۸</button>
+          <button class="day" type="button" data-day="29">۲۹</button>
+          <button class="day" type="button" data-day="30">۳۰</button>
+          <span class="day blank"></span><span class="day blank"></span><span class="day blank"></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-h leftish">
+          <span class="info-dot" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="#ffffff" stroke-width="1.2"/>
+              <path d="M6 5.2V8.6" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="6" cy="3.5" r="0.7" fill="#ffffff"/>
+            </svg>
+          </span>
+          <h2>اطلاعات جلسه</h2>
+        </div>
+
+        <div class="field">
+          <div class="label">موضوع جلسه <span class="req"></span></div>
+          <label class="box">
+            <input id="meeting-title" type="text" placeholder="موضوع جلسه">
+          </label>
+        </div>
+        <div class="field">
+          <div class="label">تاریخ</div>
+          <label class="box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3.4" y="5" width="17.2" height="15.2" rx="2.2" stroke="#4ad4ff" stroke-width="1.7"/>
+              <path d="M3.4 9.5h17.2M8 3.2v3.2M16 3.2v3.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <input id="meeting-date" type="text" value="۱۴۰۴/۰۷/۱۷" readonly>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M2 3.6 5 6.6 8 3.6" stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </label>
+        </div>
+        <div class="field">
+          <div class="label">ساعت شروع</div>
+          <div class="time-row">
+            <label class="box">
+              <select id="meeting-hour" aria-label="ساعت شروع"></select>
+            </label>
+            <label class="box">
+              <select id="meeting-minute" aria-label="دقیقه شروع"></select>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">ساعت پایان</div>
+          <div class="time-row">
+            <label class="box">
+              <select id="meeting-end-hour" aria-label="ساعت پایان"></select>
+            </label>
+            <label class="box">
+              <select id="meeting-end-minute" aria-label="دقیقه پایان"></select>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">مدت زمان</div>
+          <label class="box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="#4ad4ff" stroke-width="1.7"/>
+              <path d="M12 8v4.2l2.6 1.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <select id="meeting-duration-pick" aria-label="مدت جلسه">
+              <option value="15">۱۵ دقیقه</option>
+              <option value="30">۳۰ دقیقه</option>
+              <option value="45">۴۵ دقیقه</option>
+              <option value="60" selected>۱ ساعت</option>
+              <option value="90">۱ ساعت و ۳۰ دقیقه</option>
+              <option value="120">۲ ساعت</option>
+              <option value="180">۳ ساعت</option>
+              <option value="custom">ساعت پایان دستی</option>
+            </select>
+          </label>
+        </div>
+        <input id="meeting-start" type="hidden" value="10:00">
+        <input id="meeting-end" type="hidden" value="11:00">
+        <input id="meeting-scheduled-iso" type="hidden" value="">
+        <input id="meeting-duration-mins" type="hidden" value="60">
+        <input id="meeting-duration" type="hidden" value="۱ ساعت">
+        <div class="field">
+          <div class="label">آدرس / مکان</div>
+          <label class="box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 21s6-5 6-10a6 6 0 1 0-12 0c0 5 6 10 6 10z" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
+              <circle cx="12" cy="11" r="2" stroke="#4ad4ff" stroke-width="1.6"/>
+            </svg>
+            <input id="meeting-location" type="text" placeholder="جستجو در نقشه ایران">
+            <div class="map-actions">
+              <button class="map-btn" id="open-map-picker" type="button">نقشه</button>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <div class="label">یادداشت (اختیاری)</div>
+          <label class="box" style="align-items:flex-start">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 3.6h7.2L19 8.6v11a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 19.6V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M14 3.6V8.6h5M8 12.4h8M8 15.6h5.4" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <textarea id="desc" placeholder="توضیحات تکمیلی جلسه را اینجا وارد کنید..."></textarea>
+          </label>
+        </div>
+        <div class="field">
+          <div class="label">پروژه</div>
+          <label class="box">
+            <select id="meeting-project"></select>
+          </label>
+        </div>
+        <button class="meet-submit" id="meeting-submit" type="button">ثبت جلسه</button>
+      </section>
+    </aside>
+
+    <footer class="dock">
+      <button class="mic" type="button" aria-label="ضبط صدا">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="3" width="6" height="11" rx="3" stroke="#ffffff" stroke-width="1.7"/>
+          <path d="M6.5 11.2a5.5 5.5 0 0 0 11 0M12 16.8V21M9 21h6" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="send" id="meeting-send" type="button" aria-label="ثبت جلسه">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3.2 11.2 20 4.2l-6.6 16.2-2.6-6.4-7.6-2.8z" fill="#ffffff"/>
+        </svg>
+      </button>
+      <div class="acts">
+        <button class="act" id="meeting-voice" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="9" y="3.2" width="6" height="10.2" rx="3" stroke="#4ad4ff" stroke-width="1.7"/>
+            <path d="M7 11.2a5 5 0 0 0 10 0M12 16.2V20" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span>صدا</span>
+        </button>
+        <button class="act" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.2" y="6.4" width="11.2" height="11.2" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
+            <path d="M14.4 10.2 20.2 7.4v9.2l-5.8-2.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+          <span>ویدیو</span>
+        </button>
+        <button class="act" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.4" y="5" width="17.2" height="14" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
+            <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.5"/>
+            <path d="m4 16.4 4.6-4 3.2 2.6 2.2-1.8L20 17" stroke="#4ad4ff" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <span>عکس</span>
+        </button>
+        <button class="act" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7.2h5.2l1.6 1.8H20a1.4 1.4 0 0 1 1.4 1.4v7.2A1.6 1.6 0 0 1 19.8 19H4.6A1.6 1.6 0 0 1 3 17.4V8.6A1.4 1.4 0 0 1 4 7.2z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          <span>فایل</span>
+        </button>
+        <button class="plus" type="button" aria-label="افزودن">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M11 4.5v13M4.5 11h13" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <input class="hint" type="text" placeholder="پیام خود را بنویسید یا از طریق صدا ارسال کنید..." aria-label="پیام">
+    </footer>
+
+    <div class="status">
+      <span class="dot"></span>
+      <span>آماده برای ثبت جلسه</span>
+    </div>
+  </main>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

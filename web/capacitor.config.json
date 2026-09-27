@@ -1,0 +1,8 @@
+{
+  "appId": "ir.management.organization",
+  "appName": "مدیریت سازمان",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  }
+}

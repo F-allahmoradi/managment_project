@@ -1,0 +1,76 @@
+# فیلدهای قابل‌استخراج از متن گزارش، جلسه یا پیام.
+# لایه استخراج چیزی در PostgreSQL نمی‌نویسد؛ ردیف entities / entity_mentions بعداً با CRUD ساخته می‌شود.
+
+project_texts:
+  table: entity_mentions
+  column: mention_text
+  allowed:
+    - type
+    - canonical_name
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+    - occurred_at
+    - phrase
+    - topic_code
+    - polarity
+    - intensity
+    - emotion
+  extractable:
+    - PERSON
+    - UNIT
+    - ORG
+    - PLACE
+    - OBJECT
+    - PROJECT
+    - TASK
+    - TIME
+    - ROLE
+  keywords: true
+  topics: true
+  sentiment: true
+  emotions: true
+  discourses: true
+  intents: true
+  rhetorics: true
+  readonly:
+    - id
+    - analysis_id
+    - entity_id
+  enums:
+    entity_type:
+      - PERSON
+      - UNIT
+      - ORG
+      - PLACE
+      - OBJECT
+      - PROJECT
+      - TASK
+      - TIME
+      - ROLE
+  ranges:
+    mentions:
+      min: 0
+      max: 80
+    topics:
+      min: 0
+      max: 8
+    keywords:
+      min: 0
+      max: 12
+    emotions:
+      min: 0
+      max: 3
+    discourses:
+      min: 1
+      max: 3
+    intents:
+      min: 1
+      max: 2
+    rhetorics:
+      min: 1
+      max: 2
+    confidence:
+      min: 0
+      max: 1

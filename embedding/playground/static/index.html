@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>زمین بازی MCP</title>
+    <link rel="stylesheet" href="/static/style.css?v=embed3" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>زمین بازی MCP</h1>
+        <p class="muted">
+          هر بخش یک سرور است. اول تحلیل را امبد کن، بعد سؤال بزن.
+          استخراج و پردازش زبانی متن را اجرا می‌کنند، نه فهرست ابزار.
+        </p>
+      </div>
+      <span class="pill" id="server-pill">management-embedding</span>
+    </header>
+
+    <div class="shell">
+      <aside class="mcp-nav" id="mcp-nav"></aside>
+      <div class="stage">
+        <p id="section-blurb" class="hint"></p>
+
+        <section id="panel-embedding" class="mcp-panel">
+          <main class="layout">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>ایندکس</h2>
+                <div class="actions">
+                  <button type="button" id="btn-refresh" class="ghost">تازه‌سازی فهرست</button>
+                  <button type="button" id="btn-pending" class="ghost">باقی‌مانده‌ها</button>
+                </div>
+              </div>
+              <p id="index-status" class="hint">تحلیل ذخیره‌شده را برداری کن؛ بدون بردار جستجو خالی است.</p>
+              <p id="index-error" class="error hidden"></p>
+              <div id="analyses"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>سؤال</h2>
+              </div>
+              <p class="hint">روی نمونه بزن تا پر شود و جستجو شود. Enter هم جستجو می‌کند.</p>
+              <div id="search-samples" class="sample-row"></div>
+              <p id="sample-note" class="hint"></p>
+              <textarea id="query" rows="3" placeholder="مثلاً چرا پرداخت پیمانکار عقب افتاده؟"></textarea>
+              <div class="run-row">
+                <button type="button" id="btn-search" class="primary">جستجو</button>
+                <label class="muted" for="source-type">منبع</label>
+                <select id="source-type">
+                  <option value="">همه</option>
+                  <option value="meeting">جلسه</option>
+                  <option value="message">پیام</option>
+                  <option value="content">متن</option>
+                </select>
+                <label class="muted"><input type="checkbox" id="kind-raw" checked /> خام</label>
+                <label class="muted"><input type="checkbox" id="kind-entity" checked /> موجودیت</label>
+                <label class="muted"><input type="checkbox" id="kind-intent" checked /> نیت</label>
+                <label class="muted"><input type="checkbox" id="kind-slot" checked /> جزء نیت</label>
+              </div>
+              <p id="search-status" class="hint"></p>
+              <p id="error" class="error hidden"></p>
+            </section>
+          </main>
+          <section class="panel">
+            <div class="panel-head">
+              <h2>موارد مشابه</h2>
+            </div>
+            <div id="results" class="speech-result empty">هنوز جستجویی نشده.</div>
+          </section>
+        </section>
+
+        <section id="panel-extract" class="mcp-panel hidden">
+          <main class="layout">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>متن</h2>
+                <div class="actions">
+                  <button type="button" id="btn-sample" class="ghost">نمونه ساختگی</button>
+                </div>
+              </div>
+              <textarea id="ner-text" rows="10" placeholder="گزارش، صورت‌جلسه یا پیام را اینجا بگذار…"></textarea>
+              <div class="run-row">
+                <button type="button" id="btn-extract" class="primary">استخراج</button>
+                <span id="extract-status" class="muted"></span>
+              </div>
+              <p id="extract-error" class="error hidden"></p>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>خلاصه استخراج</h2>
+              </div>
+              <div id="extract-chips" class="chips"></div>
+              <pre id="extract-json" class="mono">هنوز استخراجی نشده.</pre>
+            </section>
+          </main>
+        </section>
+
+        <section id="panel-nlp" class="mcp-panel hidden">
+          <main class="layout">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>متن</h2>
+                <div class="actions">
+                  <button type="button" id="btn-nlp-sample" class="ghost">نمونه ساختگی</button>
+                </div>
+              </div>
+              <p class="hint">فکت، نقل‌قول و قاب مسئله. ذخیره در issues اینجا نیست.</p>
+              <textarea id="nlp-text" rows="10" placeholder="گزارش، صورت‌جلسه یا پیام را اینجا بگذار…"></textarea>
+              <div class="run-row">
+                <button type="button" id="btn-nlp-extract" class="primary">استخراج</button>
+                <span id="nlp-status" class="muted"></span>
+              </div>
+              <p id="nlp-error" class="error hidden"></p>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>خلاصه فکت و قاب</h2>
+              </div>
+              <div id="nlp-chips" class="chips"></div>
+              <pre id="nlp-json" class="mono">هنوز استخراجی نشده.</pre>
+            </section>
+          </main>
+        </section>
+
+        <section id="panel-snapshot" class="mcp-panel hidden">
+          <div class="panel-head">
+            <h2 id="snapshot-title">نما</h2>
+            <button type="button" id="btn-snapshot" class="ghost">تازه‌سازی</button>
+          </div>
+          <p id="snapshot-status" class="hint"></p>
+          <p id="snapshot-error" class="error hidden"></p>
+          <div id="snapshot-groups"></div>
+        </section>
+
+        <section id="panel-empty" class="mcp-panel hidden">
+          <section class="panel">
+            <h2>رزرو آینده</h2>
+            <p class="muted" id="empty-blurb"></p>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script src="/static/app.js?v=embed3"></script>
+  </body>
+</html>

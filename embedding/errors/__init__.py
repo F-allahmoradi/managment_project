@@ -1,0 +1,41 @@
+# خطاهای سرور MCP امبدینگ.
+
+from errors.crud import (
+    CONFIG_ERROR,
+    DATABASE_ERROR,
+    EMPTY_TRANSCRIPT,
+    INVALID_INPUT,
+    LLM_ERROR,
+    MEETING_NOT_FOUND,
+    PERMISSION_DENIED,
+    ConfigError,
+    CrudError,
+    DatabaseError,
+    EmptyTranscriptError,
+    InvalidInputError,
+    LlmError,
+    MeetingNotFoundError,
+    PermissionDeniedError,
+    format_error,
+    format_success,
+)
+
+__all__ = [
+    "CONFIG_ERROR",
+    "DATABASE_ERROR",
+    "EMPTY_TRANSCRIPT",
+    "INVALID_INPUT",
+    "LLM_ERROR",
+    "MEETING_NOT_FOUND",
+    "PERMISSION_DENIED",
+    "ConfigError",
+    "CrudError",
+    "DatabaseError",
+    "EmptyTranscriptError",
+    "InvalidInputError",
+    "LlmError",
+    "MeetingNotFoundError",
+    "PermissionDeniedError",
+    "format_error",
+    "format_success",
+]

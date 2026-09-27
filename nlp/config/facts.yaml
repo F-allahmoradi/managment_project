@@ -1,0 +1,82 @@
+# فکت ساخت‌یافته از متن. حدس بی‌شاهد اینجا راه ندارد.
+# عددِ نیامده در متن فقط وقتی می‌ماند که تفریق/جمع منابع صریح درست دربیاید.
+
+kinds:
+  - code: quantity
+    name: مقدار
+    definition: عدد یا درصد که در متن آمده یا از عددهای صریح قابل محاسبه است.
+  - code: condition
+    name: شرط
+    definition: قیدی که وقوع یا پذیرش به آن وابسته است.
+  - code: change
+    name: تغییر
+    definition: فرق وضعیت فعلی با قبل؛ کاهش، افزایش، جایگزینی.
+  - code: cause
+    name: علت
+    definition: نسبت علت و معلول که شاهدش در متن باشد.
+  - code: status
+    name: وضعیت
+    definition: وضع فعلی کار یا واحد، بدون عدد الزامی.
+
+units:
+  - code: percent
+    name: درصد
+    aliases:
+      - درصد
+      - "%"
+  - code: amount
+    name: مبلغ
+    aliases:
+      - ریال
+      - تومان
+  - code: count
+    name: تعداد
+    aliases:
+      - نفر
+      - عدد
+  - code: duration
+    name: مدت
+    aliases:
+      - روز
+      - ساعت
+  - code: ratio
+    name: نسبت
+
+groundings:
+  - code: explicit
+    name: صریح
+    definition: خودِ مقدار یا ادعا زیررشتهٔ متن است.
+  - code: derived
+    name: مستنتج از شاهد
+    definition: مقدار در متن نیست ولی از فکت‌های صریح با عمل مجاز به‌دست می‌آید.
+
+quantity_roles:
+  - code: total
+    name: کل
+  - code: part
+    name: جزء
+  - code: remainder
+    name: باقی‌مانده
+  - code: none
+    name: بدون نقش
+    fallback: true
+
+derivations:
+  - code: subtract
+    name: تفریق
+    definition: مقدار = منبع اول منهای مجموع بقیه.
+  - code: add
+    name: جمع
+    definition: مقدار = مجموع منابع.
+  - code: remainder
+    name: باقی‌مانده
+    definition: مقدار = کل منهای اجزا؛ معادل تفریق با نقش total/part.
+  - code: from_evidence
+    name: از شاهد متن
+    definition: استنتاج غیرعددی؛ همهٔ evidence_texts باید در متن باشند.
+
+rules:
+  - عدد صریح بدون زیررشته در متن حذف می‌شود.
+  - عدد مستنتج بدون منبع عددی یا با حساب غلط حذف می‌شود.
+  - علت بدون شاهد متن حذف می‌شود؛ مقصرسازی بدون قرینه مجاز نیست.
+  - مثال طلایی: ۳۰ درصد کل و ۱۰ درصد جزء بازاریابی → ۲۰ درصد باقی برای کمبود نیروی متخصص، چون هر دو عدد و هر دو علت در متن‌اند.

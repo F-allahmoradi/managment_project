@@ -1,0 +1,79 @@
+# فیلدهای قابل‌استخراج زبانی غیر از NER.
+# لایه استخراج چیزی در PostgreSQL نمی‌نویسد.
+
+project_texts:
+  table: text_analyses
+  column: mention_text
+  allowed:
+    - kind
+    - name
+    - value
+    - unit
+    - role
+    - grounding
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+    - derivation
+    - source_ids
+    - evidence_texts
+    - mode
+    - attributed_to
+    - scope
+    - process
+    - title
+  extractable:
+    - quantity
+    - condition
+    - change
+    - cause
+    - status
+  facts: true
+  quotes: true
+  frames: true
+  readonly:
+    - id
+    - analysis_id
+  enums:
+    fact_kind:
+      - quantity
+      - condition
+      - change
+      - cause
+      - status
+    grounding:
+      - explicit
+      - derived
+    quantity_role:
+      - total
+      - part
+      - remainder
+      - none
+    unit:
+      - percent
+      - amount
+      - count
+      - duration
+      - ratio
+    quote_mode:
+      - direct
+      - indirect
+    derivation:
+      - subtract
+      - add
+      - remainder
+      - from_evidence
+  ranges:
+    facts:
+      min: 0
+      max: 24
+    quotes:
+      min: 0
+      max: 8
+    evidence:
+      min: 1
+      max: 6
+    confidence:
+      min: 0
+      max: 1

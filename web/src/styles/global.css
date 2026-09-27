@@ -1,0 +1,79 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: "Vazirmatn", Tahoma, sans-serif;
+  background:
+    radial-gradient(ellipse at 50% 30%, #0f2040 0%, #050d1a 50%, #020818 100%),
+    linear-gradient(180deg, #020818 0%, #0a1628 50%, #050d1a 100%);
+  background-attachment: fixed;
+  color: #fff;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+textarea,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+textarea {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 180, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 180, 255, 0.5);
+}
+
+::selection {
+  background: rgba(0, 180, 255, 0.28);
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 80%;
+  }
+}

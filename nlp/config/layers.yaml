@@ -1,0 +1,17 @@
+# لایه‌های زبانی غیر از NER و امبدینگ. INSERT نیست.
+# نیت و ژانر و موجودیت اینجا نیستند.
+
+facts:
+  enabled: true
+  catalog: facts.yaml
+  notes: مقدار، درصد، شرط، تغییر، علت، وضعیت. صراحت روی هر فکت است نه حدس آزاد.
+
+quotes:
+  enabled: true
+  catalog: quotes.yaml
+  notes: نقل‌قول مستقیم و غیرمستقیم؛ گوینده جمله داخلی جدا از فرستنده پیام است.
+
+frame:
+  enabled: true
+  catalog: frames.yaml
+  notes: عنوان مسئله، واحد، فرآیند، محدوده. کارت مسئله است نه نیت.

@@ -1,0 +1,8 @@
+# سیاست اجرای کوئری برای تمام ابزارهای CRUD.
+
+timeout_seconds: 10
+
+pagination:
+  default_limit: 10
+  max_limit: 50
+  default_offset: 0

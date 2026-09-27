@@ -1,0 +1,11 @@
+# اتصال PostgreSQL برای آمار سامانه مدیریت.
+# همان پایگاه CRUD است؛ کوئری‌ها فقط SELECT هستند.
+
+management:
+  type: postgresql
+  host: 127.0.0.1
+  port: 5437
+  database: management_db
+  user: management
+  password: management
+  users_table: users

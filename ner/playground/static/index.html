@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تست استخراج متن پروژه</title>
+    <link rel="stylesheet" href="/static/style.css?v=seq3" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>تست استخراج متن پروژه</h1>
+        <p class="muted">
+          همهٔ لایه‌ها در همین صفحه است: موجودیت، کلمهٔ کلیدی، موضوع، احساس،
+          ژانر، نیت و بیان. قاب مسئله و جستجوی ایندکس سرور جدا دارند.
+          ذخیره جدا است و با وضعیت پیشنهادی به CRUD می‌رود.
+        </p>
+        <nav class="nav">
+          <a class="nav-link active" href="/">استخراج</a>
+          <a class="nav-link" href="http://127.0.0.1:8780">قاب مسئله</a>
+          <a class="nav-link" href="http://127.0.0.1:8779">جستجو ایندکس</a>
+        </nav>
+      </div>
+      <span class="pill">نمایش جدا از ذخیره</span>
+    </header>
+
+    <section class="panel wide samples-panel">
+      <div class="panel-head">
+        <h2>نمونه‌ها</h2>
+        <button type="button" id="btn-clear" class="ghost">خالی</button>
+      </div>
+      <div id="samples"></div>
+      <p id="sample-note" class="hint hidden"></p>
+    </section>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>متن</h2>
+        </div>
+        <div class="expected-row">
+          <label>
+            انتظار ژانر
+            <select id="expected-discourse">
+              <option value="">بدون انتظار</option>
+            </select>
+          </label>
+          <label>
+            انتظار نیت
+            <select id="expected-intent">
+              <option value="">بدون انتظار</option>
+            </select>
+          </label>
+          <label>
+            انتظار بیان
+            <select id="expected-rhetoric">
+              <option value="">بدون انتظار</option>
+            </select>
+          </label>
+        </div>
+        <textarea
+          id="text"
+          rows="12"
+          placeholder="گزارش، صورت‌جلسه یا پیام را اینجا بگذار…"
+        ></textarea>
+        <div class="run-row">
+          <button type="button" id="btn-run" class="primary" data-layer="all">همه</button>
+          <button type="button" class="ghost layer-btn" data-layer="speech">ژانر+نیت+بیان</button>
+          <button type="button" class="ghost layer-btn" data-layer="entities">موجودیت</button>
+          <button type="button" class="ghost layer-btn" data-layer="keywords">کلیدی</button>
+          <button type="button" class="ghost layer-btn" data-layer="topics">موضوع</button>
+          <button type="button" class="ghost layer-btn" data-layer="sentiment">احساس</button>
+          <button type="button" class="ghost layer-btn" data-layer="discourse">ژانر</button>
+          <button type="button" class="ghost layer-btn" data-layer="intent">نیت</button>
+          <button type="button" class="ghost layer-btn" data-layer="rhetoric">بیان</button>
+          <button type="button" id="btn-save" class="ghost" disabled>ذخیره پیشنهادی</button>
+          <span id="status" class="muted"></span>
+        </div>
+        <p id="error" class="error hidden"></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>نتیجه روی متن</h2>
+          <div id="legend" class="legend"></div>
+        </div>
+        <div id="speech-summary" class="speech-summary hidden"></div>
+        <div id="chips" class="chips hidden"></div>
+        <div id="highlight" class="highlight empty">هنوز استخراجی نشده.</div>
+      </section>
+    </main>
+
+    <section class="panel wide">
+      <div class="result-tabs">
+        <button type="button" data-pane="mentions" class="tab active">ذکرها</button>
+        <button type="button" data-pane="keywords" class="tab">کلمات کلیدی</button>
+        <button type="button" data-pane="topics" class="tab">موضوع</button>
+        <button type="button" data-pane="stance" class="tab">احساس</button>
+        <button type="button" data-pane="discourse" class="tab">ژانر</button>
+        <button type="button" data-pane="intent" class="tab">نیت</button>
+        <button type="button" data-pane="rhetoric" class="tab">بیان</button>
+        <button type="button" data-pane="entities" class="tab">canonical</button>
+        <button type="button" data-pane="catalog" class="tab">کاتالوگ</button>
+        <button type="button" data-pane="trace" class="tab">اجرا</button>
+        <button type="button" data-pane="json" class="tab">JSON</button>
+      </div>
+      <div id="pane-mentions" class="pane">
+        <p class="muted">بعد از استخراج، ذکرها با شاهد و آفست اینجا می‌آیند.</p>
+      </div>
+      <div id="pane-keywords" class="pane hidden"></div>
+      <div id="pane-topics" class="pane hidden"></div>
+      <div id="pane-stance" class="pane hidden"></div>
+      <div id="pane-discourse" class="pane hidden"></div>
+      <div id="pane-intent" class="pane hidden"></div>
+      <div id="pane-rhetoric" class="pane hidden"></div>
+      <div id="pane-entities" class="pane hidden"></div>
+      <div id="pane-catalog" class="pane hidden">
+        <p class="muted">کاتالوگ از YAML می‌آید.</p>
+      </div>
+      <div id="pane-trace" class="pane hidden"></div>
+      <pre id="pane-json" class="pane hidden mono"></pre>
+    </section>
+
+    <script src="/static/app.js?v=seq5"></script>
+  </body>
+</html>

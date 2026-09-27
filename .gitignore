@@ -1,0 +1,14 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.pytest_cache/
+.mypy_cache/
+**/logs/*.log
+ner/tests/_tmp_*.yaml
+web/node_modules/
+web/dist/
+web/.vite/
+stt/media/

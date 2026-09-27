@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>API سامانه مدیریت</title>
+  <style>
+    body { font-family: Vazirmatn, sans-serif; margin: 2rem auto; max-width: 46rem; line-height: 1.7; color: #142033; }
+    code { direction: ltr; unicode-bidi: isolate; background: #f2f5f8; padding: 0.1rem 0.35rem; }
+    pre { direction: ltr; text-align: left; background: #101828; color: #e8eef7; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>API نسخه ۱</h1>
+  <p>وب و موبایل هر دو به همین سرویس وصل می‌شوند. آدرس پایه در توسعه <code>http://127.0.0.1:8080</code> است.</p>
+  <h2>ورود</h2>
+  <pre>POST /api/v1/auth/login
+{"username":"...", "password":"..."}</pre>
+  <p>پاسخ فیلد <code>access_token</code> دارد. بعد از آن هر درخواست این هدر را می‌خواهد:</p>
+  <pre>Authorization: Bearer توکن</pre>
+  <p>ثبت‌نام: <code>POST /api/v1/auth/register</code> با نام، نام خانوادگی، نام کاربری و رمز. اگر هنوز کاربری نباشد، همان حساب مدیر کل می‌شود. پاسخ مثل ورود توکن دارد.</p>
+  <p>خروج: <code>POST /api/v1/auth/logout</code>. کاربر جاری: <code>GET /api/v1/auth/me</code>. فیلد <code>roles</code> نام نقش‌های فعال است.</p>
+  <h2>دو شکل صدا زدن</h2>
+  <p>مسیرهای آمادهٔ داشبورد، مثل <code>GET /api/v1/projects</code> و <code>GET /api/v1/meetings</code>.</p>
+  <p>بقیهٔ ابزارها: <code>POST /api/v1/{domain}/tools/{tool}</code> با بدنهٔ JSON همان آرگومان‌ها. ابزار خواندنی را می‌شود با GET و کوئری هم صدا زد.</p>
+  <p>فهرست کامل: <code>GET /api/v1/catalog</code>. سند ماشین‌خوان: <code>GET /api/v1/openapi.json</code>.</p>
+  <h2>خطا</h2>
+  <p>بدنه همیشه <code>status</code> و در خطا <code>error_code</code> و <code>message</code> دارد. کد HTTP جداگانه است: ۴۰۱ بدون توکن، ۴۰۳ بدون مجوز، ۴۰۴ پیدا نشد، ۴۲۲ ورودی نامعتبر.</p>
+</body>
+</html>

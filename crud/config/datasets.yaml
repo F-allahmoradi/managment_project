@@ -1,0 +1,11 @@
+# اتصال PostgreSQL برای CRUD سامانه مدیریت.
+# جزئیات اتصال اینجا است تا ماژول‌های پایتون host و رمز را قفل نکنند.
+
+management:
+  type: postgresql
+  host: 127.0.0.1
+  port: 5437
+  database: management_db
+  user: management
+  password: management
+  users_table: users

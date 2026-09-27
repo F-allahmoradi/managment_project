@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>اعلان‌ها</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-shell.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+</head>
+<body data-page="notifications">
+  <main class="screen">
+    <div class="status"><time>سامانه</time></div>
+    <header class="header">
+      <a class="back" href="admin-mobile.html" aria-label="بازگشت">→</a>
+      <h1>اعلان‌ها</h1>
+      <span style="width:38px"></span>
+    </header>
+    <p class="empty-note">فقط اعلان‌های رسیده‌شده به همین حساب اینجا هستند. گفتگو در صفحهٔ گفتگو است.</p>
+    <h2 class="empty-note" style="margin:8px 16px 0">صندوق شما</h2>
+    <div id="notice-list"></div>
+    <div id="notice-sent-wrap" hidden>
+      <h2 class="empty-note" style="margin:16px 16px 0">یادآوری‌هایی که فرستاده‌اید</h2>
+      <div id="notice-sent"></div>
+    </div>
+    <form class="form-card" id="notice-form" hidden>
+      <h2>ارسال یادآوری</h2>
+      <p>برای گیرنده در صندوق اعلان‌های همان حساب می‌آید، نه در صندوق شما.</p>
+      <div class="field">
+        <label for="notice-user">گیرنده</label>
+        <select id="notice-user" required></select>
+      </div>
+      <div class="field">
+        <label for="notice-project">پروژه (اختیاری)</label>
+        <select id="notice-project"></select>
+      </div>
+      <div class="field">
+        <label for="notice-type">نوع یادآوری</label>
+        <select id="notice-type" required>
+          <option value="یک‌باره">یک‌باره</option>
+          <option value="دوره‌ای">دوره‌ای</option>
+          <option value="پیگیری">پیگیری</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="notice-frequency">تکرار</label>
+        <select id="notice-frequency" required>
+          <option value="یک‌باره">یک‌باره</option>
+          <option value="روزانه">روزانه</option>
+          <option value="هفتگی">هفتگی</option>
+          <option value="ماهانه">ماهانه</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="notice-title">عنوان</label>
+        <input id="notice-title" required maxlength="200">
+      </div>
+      <div class="field">
+        <label for="notice-body">متن</label>
+        <textarea id="notice-body" required></textarea>
+      </div>
+      <p class="empty-note">ارسال همین حالا یک‌بار انجام می‌شود. تکرار روزانه یا هفتگی ذخیره می‌شود؛ زمان‌بند خودکار روی این سرور نیست.</p>
+      <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ارسال یادآوری</button>
+    </form>
+  </main>
+  <nav class="bnav">
+    <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
+    <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
+    <a class="nitem" href="meetings.html"><span>جلسات</span></a>
+    <a class="nitem" href="members-groups.html"><span>افراد</span></a>
+    <a class="nitem on" href="notifications.html"><span>اعلان</span></a>
+  </nav>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

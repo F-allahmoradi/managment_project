@@ -1,0 +1,12 @@
+# فرادادهٔ منبع متن برای کاتالوگ MCP.
+# host و رمز اینجا نیست؛ اتصال از crud و متغیر محیط Postgres می‌آید.
+
+project_texts:
+  type: postgresql
+  table: text_analyses
+  column: mention_text
+  description: فکت عددی، شرط، علت، تغییر، نقل‌قول و قاب مسئله از متن گزارش، جلسه یا پیام. نیت و ژانر مال management-ner است.
+  sources:
+    report: reports.body
+    meeting: contents.text_body
+    message: messages.text

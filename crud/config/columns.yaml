@@ -1,0 +1,1208 @@
+# ستون‌های خواندن و نوشتن. موتور SQL فقط همین را می‌بیند.
+# سرویس دامنه کوئری تکراری نمی‌سازد.
+
+users:
+  table: users
+  soft_delete:
+    strategy: is_active
+  list_default_where:
+    is_active: true
+  allowed:
+    - id
+    - first_name
+    - last_name
+    - phone
+    - email
+    - username
+    - is_active
+    - created_at
+  writable:
+    - first_name
+    - last_name
+    - phone
+    - email
+    - username
+    - password_hash
+    - is_active
+  order_by: [id]
+  order_dir: DESC
+  unique_messages:
+    users_username_key: نام کاربری تکراری است
+    users_email_key: ایمیل تکراری است
+    users_phone_key: شماره تلفن تکراری است
+
+roles:
+  table: roles
+  soft_delete:
+    strategy: is_active
+  list_default_where:
+    is_active: true
+  allowed:
+    - id
+    - name
+    - description
+    - is_system_role
+    - is_active
+  writable:
+    - name
+    - description
+    - is_active
+  order_by: [id]
+  unique_messages:
+    roles_name_key: نام نقش تکراری است
+
+permissions:
+  table: permissions
+  allowed:
+    - id
+    - name
+    - description
+    - resource
+    - action
+  writable:
+    - name
+    - description
+    - resource
+    - action
+  order_by: [resource, action]
+  unique_messages:
+    permissions_name_key: نام مجوز تکراری است
+    permissions_resource_action_key: این مجوز resource/action از قبل هست
+
+user_roles:
+  table: user_roles
+  soft_delete:
+    strategy: is_active
+  list_default_where:
+    is_active: true
+  allowed:
+    - id
+    - user_id
+    - role_id
+    - is_active
+  writable:
+    - user_id
+    - role_id
+    - is_active
+  unique_messages:
+    user_roles_user_id_role_id_key: این نقش از قبل به کاربر داده شده
+
+role_permissions:
+  table: role_permissions
+  soft_delete:
+    strategy: is_active
+  list_default_where:
+    is_active: true
+  allowed:
+    - id
+    - role_id
+    - permission_id
+    - is_active
+  writable:
+    - role_id
+    - permission_id
+    - is_active
+  unique_messages:
+    role_permissions_role_id_permission_id_key: این مجوز از قبل به نقش داده شده
+
+projects:
+  table: projects
+  soft_delete:
+    strategy: status
+    status_column: project_status_id
+    status_lookup: project_statuses
+    status_name: لغو شده
+  allowed:
+    - id
+    - name
+    - description
+    - project_type_id
+    - project_status_id
+    - start_date
+    - end_date
+    - created_by
+    - created_at
+  writable:
+    - name
+    - description
+    - project_type_id
+    - project_status_id
+    - start_date
+    - end_date
+    - created_by
+  unique_messages:
+    tasks_project_id_fkey: این پروژه وظیفه دارد و حذف نمی‌شود
+    meetings_project_id_fkey: این پروژه جلسه دارد و حذف نمی‌شود
+    chats_project_id_fkey: این پروژه گفتگو دارد و حذف نمی‌شود
+    reminders_project_id_fkey: این پروژه یادآوری دارد و حذف نمی‌شود
+    financial_transactions_project_id_fkey: این پروژه تراکنش مالی دارد و حذف نمی‌شود
+    performance_actions_project_id_fkey: این پروژه تشویق یا تنبیه دارد و حذف نمی‌شود
+    performance_scores_project_id_fkey: این پروژه امتیاز عملکرد دارد و حذف نمی‌شود
+    entity_project_links_project_id_fkey: این پروژه به موجودیت تحلیل وصل است و حذف نمی‌شود
+    issues_project_id_fkey: این پروژه مسئله دارد و حذف نمی‌شود
+
+project_members:
+  table: project_members
+  allowed:
+    - id
+    - project_id
+    - user_id
+    - project_role_id
+    - joined_at
+    - is_active
+  writable:
+    - project_id
+    - user_id
+    - project_role_id
+    - is_active
+  unique_messages:
+    project_members_project_id_user_id_key: این کاربر از قبل عضو پروژه است
+
+tasks:
+  table: tasks
+  soft_delete:
+    strategy: status
+    status_column: status_id
+    status_lookup: task_statuses
+    status_name: لغو شده
+  allowed:
+    - id
+    - project_id
+    - title
+    - description
+    - assigned_to_user_id
+    - created_by_user_id
+    - status_id
+    - priority_id
+    - importance_id
+    - importance_percent
+    - start_date
+    - due_date
+    - completed_at
+    - created_at
+  writable:
+    - project_id
+    - title
+    - description
+    - assigned_to_user_id
+    - created_by_user_id
+    - status_id
+    - priority_id
+    - importance_id
+    - importance_percent
+    - start_date
+    - due_date
+    - completed_at
+  unique_messages:
+    entity_task_links_task_id_fkey: این وظیفه به موجودیت تحلیل وصل است و حذف نمی‌شود
+    messages_task_id_fkey: این وظیفه پیام دارد و حذف نمی‌شود
+
+task_items:
+  table: task_items
+  soft_delete:
+    strategy: is_active
+  allowed:
+    - id
+    - task_id
+    - parent_item_id
+    - title
+    - description
+    - sort_order
+    - start_date
+    - end_date
+    - is_completed
+    - completed_at
+    - completed_by_user_id
+    - created_by_user_id
+    - created_at
+    - updated_at
+    - is_active
+  writable:
+    - task_id
+    - parent_item_id
+    - title
+    - description
+    - sort_order
+    - start_date
+    - end_date
+    - is_completed
+    - completed_at
+    - completed_by_user_id
+    - created_by_user_id
+    - is_active
+  order_by: [parent_item_id, sort_order, id]
+  order_dir: ASC
+  unique_messages:
+    task_items_dates_check: پایان زیرکار نباید قبل از شروع باشد
+    task_items_completion_check: تیک زیرکار با زمان تکمیل سازگار نیست
+    task_items_title_not_empty: عنوان زیرکار نمی‌تواند خالی باشد
+    task_items_sort_order_check: ترتیب زیرکار نمی‌تواند منفی باشد
+
+task_follow_ups:
+  table: task_follow_ups
+  allowed:
+    - id
+    - task_id
+    - followed_by_user_id
+    - follow_up_type_id
+    - status_id
+    - note
+    - follow_up_date
+    - next_follow_up_date
+    - created_at
+  writable:
+    - task_id
+    - followed_by_user_id
+    - follow_up_type_id
+    - status_id
+    - note
+    - follow_up_date
+    - next_follow_up_date
+
+project_types:
+  table: project_types
+  kind: lookup
+  label: نوع پروژه
+  allowed: [id, name, is_active]
+
+project_statuses:
+  table: project_statuses
+  kind: lookup
+  label: وضعیت پروژه
+  allowed: [id, name, is_active]
+
+project_roles:
+  table: project_roles
+  kind: lookup
+  label: نقش داخل پروژه
+  allowed: [id, name, is_active]
+
+task_statuses:
+  table: task_statuses
+  kind: lookup
+  label: وضعیت کار
+  allowed: [id, name, is_active]
+
+task_priorities:
+  table: task_priorities
+  kind: lookup
+  label: اولویت کار
+  allowed: [id, name, is_active]
+
+task_importances:
+  table: task_importances
+  kind: lookup
+  label: اهمیت کار
+  allowed: [id, name, is_active]
+
+follow_up_types:
+  table: follow_up_types
+  kind: lookup
+  label: نوع پیگیری
+  allowed: [id, name, is_active]
+
+task_follow_up_statuses:
+  table: task_follow_up_statuses
+  kind: lookup
+  label: نتیجه پیگیری
+  allowed: [id, name, is_active]
+
+external_contacts:
+  table: external_contacts
+  allowed:
+    - id
+    - name
+    - phone
+    - email
+    - telegram_id
+    - is_active
+    - created_at
+  writable:
+    - name
+    - phone
+    - email
+    - telegram_id
+    - is_active
+  order_by: [id]
+  order_dir: DESC
+  unique_messages:
+    external_contacts_phone_key: شماره تلفن مخاطب تکراری است
+    external_contacts_email_key: ایمیل مخاطب تکراری است
+    external_contacts_telegram_id_key: شناسه تلگرام مخاطب تکراری است
+
+chats:
+  table: chats
+  allowed:
+    - id
+    - project_id
+    - chat_type_id
+    - title
+    - created_at
+  writable:
+    - project_id
+    - chat_type_id
+    - title
+  order_by: [id]
+  order_dir: DESC
+
+chat_members:
+  table: chat_members
+  allowed:
+    - id
+    - chat_id
+    - user_id
+    - joined_at
+  writable:
+    - chat_id
+    - user_id
+  unique_messages:
+    chat_members_chat_id_user_id_key: این کاربر از قبل عضو گفتگو است
+
+messages:
+  table: messages
+  allowed:
+    - id
+    - chat_id
+    - sender_user_id
+    - task_id
+    - text
+    - created_at
+  writable:
+    - chat_id
+    - sender_user_id
+    - task_id
+    - text
+    - content_id
+  order_by: [created_at, id]
+  order_dir: DESC
+
+message_recipients:
+  table: message_recipients
+  allowed:
+    - id
+    - message_id
+    - user_id
+    - external_contact_id
+  writable:
+    - message_id
+    - user_id
+    - external_contact_id
+  unique_messages:
+    message_recipients_message_user_idx: این کاربر از قبل گیرندهٔ همین پیام است
+    message_recipients_message_external_idx: این مخاطب خارجی از قبل گیرندهٔ همین پیام است
+
+chat_types:
+  table: chat_types
+  kind: lookup
+  label: نوع گفتگو
+  allowed: [id, name]
+
+notification_types:
+  table: notification_types
+  kind: lookup
+  label: نوع اعلان
+  allowed: [id, name, description, is_active]
+
+notifications:
+  table: notifications
+  allowed:
+    - id
+    - user_id
+    - notification_type_id
+    - title
+    - message
+    - is_read
+    - created_at
+  writable:
+    - user_id
+    - notification_type_id
+    - title
+    - message
+    - is_read
+  order_by: [created_at, id]
+  order_dir: DESC
+
+audit_logs:
+  table: audit_logs
+  allowed:
+    - id
+    - user_id
+    - action
+    - entity
+    - entity_id
+    - old_value
+    - new_value
+    - created_at
+  writable:
+    - user_id
+    - action
+    - entity
+    - entity_id
+    - old_value
+    - new_value
+  order_by: [created_at, id]
+  order_dir: DESC
+
+performance_action_types:
+  table: performance_action_types
+  kind: lookup
+  label: نوع تشویق یا تنبیه
+  allowed: [id, name, category]
+
+performance_actions:
+  table: performance_actions
+  allowed:
+    - id
+    - user_id
+    - project_id
+    - type_id
+    - reason
+    - amount
+    - score
+    - financial_transaction_id
+    - created_by_user_id
+    - created_at
+  writable:
+    - user_id
+    - project_id
+    - type_id
+    - reason
+    - amount
+    - score
+    - financial_transaction_id
+    - created_by_user_id
+  order_by: [created_at, id]
+  order_dir: DESC
+
+performance_scores:
+  table: performance_scores
+  allowed:
+    - id
+    - user_id
+    - project_id
+    - score
+    - reason
+    - source
+    - performance_action_id
+    - created_at
+  writable:
+    - user_id
+    - project_id
+    - score
+    - reason
+    - source
+    - performance_action_id
+  order_by: [created_at, id]
+  order_dir: DESC
+
+transaction_types:
+  table: transaction_types
+  kind: lookup
+  label: نوع تراکنش
+  allowed: [id, name]
+
+content_kinds:
+  table: content_kinds
+  kind: lookup
+  label: نوع محتوا
+  allowed: [id, code, name, is_active]
+
+media_files:
+  table: media_files
+  allowed:
+    - id
+    - storage_key
+    - original_filename
+    - mime_type
+    - file_size_bytes
+    - duration_seconds
+    - uploaded_by_user_id
+    - created_at
+  writable:
+    - storage_key
+    - original_filename
+    - mime_type
+    - file_size_bytes
+    - duration_seconds
+    - uploaded_by_user_id
+  order_by: [id]
+  order_dir: DESC
+  unique_messages:
+    media_files_storage_key_key: کلید ذخیره‌سازی تکراری است
+
+contents:
+  table: contents
+  soft_delete:
+    strategy: is_active
+  list_default_where:
+    is_active: true
+  allowed:
+    - id
+    - content_kind_id
+    - text_body
+    - media_file_id
+    - created_by_user_id
+    - is_active
+    - created_at
+  writable:
+    - content_kind_id
+    - text_body
+    - media_file_id
+    - created_by_user_id
+    - is_active
+  order_by: [id]
+  order_dir: DESC
+
+analysis_source_types:
+  table: analysis_source_types
+  kind: lookup
+  label: نوع منبع تحلیل
+  allowed: [id, code, name, is_active]
+
+entity_types:
+  table: entity_types
+  kind: lookup
+  label: نوع موجودیت
+  allowed: [id, code, name, is_active]
+
+entity_statuses:
+  table: entity_statuses
+  kind: lookup
+  label: وضعیت موجودیت
+  allowed: [id, code, name, is_active]
+
+topics:
+  table: topics
+  kind: lookup
+  label: موضوع
+  allowed: [id, parent_id, code, name, level, is_active]
+
+polarities:
+  table: polarities
+  kind: lookup
+  label: قطبیت
+  allowed: [id, code, name, is_active]
+
+emotions:
+  table: emotions
+  kind: lookup
+  label: هیجان
+  allowed: [id, code, name, is_active]
+
+intensity_levels:
+  table: intensity_levels
+  kind: lookup
+  label: شدت احساس
+  allowed: [id, code, name, level, is_active]
+
+discourse_types:
+  table: discourse_types
+  kind: lookup
+  label: ژانر متن
+  allowed: [id, code, name, description, is_active, is_discovered]
+  writable: [code, name, description, is_active, is_discovered]
+  unique_messages:
+    discourse_types_code_key: این کد ژانر تکراری است
+    discourse_types_name_key: این نام ژانر تکراری است
+
+intents:
+  table: intents
+  kind: lookup
+  label: نیت
+  allowed: [id, code, name, description, is_active]
+
+rhetoric_types:
+  table: rhetoric_types
+  kind: lookup
+  label: صنعت بیان
+  allowed: [id, code, name, description, is_active]
+
+fact_kinds:
+  table: fact_kinds
+  kind: lookup
+  label: نوع فکت
+  allowed: [id, code, name, description, is_active]
+
+fact_units:
+  table: fact_units
+  kind: lookup
+  label: واحد فکت
+  allowed: [id, code, name, description, is_active]
+
+fact_quantity_roles:
+  table: fact_quantity_roles
+  kind: lookup
+  label: نقش مقدار
+  allowed: [id, code, name, description, is_active]
+
+fact_groundings:
+  table: fact_groundings
+  kind: lookup
+  label: صراحت فکت
+  allowed: [id, code, name, description, is_active]
+
+fact_derivations:
+  table: fact_derivations
+  kind: lookup
+  label: حساب فکت
+  allowed: [id, code, name, description, is_active]
+
+quote_modes:
+  table: quote_modes
+  kind: lookup
+  label: شیوه نقل
+  allowed: [id, code, name, description, is_active]
+
+text_analyses:
+  table: text_analyses
+  allowed:
+    - id
+    - source_type_id
+    - source_id
+    - model
+    - created_by_user_id
+    - project_id
+    - created_at
+  writable:
+    - source_type_id
+    - source_id
+    - model
+    - created_by_user_id
+    - project_id
+  order_by: [id]
+  order_dir: DESC
+
+entities:
+  table: entities
+  allowed:
+    - id
+    - entity_type_id
+    - status_id
+    - canonical_name
+    - normalized_name
+    - created_at
+  writable:
+    - entity_type_id
+    - status_id
+    - canonical_name
+    - normalized_name
+  order_by: [id]
+  order_dir: DESC
+
+entity_mentions:
+  table: entity_mentions
+  allowed:
+    - id
+    - analysis_id
+    - entity_id
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  writable:
+    - analysis_id
+    - entity_id
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  order_by: [id]
+  unique_messages:
+    entity_mentions_span_key: این ذکر در همین تحلیل تکراری است
+
+entity_mention_times:
+  table: entity_mention_times
+  allowed:
+    - id
+    - mention_id
+    - occurred_at
+  writable:
+    - mention_id
+    - occurred_at
+  unique_messages:
+    entity_mention_times_mention_id_key: برای این ذکر قبلاً زمان ثبت شده
+
+text_analysis_topics:
+  table: text_analysis_topics
+  allowed:
+    - id
+    - analysis_id
+    - topic_id
+    - is_primary
+    - confidence
+    - mention_text
+  writable:
+    - analysis_id
+    - topic_id
+    - is_primary
+    - confidence
+    - mention_text
+  unique_messages:
+    text_analysis_topics_analysis_topic_key: این موضوع در همین تحلیل تکراری است
+
+text_analysis_sentiments:
+  table: text_analysis_sentiments
+  allowed:
+    - id
+    - analysis_id
+    - polarity_id
+    - intensity_id
+    - mention_text
+  writable:
+    - analysis_id
+    - polarity_id
+    - intensity_id
+    - mention_text
+  unique_messages:
+    text_analysis_sentiments_analysis_id_key: برای این تحلیل قبلاً قطبیت ثبت شده
+
+text_analysis_emotions:
+  table: text_analysis_emotions
+  allowed:
+    - id
+    - analysis_id
+    - emotion_id
+    - intensity_id
+    - mention_text
+  writable:
+    - analysis_id
+    - emotion_id
+    - intensity_id
+    - mention_text
+  unique_messages:
+    text_analysis_emotions_analysis_emotion_key: این هیجان در همین تحلیل تکراری است
+
+text_analysis_discourses:
+  table: text_analysis_discourses
+  allowed:
+    - id
+    - analysis_id
+    - discourse_type_id
+    - is_primary
+    - confidence
+    - mention_text
+  writable:
+    - analysis_id
+    - discourse_type_id
+    - is_primary
+    - confidence
+    - mention_text
+  unique_messages:
+    text_analysis_discourses_analysis_type_key: این ژانر در همین تحلیل تکراری است
+
+text_analysis_discourse_slots:
+  table: text_analysis_discourse_slots
+  allowed:
+    - id
+    - analysis_discourse_id
+    - slot_name
+    - slot_value
+  writable:
+    - analysis_discourse_id
+    - slot_name
+    - slot_value
+  unique_messages:
+    text_analysis_discourse_slots_unique: این جزء ژانر در همین ژانر تکراری است
+
+text_analysis_intents:
+  table: text_analysis_intents
+  allowed:
+    - id
+    - analysis_id
+    - intent_id
+    - is_primary
+    - confidence
+    - mention_text
+  writable:
+    - analysis_id
+    - intent_id
+    - is_primary
+    - confidence
+    - mention_text
+  unique_messages:
+    text_analysis_intents_analysis_intent_key: این نیت در همین تحلیل تکراری است
+
+text_analysis_intent_slots:
+  table: text_analysis_intent_slots
+  allowed:
+    - id
+    - analysis_intent_id
+    - slot_name
+    - slot_value
+  writable:
+    - analysis_intent_id
+    - slot_name
+    - slot_value
+  unique_messages:
+    text_analysis_intent_slots_unique: این جزء نیت در همین نیت تکراری است
+
+text_analysis_rhetorics:
+  table: text_analysis_rhetorics
+  allowed:
+    - id
+    - analysis_id
+    - rhetoric_type_id
+    - is_primary
+    - confidence
+    - mention_text
+    - intended_meaning
+  writable:
+    - analysis_id
+    - rhetoric_type_id
+    - is_primary
+    - confidence
+    - mention_text
+    - intended_meaning
+  unique_messages:
+    text_analysis_rhetorics_analysis_type_key: این صنعت بیان در همین تحلیل تکراری است
+
+text_analysis_rhetoric_slots:
+  table: text_analysis_rhetoric_slots
+  allowed:
+    - id
+    - analysis_rhetoric_id
+    - slot_name
+    - slot_value
+  writable:
+    - analysis_rhetoric_id
+    - slot_name
+    - slot_value
+  unique_messages:
+    text_analysis_rhetoric_slots_unique: این جزء بیان در همین بیان تکراری است
+
+text_analysis_facts:
+  table: text_analysis_facts
+  allowed:
+    - id
+    - analysis_id
+    - fact_code
+    - kind_id
+    - name
+    - value
+    - unit_id
+    - role_id
+    - grounding_id
+    - derivation_id
+    - effect
+    - previous
+    - current
+    - mention_text
+    - start_offset
+    - end_offset
+    - evidence_texts
+    - source_ids
+    - confidence
+  writable:
+    - analysis_id
+    - fact_code
+    - kind_id
+    - name
+    - value
+    - unit_id
+    - role_id
+    - grounding_id
+    - derivation_id
+    - effect
+    - previous
+    - current
+    - mention_text
+    - start_offset
+    - end_offset
+    - evidence_texts
+    - source_ids
+    - confidence
+  order_by: [id]
+
+text_analysis_quotes:
+  table: text_analysis_quotes
+  allowed:
+    - id
+    - analysis_id
+    - mode_id
+    - attributed_to
+    - quoted_text
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  writable:
+    - analysis_id
+    - mode_id
+    - attributed_to
+    - quoted_text
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  order_by: [id]
+
+keywords:
+  table: keywords
+  allowed:
+    - id
+    - phrase
+    - normalized_phrase
+    - created_at
+  writable:
+    - phrase
+    - normalized_phrase
+  order_by: [id]
+  unique_messages:
+    keywords_normalized_phrase_key: این عبارت کلیدی از قبل هست
+
+keyword_mentions:
+  table: keyword_mentions
+  allowed:
+    - id
+    - keyword_id
+    - analysis_id
+    - source_type_id
+    - source_id
+    - project_id
+    - created_by_user_id
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  writable:
+    - keyword_id
+    - analysis_id
+    - source_type_id
+    - source_id
+    - project_id
+    - created_by_user_id
+    - mention_text
+    - start_offset
+    - end_offset
+    - confidence
+  order_by: [id]
+
+text_embeddings:
+  table: text_embeddings
+  allowed:
+    - id
+    - analysis_id
+    - kind
+    - record_id
+    - chunk_index
+    - embedded_text
+    - model
+    - embedding
+    - created_at
+  writable:
+    - analysis_id
+    - kind
+    - record_id
+    - chunk_index
+    - embedded_text
+    - model
+    - embedding
+  order_by: [id]
+  unique_messages:
+    text_embeddings_unique_idx: این بردار برای همین تحلیل از قبل هست
+
+issue_statuses:
+  table: issue_statuses
+  kind: lookup
+  label: وضعیت مسئله
+  allowed: [id, code, name, is_active]
+
+issues:
+  table: issues
+  allowed:
+    - id
+    - project_id
+    - status_id
+    - title
+    - created_by_user_id
+    - created_at
+  writable:
+    - project_id
+    - status_id
+    - title
+    - created_by_user_id
+  order_by: [id]
+  order_dir: DESC
+
+issue_sources:
+  table: issue_sources
+  allowed:
+    - id
+    - issue_id
+    - analysis_id
+  writable:
+    - issue_id
+    - analysis_id
+  unique_messages:
+    issue_sources_issue_analysis_key: این تحلیل از قبل به همین مسئله وصل است
+
+cause_levels:
+  table: cause_levels
+  kind: lookup
+  label: سطح علت
+  allowed: [id, code, name, level, is_active]
+
+issue_entity_roles:
+  table: issue_entity_roles
+  kind: lookup
+  label: نقش موجودیت مسئله
+  allowed: [id, code, name, description, is_active]
+
+issue_topics:
+  table: issue_topics
+  allowed:
+    - id
+    - issue_id
+    - topic_id
+  writable:
+    - issue_id
+    - topic_id
+  unique_messages:
+    issue_topics_issue_topic_key: این موضوع از قبل به همین مسئله وصل است
+
+issue_entities:
+  table: issue_entities
+  allowed:
+    - id
+    - issue_id
+    - entity_id
+    - role_id
+  writable:
+    - issue_id
+    - entity_id
+    - role_id
+  unique_messages:
+    issue_entities_issue_entity_role_key: این موجودیت با همین نقش از قبل به مسئله وصل است
+
+issue_causes:
+  table: issue_causes
+  allowed:
+    - id
+    - issue_id
+    - cause_issue_id
+    - cause_level_id
+  writable:
+    - issue_id
+    - cause_issue_id
+    - cause_level_id
+  unique_messages:
+    issue_causes_pair_key: این علت از قبل به همین مسئله وصل است
+    issue_causes_not_self: مسئله نمی‌تواند علت خودش باشد
+
+analysis_output_types:
+  table: analysis_output_types
+  kind: lookup
+  label: نوع خروجی تحلیل
+  allowed: [id, code, name, is_active]
+
+analysis_outputs:
+  table: analysis_outputs
+  allowed:
+    - id
+    - analysis_id
+    - output_type_id
+    - record_id
+    - created_at
+  writable:
+    - analysis_id
+    - output_type_id
+    - record_id
+  unique_messages:
+    analysis_outputs_analysis_type_record_key: این خروجی از قبل به همین تحلیل وصل است
+
+issue_tasks:
+  table: issue_tasks
+  allowed:
+    - id
+    - issue_id
+    - task_id
+  writable:
+    - issue_id
+    - task_id
+  unique_messages:
+    issue_tasks_issue_task_key: این وظیفه از قبل به همین مسئله وصل است
+
+severity_levels:
+  table: severity_levels
+  kind: lookup
+  label: شدت مسئله
+  allowed: [id, code, name, level, is_active]
+
+impact_types:
+  table: impact_types
+  kind: lookup
+  label: نوع اثر
+  allowed: [id, code, name, is_active]
+
+issue_importances:
+  table: issue_importances
+  allowed:
+    - id
+    - issue_id
+    - importance_id
+  writable:
+    - issue_id
+    - importance_id
+  unique_messages:
+    issue_importances_issue_id_key: اهمیت این مسئله از قبل تنظیم شده است
+
+issue_urgencies:
+  table: issue_urgencies
+  allowed:
+    - id
+    - issue_id
+    - priority_id
+  writable:
+    - issue_id
+    - priority_id
+  unique_messages:
+    issue_urgencies_issue_id_key: فوریت این مسئله از قبل تنظیم شده است
+
+issue_severities:
+  table: issue_severities
+  allowed:
+    - id
+    - issue_id
+    - severity_id
+  writable:
+    - issue_id
+    - severity_id
+  unique_messages:
+    issue_severities_issue_id_key: شدت این مسئله از قبل تنظیم شده است
+
+issue_impacts:
+  table: issue_impacts
+  allowed:
+    - id
+    - issue_id
+    - impact_type_id
+    - description
+  writable:
+    - issue_id
+    - impact_type_id
+    - description
+  order_by: [id]
+
+text_analysis_importances:
+  table: text_analysis_importances
+  allowed:
+    - id
+    - analysis_id
+    - importance_id
+  writable:
+    - analysis_id
+    - importance_id
+  unique_messages:
+    text_analysis_importances_analysis_id_key: اهمیت این تحلیل از قبل تنظیم شده است
+
+text_analysis_urgencies:
+  table: text_analysis_urgencies
+  allowed:
+    - id
+    - analysis_id
+    - priority_id
+  writable:
+    - analysis_id
+    - priority_id
+  unique_messages:
+    text_analysis_urgencies_analysis_id_key: فوریت این تحلیل از قبل تنظیم شده است

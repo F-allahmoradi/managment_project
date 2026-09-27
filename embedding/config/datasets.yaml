@@ -1,0 +1,8 @@
+# فرادادهٔ بردار بازیابی معنایی برای کاتالوگ MCP.
+# host و رمز اینجا نیست؛ اتصال از crud و متغیر محیط Postgres می‌آید.
+
+text_embeddings:
+  type: postgresql
+  table: text_embeddings
+  column: embedded_text
+  description: بردار متن خام و فکت استخراج‌شده برای بازیابی موارد مشابه.

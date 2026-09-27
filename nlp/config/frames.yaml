@@ -1,0 +1,35 @@
+# قاب مسئله برای کارت issues. نیت شکایت اینجا نیست؛ آن لایه NER است.
+
+scopes:
+  - code: personal
+    name: شخصی
+    definition: موضوع محدود به یک فرد است.
+  - code: unit
+    name: واحدی
+    definition: موضوع یک واحد یا تیم داخلی است.
+  - code: organizational
+    name: سازمانی
+    definition: موضوع در سطح سازمان، فرآیند یا چند واحد است.
+
+processes:
+  - code: request_handling
+    name: پاسخگویی به درخواست‌ها
+  - code: payment
+    name: پرداخت
+  - code: staffing
+    name: تأمین نیرو
+  - code: procurement
+    name: تدارکات
+  - code: reporting
+    name: گزارش‌دهی
+  - code: operations
+    name: عملیات جاری
+  - code: other
+    name: سایر
+    fallback: true
+
+rules:
+  - title می‌تواند برچسب کوتاه ساخته‌شده باشد.
+  - unit اگر بیاید باید زیررشتهٔ متن باشد.
+  - about اگر بیاید باید زیررشتهٔ متن باشد.
+  - process و scope فقط از کاتالوگ.

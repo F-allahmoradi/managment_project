@@ -1,0 +1,14 @@
+# مدل زبانی برای استخراج متن پروژه.
+# کلید API اینجا نیست؛ از NER_LLM_API_KEY یا AVALAI_API_KEY می‌آید.
+#
+# پیش‌فرض: AvalAI، مدل deepseek-v4-flash.
+# بازنویسی اختیاری با محیط:
+#   AVALAI_BASE_URL  AI_MODEL  NER_LLM_API_KEY
+
+base_url: "https://api.avalai.ir/v1"
+model: "deepseek-v4-flash"
+timeout_seconds: 300
+temperature: 0
+api_key_env: NER_LLM_API_KEY
+allow_missing_api_key: false
+json_response_format: true

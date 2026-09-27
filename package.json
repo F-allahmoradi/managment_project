@@ -1,0 +1,9 @@
+{
+  "name": "management-project",
+  "private": true,
+  "scripts": {
+    "android:apk": "npm run android:apk --prefix web",
+    "android:sync": "npm run android:sync --prefix web",
+    "web:dev": "npm run dev --prefix web"
+  }
+}

@@ -1,0 +1,17 @@
+# مدل امبدینگ OpenAI-compatible.
+# کلید API اینجا نیست؛ از EMBEDDING_API_KEY یا AVALAI_API_KEY می‌آید.
+#
+# پیش‌فرض: AvalAI، مدل text-embedding-3-small.
+# بازنویسی اختیاری با محیط:
+#   AVALAI_BASE_URL  EMBEDDING_MODEL  EMBEDDING_API_KEY
+
+base_url: "https://api.avalai.ir/v1"
+model: "deepseek-v4-flash"
+embedding_model: "text-embedding-3-small"
+# طول بردار همین مدل ۱۵۳۶ است؛ ستون Postgres هم vector(1536) است.
+timeout_seconds: 60
+embedding_timeout_seconds: 60
+temperature: 0
+api_key_env: EMBEDDING_API_KEY
+allow_missing_api_key: false
+json_response_format: true

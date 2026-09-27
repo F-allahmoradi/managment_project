@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>جزئیات وظیفه</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-shell.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+</head>
+<body data-page="task-details">
+  <main class="screen">
+    <div class="status"><time>سامانه</time></div>
+    <header class="header">
+      <a class="back" href="tasks.html" aria-label="بازگشت">→</a>
+      <h1>وظیفه</h1>
+      <span style="width:38px"></span>
+    </header>
+    <section class="form-card">
+      <span class="tag" id="task-status-pill">—</span>
+      <h2 id="task-title">—</h2>
+      <p id="task-desc">—</p>
+      <div class="stat-grid">
+        <div><span>پیشرفت</span><strong id="task-progress">—</strong></div>
+        <div><span>زمان رفته</span><strong id="task-elapsed">—</strong></div>
+        <div><span>زمان باقی</span><strong id="task-remaining">—</strong></div>
+      </div>
+    </section>
+    <form class="form-card" id="task-status-form">
+      <h2>ثبت وضعیت</h2>
+      <div class="field">
+        <label for="task-status">وضعیت</label>
+        <select id="task-status">
+          <option>شروع نشده</option>
+          <option>در حال انجام</option>
+          <option>در انتظار</option>
+          <option>تکمیل شده</option>
+          <option>نیازمند اصلاح</option>
+        </select>
+      </div>
+      <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ذخیره وضعیت</button>
+    </form>
+    <form class="form-card" id="item-form">
+      <h2>کار انجام‌شده / زیرکار</h2>
+      <p>فقط مسئول همین وظیفه می‌تواند زیرکار بسازد و تیک بزند.</p>
+      <div class="field">
+        <label for="item-title">عنوان</label>
+        <input id="item-title" required maxlength="200" placeholder="مثلاً ارسال پیش‌نویس">
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="item-start">شروع</label>
+          <input id="item-start" type="date">
+        </div>
+        <div class="field">
+          <label for="item-end">مهلت</label>
+          <input id="item-end" type="date">
+        </div>
+      </div>
+      <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ثبت زیرکار</button>
+    </form>
+    <div id="item-list"></div>
+    <p class="section-label">هم‌پروژه‌ای‌ها</p>
+    <div id="task-people"></div>
+  </main>
+  <nav class="bnav">
+    <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
+    <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
+    <a class="nitem" href="chats.html"><span>گفتگو</span></a>
+    <a class="nitem on" href="tasks.html"><span>وظایف</span></a>
+    <a class="nitem" href="progress.html"><span>پیشرفت</span></a>
+  </nav>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

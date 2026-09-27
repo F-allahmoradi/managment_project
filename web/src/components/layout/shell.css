@@ -1,0 +1,182 @@
+.shell {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  direction: rtl;
+}
+
+.shell-body {
+  box-sizing: border-box;
+  height: 100vh;
+  padding-top: 100px;
+  padding-bottom: calc(var(--dock-h) + 16px);
+}
+
+.shell-main {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-width: 0;
+  margin-right: calc(var(--sidebar-w) + 40px);
+  overflow: auto;
+  perspective: 1000px;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.backdrop-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 180, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 180, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.backdrop-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.1), transparent 70%);
+  filter: blur(80px);
+}
+
+.neon-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 180, 255, 0.3), transparent);
+  box-shadow: 0 0 15px rgba(0, 180, 255, 0.2);
+}
+
+.neon-line-a {
+  top: 30%;
+}
+
+.neon-line-b {
+  top: 70%;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: float 20s ease-in-out infinite;
+}
+
+.orb-a {
+  width: 400px;
+  height: 400px;
+  top: -80px;
+  right: 8%;
+  background: radial-gradient(circle, #00b4ff 0%, transparent 70%);
+  opacity: 0.15;
+}
+
+.orb-b {
+  width: 320px;
+  height: 320px;
+  bottom: 10%;
+  left: 6%;
+  background: radial-gradient(circle, #bf00ff 0%, transparent 70%);
+  opacity: 0.12;
+  animation-delay: -7s;
+}
+
+.orb-c {
+  width: 280px;
+  height: 280px;
+  top: 42%;
+  left: 46%;
+  background: radial-gradient(circle, #00ffcc 0%, transparent 70%);
+  opacity: 0.1;
+  animation-delay: -12s;
+}
+
+.orb-d {
+  width: 220px;
+  height: 220px;
+  top: 18%;
+  left: 22%;
+  background: radial-gradient(circle, #ff00ff 0%, transparent 70%);
+  opacity: 0.08;
+  animation-delay: -4s;
+}
+
+.orb-e {
+  width: 260px;
+  height: 260px;
+  bottom: 18%;
+  right: 18%;
+  background: radial-gradient(circle, #00b4ff 0%, transparent 70%);
+  opacity: 0.09;
+  animation-delay: -15s;
+}
+
+.scrim {
+  display: none;
+}
+
+.menu-btn {
+  display: none;
+}
+
+@media (max-width: 1400px) {
+  .shell {
+    --sidebar-w: 280px;
+  }
+}
+
+@media (max-width: 968px) {
+  .shell-main {
+    margin-right: 0;
+  }
+
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 180, 255, 0.3);
+    background: rgba(0, 180, 255, 0.1);
+    color: #00b4ff;
+    flex: 0 0 auto;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(5, 8, 16, 0.55);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    --dock-h: 188px;
+  }
+
+  .shell-body {
+    height: auto;
+    min-height: 100vh;
+    padding-top: 0;
+    padding-bottom: calc(var(--dock-h) + 12px);
+  }
+
+  .shell-main {
+    height: auto;
+    overflow: visible;
+  }
+}

@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: management_postgres
+    # pgvector برای نوع vector و ایندکس HNSW؛ داده روی volume می‌ماند.
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: management
+      POSTGRES_PASSWORD: management
+      POSTGRES_DB: management_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./sql/002_seed.sql:/docker-entrypoint-initdb.d/002_seed.sql:ro
+      - ./sql/003_api_sessions.sql:/docker-entrypoint-initdb.d/003_api_sessions.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U management -d management_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
