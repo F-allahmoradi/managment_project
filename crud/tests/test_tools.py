@@ -1748,7 +1748,7 @@ class MessageContactToolTests(unittest.TestCase):
             delete_temp_user(reza_id)
             ali.close()
 
-    def test_project_chat_message_still_needs_task(self) -> None:
+    def test_project_chat_message_can_omit_task(self) -> None:
         ali = bind_actor_as_role("مدیر پروژه")
         chat_id = None
         project_id = None
@@ -1765,13 +1765,15 @@ class MessageContactToolTests(unittest.TestCase):
                 project_id=project_id,
             )
             chat_id = chat["id"]
-            missing = run_create_message(
+            posted = run_create_message(
                 chat_id=chat_id,
-                text="بدون وظیفه",
+                text="گزارش بدون وظیفه",
                 recipient_user_id=ali.user_id,
             )
-            self.assertEqual(missing["status"], "error")
-            self.assertEqual(missing["error_code"], INVALID_INPUT)
+            self.assertEqual(posted["status"], "success")
+            fetched = run_get_message(id=posted["id"])
+            self.assertIsNone(fetched["task_id"])
+            self.assertIn("گزارش بدون وظیفه", fetched["text"])
         finally:
             if chat_id is not None:
                 delete_temp_chat(chat_id)

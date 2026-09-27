@@ -902,7 +902,7 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 COMMENT ON TABLE messages IS
-    'متن خام نظر. در گفتگوی پروژه به تسک همان پروژه وصل است؛ در گفتگوی خصوصی task_id خالی می‌ماند.';
+    'متن خام نظر. در گفتگوی پروژه به همان پروژه وصل است؛ وظیفه اختیاری است. در گفتگوی خصوصی task_id خالی می‌ماند.';
 
 COMMENT ON COLUMN messages.content_id IS
     'محتوای اصلی پیام (متن/صوت/تصویر/فایل). text برای پیام متنی ساده یا caption نگه‌داری می‌شود.';
@@ -911,7 +911,7 @@ COMMENT ON COLUMN messages.sender_user_id IS
     'برای پیام سیستمی می‌تواند خالی باشد.';
 
 COMMENT ON COLUMN messages.task_id IS
-    'تسک بستر نظر در گفتگوی پروژه؛ برای گفتگوی خصوصی خالی است.';
+    'اگر بیاید باید در همان پروژهٔ گفتگو باشد؛ برای گزارش پروژه الزامی نیست. در گفتگوی خصوصی خالی است.';
 
 CREATE INDEX IF NOT EXISTS messages_chat_created_idx ON messages (chat_id, created_at);
 CREATE INDEX IF NOT EXISTS messages_task_id_idx ON messages (task_id);
@@ -939,15 +939,14 @@ BEGIN
         END IF;
         RETURN NEW;
     END IF;
-    IF NEW.task_id IS NULL THEN
-        RAISE EXCEPTION 'project chat message must have a task';
-    END IF;
-    SELECT project_id INTO v_task_project FROM tasks WHERE id = NEW.task_id;
-    IF v_task_project IS NULL THEN
-        RAISE EXCEPTION 'task not found';
-    END IF;
-    IF v_task_project IS DISTINCT FROM v_chat_project THEN
-        RAISE EXCEPTION 'task must belong to the same project as the chat';
+    IF NEW.task_id IS NOT NULL THEN
+        SELECT project_id INTO v_task_project FROM tasks WHERE id = NEW.task_id;
+        IF v_task_project IS NULL THEN
+            RAISE EXCEPTION 'task not found';
+        END IF;
+        IF v_task_project IS DISTINCT FROM v_chat_project THEN
+            RAISE EXCEPTION 'task must belong to the same project as the chat';
+        END IF;
     END IF;
     IF NEW.sender_user_id IS NOT NULL AND NOT EXISTS (
         SELECT 1

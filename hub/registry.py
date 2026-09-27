@@ -28,6 +28,7 @@ DASHBOARD_ROUTES = (
     {"method": "GET", "path": "/api/v1/meetings", "domain": "meeting", "tool": "list_meetings"},
     {"method": "GET", "path": "/api/v1/meetings/{id}", "domain": "meeting", "tool": "get_meeting"},
     {"method": "POST", "path": "/api/v1/meetings", "domain": "meeting", "tool": "create_meeting"},
+    {"method": "PATCH", "path": "/api/v1/meetings/{id}", "domain": "meeting", "tool": "update_meeting"},
     {"method": "GET", "path": "/api/v1/reminders", "domain": "reminder", "tool": "list_reminders"},
     {"method": "GET", "path": "/api/v1/reminders/{id}", "domain": "reminder", "tool": "get_reminder"},
     {"method": "POST", "path": "/api/v1/reminders", "domain": "reminder", "tool": "create_reminder"},

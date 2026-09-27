@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-_SOURCE_TYPES = ("meeting", "message")
+_SOURCE_TYPES = ("meeting", "message", "content")
 
 
 class ExtractNlpInput(BaseModel):
@@ -20,7 +20,7 @@ class ExtractNlpInput(BaseModel):
     )
     source_type: Optional[str] = Field(
         default=None,
-        description="نوع منبع؛ meeting یا message",
+        description="نوع منبع؛ meeting یا message یا content",
     )
     source_id: Optional[int] = Field(
         default=None,
@@ -47,7 +47,7 @@ class ExtractNlpInput(BaseModel):
             return value
         code = value.strip().lower()
         if code not in _SOURCE_TYPES:
-            raise ValueError("source_type باید meeting یا message باشد")
+            raise ValueError("source_type باید meeting یا message یا content باشد")
         return code
 
     @field_validator("text")

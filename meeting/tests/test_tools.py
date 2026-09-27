@@ -38,6 +38,7 @@ from mcp_server.tools.meeting.cancel_meeting import run_cancel_meeting
 from mcp_server.tools.meeting.create_meeting import run_create_meeting
 from mcp_server.tools.meeting.get_meeting import run_get_meeting
 from mcp_server.tools.meeting.list_meetings import run_list_meetings
+from mcp_server.tools.meeting.update_meeting import run_update_meeting
 from mcp_server.tools.meeting.record_meeting import run_record_meeting
 from mcp_server.tools.meeting.sync_meeting import run_sync_meeting
 from mcp_server.tools.meeting_participant.create_meeting_participant import (
@@ -75,6 +76,7 @@ _REGISTERED_TOOLS = {
     "create_meeting",
     "get_meeting",
     "list_meetings",
+    "update_meeting",
     "cancel_meeting",
     "create_meeting_participant",
     "generate_meetings",
@@ -223,6 +225,18 @@ class MeetingToolTests(unittest.TestCase):
             listed = run_list_meetings(limit=50)
             self.assertIn(meeting_id, {item["id"] for item in listed["records"]})
 
+            renamed = run_update_meeting(
+                id=meeting_id,
+                title=unique_meeting_title("ویرایش"),
+            )
+            self.assertEqual(renamed["status"], "success")
+            same_slot = run_update_meeting(
+                id=meeting_id,
+                scheduled_at=row["scheduled_at"],
+                duration_minutes=60,
+            )
+            self.assertEqual(same_slot["status"], "success")
+
             outsider = bind_actor_as_role("کاربر")
             hidden = run_get_meeting(id=meeting_id)
             self.assertEqual(hidden["status"], "error")
@@ -232,6 +246,9 @@ class MeetingToolTests(unittest.TestCase):
 
             cancelled = run_cancel_meeting(id=meeting_id)
             self.assertEqual(cancelled["status"], "success")
+            blocked = run_update_meeting(id=meeting_id, title="نباید")
+            self.assertEqual(blocked["status"], "error")
+            self.assertEqual(blocked["error_code"], INVALID_INPUT)
             after = run_get_meeting(id=meeting_id)
             self.assertEqual(after["status_name"], "لغو شده")
         finally:

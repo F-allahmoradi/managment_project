@@ -44,7 +44,12 @@ from auth.sessions import (
     user_for_token,
 )
 from hub.config import load_settings
-from hub.analysis import analyze_source, commit_analysis, preview_source
+from hub.analysis import (
+    analyze_source,
+    commit_analysis,
+    get_preview_job,
+    start_preview_job,
+)
 from hub.pool import DomainPool, WorkerError
 from hub.uploads import store_upload
 from hub.registry import DASHBOARD_ROUTES, merge_route_arguments
@@ -101,6 +106,7 @@ def create_app(settings: dict | None = None) -> CORSMiddleware:
         Route("/api/v1/stt/transcribe", transcribe_speech, methods=["POST"]),
         Route("/api/v1/stt/save", save_speech, methods=["POST"]),
         Route("/api/v1/media/save", save_media, methods=["POST"]),
+        Route("/api/v1/text-analyses/preview/{job_id}", poll_extracted_analysis, methods=["GET"]),
         Route("/api/v1/text-analyses/preview", preview_extracted_analysis, methods=["POST"]),
         Route("/api/v1/text-analyses/commit", commit_extracted_analysis, methods=["POST"]),
         Route("/api/v1/text-analyses", save_extracted_analysis, methods=["POST"]),
@@ -397,7 +403,7 @@ async def _analysis_source(request: Request):
 
 
 async def preview_extracted_analysis(request: Request) -> Json:
-    """متن ذخیره‌شده را استخراج می‌کند و موارد را برای بازبینی برمی‌گرداند."""
+    """استخراج را شروع می‌کند و پیشرفت لایه‌ها را برای پولینگ برمی‌گرداند."""
     user, source_type, source_id, failure = await _analysis_source(request)
     if failure is not None:
         return failure
@@ -405,13 +411,23 @@ async def preview_extracted_analysis(request: Request) -> Json:
     if pool is None:
         return _error(DOMAIN_UNAVAILABLE, "سرویس دامنه بالا نیست")
     result = await run_in_threadpool(
-        preview_source,
+        start_preview_job,
         pool,
         tuple(request.app.state.settings["domains"]),
         user["id"],
         source_type,
         source_id,
     )
+    return Json(result, status_code=http_status_for(result))
+
+
+async def poll_extracted_analysis(request: Request) -> Json:
+    """وضعیت یک استخراج در جریان را می‌خواند."""
+    user, _token, failure = await _user_from_request(request)
+    if failure is not None:
+        return failure
+    job_id = str(request.path_params.get("job_id") or "").strip()
+    result = get_preview_job(job_id, user["id"])
     return Json(result, status_code=http_status_for(result))
 
 

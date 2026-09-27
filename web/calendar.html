@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>تقویم روند</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-shell.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+  <style>
+    .cal-page {
+      margin: 8px 16px 0;
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      background: linear-gradient(160deg, rgba(30, 55, 120, 0.92) 0%, rgba(15, 30, 70, 0.96) 100%);
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      box-shadow: 0 0 20px rgba(80, 160, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .cal-page-top {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cal-page-top select {
+      width: 100%;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      background: rgba(8, 20, 48, 0.88);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 0 12px;
+    }
+    .foot-cal-modes {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(80, 160, 255, 0.32);
+      background: rgba(8, 18, 42, 0.85);
+    }
+    .foot-cal-modes button {
+      flex: 1;
+      height: 36px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .foot-cal-modes button.on {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(0, 170, 255, 0.42), rgba(130, 70, 255, 0.4));
+      box-shadow: 0 0 12px rgba(80, 180, 255, 0.28);
+    }
+    .foot-cal-track {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 56px;
+      margin-top: 14px;
+    }
+    .foot-cal-empty {
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+      padding: 16px 4px;
+    }
+    .cal-dot {
+      position: relative;
+      flex: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e8f6ff;
+      background:
+        radial-gradient(circle at 32% 28%, rgba(180, 230, 255, 0.55), transparent 42%),
+        linear-gradient(160deg, rgba(40, 120, 210, 0.55), rgba(70, 40, 160, 0.5));
+      border: 1px solid rgba(140, 210, 255, 0.55);
+      box-shadow:
+        0 0 14px rgba(70, 170, 255, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+    .cal-dot strong { font-size: 13px; font-weight: 700; line-height: 1; }
+    .cal-dot em {
+      font-style: normal;
+      font-size: 9px;
+      line-height: 1.1;
+      max-width: 40px;
+      overflow: hidden;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    .cal-dot.edge {
+      width: auto;
+      min-width: 68px;
+      padding: 0 12px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(0, 190, 210, 0.5), rgba(40, 90, 200, 0.55));
+    }
+    .cal-dot.edge.is-end {
+      background: linear-gradient(135deg, rgba(160, 80, 255, 0.5), rgba(70, 40, 180, 0.55));
+    }
+    .cal-dot.has-due,
+    .cal-dot.has-meet {
+      box-shadow:
+        0 0 16px rgba(90, 230, 255, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .cal-dot.has-due::before,
+    .cal-dot.has-meet::before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      margin-left: -3px;
+      border-radius: 50%;
+      background: #7ef0ff;
+      box-shadow: 0 0 8px #7ef0ff;
+    }
+    .cal-dot.is-today {
+      outline: 2px solid rgba(255, 210, 90, 0.9);
+      outline-offset: 2px;
+    }
+    .cal-dot.is-on {
+      transform: scale(1.06);
+      border-color: #fff;
+    }
+    .foot-cal-progress {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(100, 180, 255, 0.22);
+    }
+    .foot-cal-progress[hidden] { display: none; }
+    .foot-cal-progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .foot-cal-progress-head strong {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .foot-cal-progress-head span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #7ef0ff;
+    }
+    .foot-cal-progress .member-bar { height: 10px; }
+    .foot-cal-progress-meta {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(200, 230, 255, 0.78);
+    }
+  </style>
+</head>
+<body data-page="calendar">
+  <main class="screen">
+    <div class="status"><time>سامانه</time></div>
+    <header class="header">
+      <a class="back" href="admin-mobile.html" aria-label="بازگشت">→</a>
+      <h1>تقویم روند</h1>
+      <span style="width:38px"></span>
+    </header>
+    <section class="cal-page" id="home-cal">
+      <div class="cal-page-top">
+        <select id="home-cal-project" aria-label="انتخاب پروژه"></select>
+        <div class="foot-cal-modes" role="tablist" aria-label="نوع روند">
+          <button type="button" class="on" data-mode="project">روند پروژه</button>
+          <button type="button" data-mode="meetings">روند جلسات</button>
+        </div>
+      </div>
+      <div class="foot-cal-track" id="home-cal-track" role="list"></div>
+      <div class="foot-cal-progress" id="home-cal-progress" hidden>
+        <div class="foot-cal-progress-head">
+          <strong>پیشرفت کل پروژه</strong>
+          <span id="home-cal-progress-pct"></span>
+        </div>
+        <div class="member-bar" role="progressbar" id="home-cal-progress-meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="پیشرفت کل پروژه">
+          <i id="home-cal-progress-bar"></i>
+        </div>
+        <p class="foot-cal-progress-meta" id="home-cal-progress-meta"></p>
+      </div>
+    </section>
+  </main>
+  <nav class="bnav">
+    <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
+    <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
+    <a class="nitem on" href="calendar.html"><span>تقویم</span></a>
+    <a class="nitem" href="meetings.html"><span>جلسات</span></a>
+    <a class="nitem" href="reports.html"><span>گزارش‌ها</span></a>
+  </nav>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

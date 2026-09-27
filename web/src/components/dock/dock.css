@@ -85,7 +85,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px 8px;
-    padding: 10px 24px 16px;
+    padding: 10px 24px calc(20px + env(safe-area-inset-bottom, 0px));
   }
 
   .dock-item {

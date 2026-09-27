@@ -5,6 +5,7 @@ from hub.bootstrap import install_hub_import_path
 install_hub_import_path()
 
 import os
+import time
 import unittest
 
 from auth.http import (
@@ -17,7 +18,17 @@ from auth.http import (
 from auth.sessions import AuthError, register_account
 from auth.principal import reset_request_actor, resolve_actor, set_request_actor
 from hub.config import load_settings
-from hub.analysis import analyze_source, commit_analysis, drop_entity_copy_keywords, pack_save_fields, preview_source
+from hub.analysis import (
+    analyze_source,
+    commit_analysis,
+    drop_entity_copy_keywords,
+    get_preview_job,
+    pack_save_fields,
+    planned_layers,
+    preview_source,
+    reset_extract_runtime,
+    start_preview_job,
+)
 from hub.pool import DomainPool
 from hub.registry import DASHBOARD_ROUTES, merge_route_arguments
 
@@ -115,6 +126,9 @@ class CrudWorkerTests(unittest.TestCase):
 
 
 class AnalysisPipelineTests(unittest.TestCase):
+    def setUp(self) -> None:
+        reset_extract_runtime()
+
     def test_default_domains_include_extract_services(self) -> None:
         previous = os.environ.pop("API_DOMAINS", None)
         try:
@@ -167,6 +181,8 @@ class AnalysisPipelineTests(unittest.TestCase):
         self.assertEqual(packed["sentiment"]["polarity"], "negative")
         self.assertEqual(packed["frame"]["title"], "کمبود نیرو")
         self.assertIsNone(packed["intended_meaning"])
+        self.assertEqual(packed["entities"], [])
+        self.assertEqual(packed["explicitness"], None)
 
     def test_analyze_source_saves_then_embeds(self) -> None:
         calls = []
@@ -221,6 +237,62 @@ class AnalysisPipelineTests(unittest.TestCase):
         self.assertEqual(result["status"], "success")
         self.assertEqual(result["fields"]["source_id"], 8)
         self.assertNotIn("save_text_analysis", calls)
+        self.assertEqual(len(result["planned_layers"]), 10)
+
+    def test_all_mcp_extract_layers_are_planned(self) -> None:
+        keys = [item.key for item in planned_layers(("ner", "nlp"))]
+        self.assertEqual(
+            keys,
+            [
+                "rhetoric",
+                "entities",
+                "keywords",
+                "topics",
+                "sentiment",
+                "discourse",
+                "intent",
+                "facts",
+                "quotes",
+                "frame",
+            ],
+        )
+
+    def test_preview_cache_skips_second_model_calls(self) -> None:
+        calls = []
+
+        class FakePool:
+            def call(self, domain, tool, arguments, actor_id):
+                calls.append(tool)
+                if tool.startswith("extract_"):
+                    return {"status": "success"}
+                raise AssertionError(tool)
+
+        pool = FakePool()
+        preview_source(pool, ("ner", "nlp"), 3, "message", 8)
+        first = list(calls)
+        preview_source(pool, ("ner", "nlp"), 3, "message", 8)
+        self.assertEqual(len(first), 10)
+        self.assertEqual(calls, first)
+
+    def test_preview_job_polls_until_layers_complete(self) -> None:
+        class FakePool:
+            def call(self, domain, tool, arguments, actor_id):
+                if tool.startswith("extract_"):
+                    return {"status": "success", "message": tool}
+                raise AssertionError(tool)
+
+        started = start_preview_job(FakePool(), ("ner", "nlp"), 4, "message", 11)
+        self.assertEqual(started["status"], "success")
+        job_id = started["job_id"]
+        snapshot = started
+        for _ in range(80):
+            snapshot = get_preview_job(job_id, 4)
+            if snapshot.get("phase") == "done":
+                break
+            time.sleep(0.01)
+        self.assertEqual(snapshot["phase"], "done")
+        self.assertEqual(len(snapshot["completed_layers"]), 10)
+        self.assertEqual(len(snapshot["planned_layers"]), 10)
 
     def test_commit_analysis_saves_confirmed_fields(self) -> None:
         seen = {}

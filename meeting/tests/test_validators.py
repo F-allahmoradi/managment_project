@@ -14,7 +14,12 @@ from paths import ensure_import_path
 ensure_import_path()
 
 from pydantic import ValidationError
-from schemas.meeting.meeting import CreateMeetingInput, RecordMeetingInput, SyncMeetingInput
+from schemas.meeting.meeting import (
+    CreateMeetingInput,
+    RecordMeetingInput,
+    SyncMeetingInput,
+    UpdateMeetingInput,
+)
 from schemas.meeting.participant import CreateMeetingParticipantInput
 from schemas.meeting.schedule import CreateMeetingScheduleInput
 from validators.participant import validate_create_meeting_participant
@@ -54,6 +59,12 @@ class MeetingValidatorTests(unittest.TestCase):
                 meeting_type="جلسه تیم",
                 visibility="PROJECT",
             )
+
+    def test_update_meeting_requires_a_field(self) -> None:
+        with self.assertRaises(ValidationError):
+            UpdateMeetingInput(id=1)
+        parsed = UpdateMeetingInput(id=1, title="عنوان تازه")
+        self.assertEqual(parsed.title, "عنوان تازه")
 
     def test_schedule_requires_day(self) -> None:
         with self.assertRaises(ValidationError):

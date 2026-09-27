@@ -38,11 +38,11 @@
 
     .screen {
       width: min(430px, 100%);
-      padding-top: env(safe-area-inset-top);
+      padding-top: var(--app-safe-top, max(48px, env(safe-area-inset-top, 0px)));
       min-height: 100dvh;
       overflow-x: hidden;
       overflow-y: auto;
-      padding-bottom: 200px;
+      padding-bottom: 110px;
       scrollbar-width: none;
     }
     .screen::-webkit-scrollbar { width: 0; height: 0; }
@@ -81,6 +81,20 @@
       align-items: center;
       gap: 12px;
     }
+    .hdr-edit {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 19px;
+      background: rgba(20, 40, 80, 0.7);
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      box-shadow: 0 0 10px rgba(80, 160, 255, 0.2);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .hdr-edit[hidden] { display: none; }
     .bell-wrap {
       position: relative;
       width: 22px;
@@ -204,7 +218,7 @@
 
     .tabs {
       margin: 14px 16px 0;
-      height: 44px;
+      min-height: 48px;
       border-radius: 14px;
       background: rgba(10, 25, 55, 0.8);
       border: 1px solid rgba(80, 160, 255, 0.25);
@@ -215,25 +229,37 @@
     }
     .tab {
       flex: 1;
+      min-width: 0;
+      min-height: 48px;
+      padding: 6px 2px;
       text-align: center;
-      line-height: 44px;
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.2;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      gap: 3px;
+      cursor: pointer;
+      pointer-events: auto;
+      -webkit-tap-highlight-color: transparent;
     }
     .tab.on {
       background: linear-gradient(135deg, #5a3aaa, #7a4acc);
-      font-weight: 600;
       color: #ffffff;
       box-shadow: 0 0 14px rgba(120, 100, 255, 0.35);
     }
-    .tab:hover { transform: translateY(-1px); }
     .tab svg { flex: none; }
+    .tab svg * { stroke: currentColor; }
+    .panel-empty {
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    a.msg { color: inherit; text-decoration: none; }
 
     .card {
       margin: 14px 16px 0;
@@ -346,11 +372,9 @@
     }
 
     .composer {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 358px;
+      position: relative;
+      margin: 14px 16px 0;
+      width: auto;
       border-radius: 18px;
       padding: 12px;
       background: linear-gradient(160deg, rgba(20, 45, 90, 0.9), rgba(10, 25, 55, 0.95));
@@ -359,12 +383,18 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       z-index: 6;
+      overflow: visible;
+    }
+    .composer .voice-steps {
+      margin: 8px 4px 0;
+      display: none;
     }
     .input-row {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      overflow: visible;
     }
     .plus, .send {
       display: grid;
@@ -406,36 +436,8 @@
       transform: translateY(-1px);
       box-shadow: 0 0 21px rgba(140, 100, 255, 0.65);
     }
-    .acts {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-      justify-content: space-around;
-    }
-    .act {
-      width: 58px;
-      height: 62px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(25, 50, 90, 0.7), rgba(12, 30, 60, 0.8));
-      border: 1px solid rgba(80, 160, 255, 0.3);
-      box-shadow: 0 0 10px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .act span {
-      font-size: 10px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.75);
-    }
-    .act:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 13px rgba(60, 140, 255, 0.195), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
+    .acts,
+    .act { display: none; }
 
     .bnav {
       position: fixed;
@@ -443,7 +445,8 @@
       left: 50%;
       transform: translateX(-50%);
       width: min(430px, 100%);
-      height: 80px;
+      height: auto;
+      min-height: 80px;
       background: linear-gradient(180deg, rgba(10, 25, 55, 0.95), rgba(5, 12, 30, 0.98));
       border-top: 1px solid rgba(80, 160, 255, 0.2);
       backdrop-filter: blur(20px);
@@ -452,7 +455,7 @@
       flex-direction: row;
       justify-content: space-around;
       align-items: center;
-      padding: 0 8px;
+      padding: 8px 8px calc(20px + env(safe-area-inset-bottom, 0px));
       z-index: 5;
     }
     .nitem {
@@ -486,6 +489,7 @@
       </a>
       <h1>جلسه</h1>
       <div class="hdr-left">
+        <a class="hdr-edit" id="meeting-edit" href="new-meeting.html" hidden>ویرایش</a>
         <div class="bell-wrap">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6.2 9.4a5.8 5.8 0 1 1 11.6 0c0 4.1 1.4 5.3 1.4 5.3H4.8s1.4-1.2 1.4-5.3z" stroke="#ffffff" stroke-width="1.7" stroke-linejoin="round"/>
@@ -610,38 +614,95 @@
       </div>
     </section>
 
-    <nav class="tabs" aria-label="بخش‌های جلسه">
-      <button class="tab on" type="button">
+    <form class="composer" id="meeting-record">
+      <div class="input-row composer-row">
+        <div class="attach-wrap">
+          <div class="attach-tray" id="meeting-attach-tray" hidden>
+            <div class="attach-actions">
+        <button class="attach-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.2 12.4 14.7 6a3.1 3.1 0 0 1 4.4 4.4l-8.2 8.2a4.3 4.3 0 0 1-6.1-6.1l7.7-7.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>فایل</span>
+        </button>
+        <button class="attach-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.2" y="6" width="12.2" height="12" rx="2.2" stroke="#4ad4ff" stroke-width="1.7"/>
+            <path d="M15.4 10.2 20.6 7.4v9.2l-5.2-2.8v-3.6z" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+          <span>فیلم</span>
+        </button>
+        <button class="attach-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.4" y="4.4" width="17.2" height="15.2" rx="2.2" stroke="#4ad4ff" stroke-width="1.7"/>
+            <circle cx="8.4" cy="9" r="1.5" stroke="#4ad4ff" stroke-width="1.5"/>
+            <path d="m4.2 16.6 4.4-3.6 3.2 2.5 2.6-2.2 5.4 4.4" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>تصویر</span>
+        </button>
+        <button class="attach-item" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M14 3.8V8.6H19M8.4 12.2h7.2M8.4 15.6h7.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span>متن</span>
+        </button>
+            </div>
+          </div>
+          <button class="attach" id="meeting-attach" type="button" aria-label="پیوست فایل، عکس، فیلم یا متن" aria-expanded="false" aria-controls="meeting-attach-tray">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 4.2v11.6M4.2 10h11.6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <button class="mic-btn" id="meeting-record-voice" type="button" aria-label="ضبط صدا">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="9" y="3.4" width="6" height="11" rx="3" stroke="#ffffff" stroke-width="1.7"/>
+            <path d="M6.4 11.2a5.6 5.6 0 0 0 11.2 0M12 16.8V20.4M9 20.4h6" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input class="chat-input" id="meeting-note" type="text" placeholder="متن ضبط جلسه را بنویسید..." aria-label="ضبط">
+        <button class="send" type="submit" aria-label="ارسال">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#ffffff" d="M21.6 3.15 2.7 10.05c-.78.29-.74 1.4.06 1.64l6.55 2 2.08 6.4c.26.8 1.38.84 1.7.06l8.6-16.3c.28-.7-.42-1.4-1.09-1.1z"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <nav class="tabs" role="tablist" aria-label="بخش‌های جلسه">
+      <button class="tab on" id="tab-summary" type="button" role="tab" aria-selected="true" aria-controls="panel-summary" data-panel="summary">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M4.2 2.2h5.2L12.4 5.2V13a1.1 1.1 0 0 1-1.1 1.1H4.2A1.1 1.1 0 0 1 3.1 13V3.3A1.1 1.1 0 0 1 4.2 2.2z" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round"/>
-          <path d="M9.3 2.3V5.3h3M5.4 8.2h5.2M5.4 10.6h5.2" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M4.2 2.2h5.2L12.4 5.2V13a1.1 1.1 0 0 1-1.1 1.1H4.2A1.1 1.1 0 0 1 3.1 13V3.3A1.1 1.1 0 0 1 4.2 2.2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M9.3 2.3V5.3h3M5.4 8.2h5.2M5.4 10.6h5.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
         خلاصه جلسه
       </button>
-      <button class="tab" type="button">
+      <button class="tab" id="tab-attendees" type="button" role="tab" aria-selected="false" aria-controls="panel-attendees" data-panel="attendees">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="6.2" cy="5.4" r="1.8" stroke="rgba(255,255,255,0.55)" stroke-width="1.3"/>
-          <path d="M2.8 12.2c.7-2 2-3 3.4-3s2.7 1 3.4 3" stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="10.8" cy="5.8" r="1.4" stroke="rgba(255,255,255,0.55)" stroke-width="1.3"/>
-          <path d="M9.8 9.6c1 .2 1.9.9 2.4 2.1" stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="6.2" cy="5.4" r="1.8" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M2.8 12.2c.7-2 2-3 3.4-3s2.7 1 3.4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="10.8" cy="5.8" r="1.4" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M9.8 9.6c1 .2 1.9.9 2.4 2.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
         حاضران
       </button>
-      <button class="tab" type="button">
+      <button class="tab" id="tab-resolutions" type="button" role="tab" aria-selected="false" aria-controls="panel-resolutions" data-panel="resolutions">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2" stroke="rgba(255,255,255,0.55)" stroke-width="1.3"/>
-          <path d="M4.8 8.1 6.7 10 11.2 5.6" stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M4.8 8.1 6.7 10 11.2 5.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         مصوبات
       </button>
-      <button class="tab" type="button">
+      <button class="tab" id="tab-files" type="button" role="tab" aria-selected="false" aria-controls="panel-files" data-panel="files">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M2.4 5.2c0-.8.6-1.4 1.4-1.4h2.2l1.2 1.3h5c.8 0 1.4.6 1.4 1.4v5.2c0 .8-.6 1.4-1.4 1.4H3.8c-.8 0-1.4-.6-1.4-1.4V5.2z" stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M2.4 5.2c0-.8.6-1.4 1.4-1.4h2.2l1.2 1.3h5c.8 0 1.4.6 1.4 1.4v5.2c0 .8-.6 1.4-1.4 1.4H3.8c-.8 0-1.4-.6-1.4-1.4V5.2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
         </svg>
         فایل‌ها
       </button>
     </nav>
 
+    <div class="meet-panel" id="panel-summary" data-panel="summary" role="tabpanel" aria-labelledby="tab-summary">
     <section class="card">
       <div class="card-head">
         <span class="ico-circle" aria-hidden="true">
@@ -670,60 +731,54 @@
 
       <div class="messages" id="meeting-people"></div>
     </section>
-  </main>
+    </div>
 
-  <form class="composer" id="meeting-record">
-    <div class="input-row">
-      <button class="plus" id="meeting-record-voice" type="button" aria-label="ضبط صدا">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path d="M10 4.2v11.6M4.2 10h11.6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <input class="chat-input" id="meeting-note" type="text" placeholder="متن ضبط جلسه را بنویسید..." aria-label="ضبط">
-      <button class="send" type="submit" aria-label="ارسال">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#ffffff" d="M21.6 3.15 2.7 10.05c-.78.29-.74 1.4.06 1.64l6.55 2 2.08 6.4c.26.8 1.38.84 1.7.06l8.6-16.3c.28-.7-.42-1.4-1.09-1.1z"/>
-        </svg>
-      </button>
+    <div class="meet-panel" id="panel-attendees" data-panel="attendees" role="tabpanel" aria-labelledby="tab-attendees" hidden>
+      <section class="card">
+        <div class="card-head">
+          <span class="ico-circle" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="6.2" cy="5.4" r="1.8" stroke="#ffffff" stroke-width="1.3"/>
+              <path d="M2.8 12.2c.7-2 2-3 3.4-3s2.7 1 3.4 3" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="10.8" cy="5.8" r="1.4" stroke="#ffffff" stroke-width="1.3"/>
+              <path d="M9.8 9.6c1 .2 1.9.9 2.4 2.1" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <h2>حاضران</h2>
+        </div>
+        <div class="messages" id="meeting-attendees"></div>
+      </section>
     </div>
-    <div class="acts">
-      <button class="act" type="button">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M8.2 12.4 14.7 6a3.1 3.1 0 0 1 4.4 4.4l-8.2 8.2a4.3 4.3 0 0 1-6.1-6.1l7.7-7.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>فایل</span>
-      </button>
-      <button class="act" type="button">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3.2" y="6" width="12.2" height="12" rx="2.2" stroke="#4ad4ff" stroke-width="1.7"/>
-          <path d="M15.4 10.2 20.6 7.4v9.2l-5.2-2.8v-3.6z" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
-        </svg>
-        <span>فیلم</span>
-      </button>
-      <button class="act" type="button">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3.4" y="4.4" width="17.2" height="15.2" rx="2.2" stroke="#4ad4ff" stroke-width="1.7"/>
-          <circle cx="8.4" cy="9" r="1.5" stroke="#4ad4ff" stroke-width="1.5"/>
-          <path d="m4.2 16.6 4.4-3.6 3.2 2.5 2.6-2.2 5.4 4.4" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>تصویر</span>
-      </button>
-      <button class="act" type="button">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="9" y="3.4" width="6" height="11" rx="3" stroke="#4ad4ff" stroke-width="1.7"/>
-          <path d="M6.4 11.2a5.6 5.6 0 0 0 11.2 0M12 16.8V20.4M9 20.4h6" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-        <span>صدا</span>
-      </button>
-      <button class="act" type="button">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
-          <path d="M14 3.8V8.6H19M8.4 12.2h7.2M8.4 15.6h7.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-        <span>متن</span>
-      </button>
+
+    <div class="meet-panel" id="panel-resolutions" data-panel="resolutions" role="tabpanel" aria-labelledby="tab-resolutions" hidden>
+      <section class="card">
+        <div class="card-head">
+          <span class="ico-circle" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2" stroke="#ffffff" stroke-width="1.3"/>
+              <path d="M4.8 8.1 6.7 10 11.2 5.6" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <h2>مصوبات</h2>
+        </div>
+        <div class="messages" id="meeting-resolutions"></div>
+      </section>
     </div>
-  </form>
+
+    <div class="meet-panel" id="panel-files" data-panel="files" role="tabpanel" aria-labelledby="tab-files" hidden>
+      <section class="card">
+        <div class="card-head">
+          <span class="ico-circle" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2.4 5.2c0-.8.6-1.4 1.4-1.4h2.2l1.2 1.3h5c.8 0 1.4.6 1.4 1.4v5.2c0 .8-.6 1.4-1.4 1.4H3.8c-.8 0-1.4-.6-1.4-1.4V5.2z" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <h2>فایل‌ها</h2>
+        </div>
+        <div class="messages" id="meeting-files"></div>
+      </section>
+    </div>
+  </main>
 
   <nav class="bnav" aria-label="ناوبری">
     <a class="nitem" href="admin-mobile.html">
@@ -771,6 +826,26 @@
       <span>اعضا</span>
     </a>
   </nav>
+  <script>
+    (function () {
+      var nav = document.querySelector("nav.tabs");
+      if (!nav || nav.dataset.bound) return;
+      nav.dataset.bound = "1";
+      nav.addEventListener("click", function (event) {
+        var tab = event.target.closest(".tab");
+        if (!tab || !nav.contains(tab)) return;
+        var name = tab.getAttribute("data-panel");
+        nav.querySelectorAll(".tab").forEach(function (item) {
+          var on = item === tab;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        document.querySelectorAll(".meet-panel").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== name;
+        });
+      });
+    })();
+  </script>
   <script src="mobile-app.js"></script>
 </body>
 </html>

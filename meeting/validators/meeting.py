@@ -48,6 +48,21 @@ def validate_cancel_meeting(meeting_id: int) -> int:
     return CancelMeetingInput(id=meeting_id).id
 
 
+def validate_update_meeting(fields: dict) -> dict:
+    """ورودی به‌روزرسانی جلسه را با اسکیما بررسی می‌کند."""
+    from schemas.meeting.meeting import UpdateMeetingInput
+
+    dumped = UpdateMeetingInput(**fields).model_dump()
+    return {
+        "id": dumped["id"],
+        **{
+            key: value
+            for key, value in dumped.items()
+            if key != "id" and value is not None
+        },
+    }
+
+
 def validate_generate_meetings(fields: dict) -> dict:
     """ورودی تولید نمونه از الگو را با اسکیما بررسی می‌کند."""
     from schemas.meeting.meeting import GenerateMeetingsInput
@@ -73,6 +88,7 @@ validate_create_meeting = logged_step("validate")(validate_create_meeting)
 validate_get_meeting = logged_step("validate")(validate_get_meeting)
 validate_list_meetings = logged_step("validate")(validate_list_meetings)
 validate_cancel_meeting = logged_step("validate")(validate_cancel_meeting)
+validate_update_meeting = logged_step("validate")(validate_update_meeting)
 validate_generate_meetings = logged_step("validate")(validate_generate_meetings)
 validate_record_meeting = logged_step("validate")(validate_record_meeting)
 validate_sync_meeting = logged_step("validate")(validate_sync_meeting)

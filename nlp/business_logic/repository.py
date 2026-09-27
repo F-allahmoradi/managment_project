@@ -1,6 +1,7 @@
 """خواندن متن خام گزارش، جلسه یا پیام. INSERT نیست."""
 
 from errors.crud import (
+    ContentNotFoundError,
     EmptyTranscriptError,
     InvalidInputError,
     MeetingNotFoundError,
@@ -126,13 +127,44 @@ def fetch_message_text(message_id: int, actor_id: int) -> dict:
 
 
 @logged_step("fetch")
+def fetch_content_text(content_id: int, actor_id: int) -> dict:
+    """متن محتوای خام را می‌خواند؛ فقط سازنده."""
+    row = fetch_one(
+        """
+        SELECT id, created_by_user_id, text_body
+        FROM contents
+        WHERE id = %s AND is_active
+        """,
+        [content_id],
+        ("id", "created_by_user_id", "text_body"),
+    )
+    if row is None:
+        raise ContentNotFoundError(f"محتوا با شناسه {content_id} پیدا نشد")
+    if int(row["created_by_user_id"] or 0) != int(actor_id):
+        raise PermissionDeniedError("به این محتوا دسترسی ندارید")
+    body = row.get("text_body")
+    if body is None or not str(body).strip():
+        raise EmptyTranscriptError("متن منبع خالی است")
+    return {
+        "source_type": "content",
+        "source_id": row["id"],
+        "table": "contents",
+        "column": "text_body",
+        "text": str(body).strip(),
+        "text_length": len(str(body).strip()),
+    }
+
+
+@logged_step("fetch")
 def fetch_source_text(source_type: str, source_id: int, actor_id: int) -> dict:
     """متن خام منبع را برمی‌گرداند."""
     if source_type == "meeting":
         return fetch_meeting_transcript(source_id, actor_id)
     if source_type == "message":
         return fetch_message_text(source_id, actor_id)
-    raise InvalidInputError("source_type باید meeting یا message باشد")
+    if source_type == "content":
+        return fetch_content_text(source_id, actor_id)
+    raise InvalidInputError("source_type باید meeting یا message یا content باشد")
 
 
 def get_public_catalog() -> dict:

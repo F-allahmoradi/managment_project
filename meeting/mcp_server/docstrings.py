@@ -106,6 +106,22 @@ LIST_MEETINGS = """
     JSON با records، limit و offset. فهرست خالی خطا نیست.
 """.strip()
 
+UPDATE_MEETING = """
+جلسهٔ موجود را به‌روز می‌کند؛ فقط مدیر همان جلسه.
+
+مجوز لازم:
+    Meeting/Update برای کاربر جاری. فقط مدیر همان جلسه.
+
+ورودی اجباری:
+    id.
+
+ورودی اختیاری:
+    title، scheduled_at، duration_minutes، location،
+    project_id، visibility، نوع جلسه.
+    حداقل یکی لازم است. جلسهٔ لغو شده INVALID_INPUT است.
+    تداخل ساعت همان قانون create_meeting است ولی همین جلسه حساب نمی‌شود.
+""".strip()
+
 CANCEL_MEETING = """
 جلسهٔ برنامه‌ریزی‌شده را لغو می‌کند؛ ردیف حذف نمی‌شود.
 

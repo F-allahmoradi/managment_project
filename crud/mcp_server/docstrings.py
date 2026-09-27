@@ -895,7 +895,7 @@ CREATE_MESSAGE = """
 ورودی اجباری:
     chat_id، text،
     و حداقل یکی از recipient_user_id یا recipient_external_contact_id.
-    در گفتگوی پروژه task_id لازم است و باید در همان پروژه باشد.
+    در گفتگوی پروژه task_id اختیاری است و اگر بیاید باید در همان پروژه باشد.
     در گفتگوی خصوصی task_id نمی‌آید.
 
 خروجی:

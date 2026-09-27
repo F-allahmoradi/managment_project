@@ -1,3 +1,6 @@
+:root {
+  --app-safe-top: max(48px, env(safe-area-inset-top, 0px));
+}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   min-height: 100%;
@@ -13,15 +16,11 @@ button { background: none; border: none; cursor: pointer; }
   width: min(430px, 100%);
   min-height: 100dvh;
   overflow-y: auto;
-  padding-bottom: 100px;
+  padding-top: var(--app-safe-top, max(48px, env(safe-area-inset-top, 0px)));
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
 }
 .status {
-  height: 54px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  direction: ltr;
+  display: none;
 }
 .status time { font-size: 16px; font-weight: 600; }
 .header {
@@ -47,12 +46,15 @@ button { background: none; border: none; cursor: pointer; }
   left: 50%;
   transform: translateX(-50%);
   width: min(430px, 100%);
-  height: 80px;
+  height: auto;
+  min-height: 80px;
   background: linear-gradient(180deg, rgba(10, 25, 55, 0.95), rgba(5, 12, 30, 0.98));
   border-top: 1px solid rgba(80, 160, 255, 0.2);
   display: flex;
   justify-content: space-around;
   align-items: center;
+  padding-top: 8px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 }
 .nitem {
   flex: 1;

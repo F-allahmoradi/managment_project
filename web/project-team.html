@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>روند کار تیم</title>
+  <link rel="stylesheet" href="fonts/vazirmatn.css">
+  <link rel="stylesheet" href="mobile-shell.css">
+  <link rel="stylesheet" href="mobile-ui.css">
+  <script src="mobile-session.js"></script>
+  <script>MobileSession.redirectIfAnonymous();</script>
+  <style>
+    body[data-page="project-team"] .pd-team {
+      margin: 12px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    body[data-page="project-team"] .pd-team-lead {
+      margin: 0 16px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.62);
+      line-height: 1.7;
+    }
+    body[data-page="project-team"] .pd-team-empty {
+      margin: 0;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.7;
+    }
+    body[data-page="project-team"] .pd-mem {
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 50, 110, 0.88) 0%, rgba(12, 25, 60, 0.94) 100%);
+      border: 1px solid rgba(100, 180, 255, 0.28);
+    }
+    body[data-page="project-team"] .pd-mem header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+    body[data-page="project-team"] .pd-mem header strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    body[data-page="project-team"] .pd-mem header span {
+      flex: none;
+      font-size: 11px;
+      color: rgba(168, 220, 255, 0.9);
+    }
+    body[data-page="project-team"] .pd-mem .member-bar {
+      margin-top: 8px;
+    }
+    body[data-page="project-team"] .pd-mem-role {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    body[data-page="project-team"] .pd-mem-tasks {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    body[data-page="project-team"] .ptabs {
+      margin-top: 10px;
+      display: flex;
+      min-height: 42px;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.7);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      overflow: hidden;
+    }
+    body[data-page="project-team"] .ptab {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    body[data-page="project-team"] .ptab.on {
+      background: linear-gradient(135deg, #5a3aaa, #7a4acc);
+      font-weight: 600;
+      color: #ffffff;
+    }
+    body[data-page="project-team"] .pd-mem-activity {
+      margin-top: 10px;
+      max-height: min(36dvh, 280px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    body[data-page="project-team"] .empty-note,
+    body[data-page="project-team"] .pd-team-empty {
+      margin: 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.7;
+    }
+    body[data-page="project-team"] .dossier-item {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(8, 18, 44, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.22);
+      color: inherit;
+      text-decoration: none;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    body[data-page="project-team"] .dossier-item em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    body[data-page="project-team"] .info-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(80, 160, 255, 0.15);
+      font-size: 13px;
+    }
+    body[data-page="project-team"] .info-line span { color: rgba(255, 255, 255, 0.55); }
+    body[data-page="project-team"] .pd-task {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(8, 18, 44, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.22);
+      color: inherit;
+      text-decoration: none;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    body[data-page="project-team"] .pd-task em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+  </style>
+</head>
+<body data-page="project-team">
+  <main class="screen">
+    <div class="status"><time>سامانه</time></div>
+    <header class="header">
+      <a class="back" id="team-back" href="projects.html" aria-label="بازگشت">→</a>
+      <h1>روند کار تیم</h1>
+      <span style="width:38px"></span>
+    </header>
+    <p class="pd-team-lead" id="team-project-name">در حال بارگذاری...</p>
+    <div class="pd-team" id="project-team">
+      <p class="pd-team-empty">در حال خواندن روند کار...</p>
+    </div>
+  </main>
+  <nav class="bnav">
+    <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
+    <a class="nitem on" href="projects.html"><span>پروژه‌ها</span></a>
+    <a class="nitem" href="meetings.html"><span>جلسات</span></a>
+    <a class="nitem" href="tasks.html"><span>وظایف</span></a>
+    <a class="nitem" href="reports.html"><span>گزارش‌ها</span></a>
+  </nav>
+  <script src="mobile-app.js"></script>
+</body>
+</html>

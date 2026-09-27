@@ -37,11 +37,11 @@
 
     .screen {
       width: min(430px, 100%);
-      padding-top: env(safe-area-inset-top);
+      padding-top: var(--app-safe-top, max(48px, env(safe-area-inset-top, 0px)));
       min-height: 100dvh;
       overflow-x: hidden;
       overflow-y: auto;
-      padding-bottom: 90px;
+      padding-bottom: calc(114px + env(safe-area-inset-bottom, 0px));
       scrollbar-width: none;
     }
     .screen::-webkit-scrollbar { width: 0; height: 0; }
@@ -165,36 +165,112 @@
       box-shadow: 0 0 18px rgba(120, 100, 255, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     }
 
-    .filters {
-      padding: 0 16px;
+    .people-switch {
+      margin: 12px 16px 0;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+      padding: 3px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .switch-opt {
+      min-height: 36px;
+      border-radius: 9px;
+      padding: 4px 3px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.72);
       display: flex;
-      flex-direction: row;
-      gap: 8px;
-      margin-bottom: 12px;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     }
-    .chip {
-      height: 34px;
-      padding: 0 16px;
-      border-radius: 10px;
-      background: rgba(15, 35, 70, 0.5);
-      border: 1px solid rgba(80, 160, 255, 0.2);
-      font-size: 12px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
-    }
-    .chip.on {
-      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
-      border: 1px solid rgba(100, 160, 255, 0.4);
-      box-shadow: 0 0 10px rgba(80, 140, 255, 0.3);
-      font-weight: 600;
+    .switch-opt.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
       color: #ffffff;
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
     }
-    .chip:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 13px rgba(80, 140, 255, 0.39);
+    .people-panel[hidden] { display: none; }
+    .people-switch .switch-opt[hidden] { display: none !important; }
+    .people-switch:has(#tab-members[hidden]) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .specs-actions {
+      display: flex;
+    }
+    .specs-actions .switch-opt {
+      flex: 1 1 0;
+      min-height: 40px;
+      padding: 6px 4px;
+      font-size: 11px;
+      white-space: normal;
+    }
+    .specs-actions:not(:has(.switch-opt:not([hidden]) ~ .switch-opt:not([hidden]))) .switch-opt:not([hidden]) {
+      grid-column: 1 / -1;
+    }
+    .people-panel .members {
+      width: auto;
+      max-height: none;
+      padding: 0 16px;
+    }
+    .people-panel .detail {
+      padding: 0 16px;
+      margin-top: 12px;
+    }
+    .people-panel .search-row { margin-top: 12px; }
+    .specs-hub {
+      margin: 12px 16px 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 6px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .specs-choice {
+      min-height: 64px;
+      border-radius: 12px;
+      padding: 8px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.78);
+      background: rgba(10, 25, 55, 0.45);
+      border: 1px solid rgba(80, 160, 255, 0.22);
+      transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .specs-choice.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      border-color: rgba(180, 160, 255, 0.45);
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
+    }
+    .specs-choice[hidden],
+    .specs-sub[hidden],
+    .groups-sub[hidden] { display: none !important; }
+    .groups-hub {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .groups-empty {
+      margin: 12px 16px 0;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(160deg, rgba(25, 50, 100, 0.85), rgba(12, 25, 55, 0.9));
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      font-size: 13px;
+      line-height: 1.8;
+      color: rgba(168, 212, 255, 0.9);
     }
 
     .cols {
@@ -405,7 +481,8 @@
     .pacts {
       display: flex;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 0;
+      flex: none;
     }
     .ibtn {
       width: 32px;
@@ -504,14 +581,29 @@
       padding: 14px;
       background: rgba(8, 18, 40, 0.7);
       border: 1px solid rgba(80, 160, 255, 0.2);
-      min-height: 340px;
+      min-height: 96px;
+      max-height: min(48dvh, 420px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
       display: flex;
       flex-direction: column;
       gap: 12px;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100, 160, 255, 0.45) transparent;
     }
+    #action-person:has(#person-composer:not([hidden])) .chat {
+      max-height: min(36dvh, 320px);
+    }
+    .chat::-webkit-scrollbar { width: 6px; }
+    .chat::-webkit-scrollbar-thumb {
+      background: rgba(100, 160, 255, 0.45);
+      border-radius: 99px;
+    }
+    .chat::-webkit-scrollbar-track { background: transparent; }
     .msg {
       display: flex;
       align-items: flex-end;
@@ -542,6 +634,33 @@
       color: #4ad4ff;
       margin-bottom: 4px;
     }
+    .dossier-item {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(20, 40, 80, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      color: inherit;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .dossier-item em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .info-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(80, 160, 255, 0.15);
+      font-size: 13px;
+    }
+    .info-line span { color: rgba(255, 255, 255, 0.55); }
     .bubble p {
       font-size: 12px;
       color: rgba(255, 255, 255, 0.85);
@@ -599,20 +718,70 @@
 
     .composer {
       margin-top: 12px;
-      margin-left: -160px;
-      width: calc(100% + 160px);
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
       border-radius: 16px;
-      padding: 12px;
+      padding: 10px;
       background: linear-gradient(160deg, rgba(20, 45, 90, 0.85), rgba(10, 25, 55, 0.9));
       border: 1px solid rgba(80, 160, 255, 0.25);
       box-shadow: 0 0 15px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      overflow: visible;
+    }
+    .composer[hidden] { display: none; }
+    .composer-preview {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      margin-bottom: 8px;
+    }
+    .composer-preview[hidden] { display: none; }
+    .composer-preview img {
+      display: block;
+      max-width: 100%;
+      max-height: 96px;
+      border-radius: 10px;
+      border: 1px solid rgba(80, 160, 255, 0.3);
+    }
+    .composer-preview .clear-img {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(8, 18, 40, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: grid;
+      place-items: center;
     }
     .irow {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
+    }
+    .composer-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      flex: none;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      box-shadow: 0 0 10px rgba(80, 160, 255, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .composer-ico:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(80, 160, 255, 0.4);
+    }
+    .composer .voice-steps {
+      margin: 8px 0 0;
+      display: none;
     }
     .composer .field {
       flex: 1;
@@ -651,6 +820,22 @@
       font-size: 12px;
       line-height: 1.4;
       color: rgba(255, 255, 255, 0.72);
+    }
+    .form-card .field textarea {
+      display: block;
+      width: 100%;
+      min-height: 110px;
+      border-radius: 14px;
+      border: 1px solid rgba(100, 180, 255, 0.35);
+      background: rgba(5, 15, 40, 0.72);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      text-align: right;
+      direction: rtl;
+      outline: none;
+      resize: vertical;
     }
     .form-card .field input,
     .form-card .field select {
@@ -699,55 +884,6 @@
       transform: translateY(-1px);
       box-shadow: 0 0 18px rgba(140, 100, 255, 0.65);
     }
-    .tools {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .tool {
-      width: 56px;
-      height: 52px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(25, 50, 90, 0.7), rgba(12, 30, 60, 0.8));
-      border: 1px solid rgba(80, 160, 255, 0.3);
-      box-shadow: 0 0 10px rgba(60, 140, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .tool span {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1;
-    }
-    .tool:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 14px rgba(60, 140, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    .tool svg { filter: drop-shadow(0 0 4px rgba(74, 212, 255, 0.45)); }
-    .tool-send {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #6a3acc, #8a5aec);
-      border: 1px solid rgba(200, 180, 255, 0.5);
-      box-shadow: 0 0 14px rgba(140, 100, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      display: grid;
-      place-items: center;
-      flex: none;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .tool-send:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(140, 100, 255, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
 
     .bnav {
       position: fixed;
@@ -755,7 +891,8 @@
       left: 50%;
       transform: translateX(-50%);
       width: min(430px, 100%);
-      height: 80px;
+      height: auto;
+      min-height: 80px;
       background: linear-gradient(180deg, rgba(10, 25, 55, 0.95), rgba(5, 12, 30, 0.98));
       border-top: 1px solid rgba(80, 160, 255, 0.2);
       backdrop-filter: blur(20px);
@@ -764,7 +901,7 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 0 8px;
+      padding: 8px 8px calc(20px + env(safe-area-inset-bottom, 0px));
       z-index: 5;
     }
     .nitem {
@@ -830,31 +967,22 @@
       </div>
     </header>
 
-    <div class="search-row">
-      <label class="search">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-          <circle cx="8" cy="8" r="5.2" stroke="rgba(255,255,255,0.4)" stroke-width="1.6"/>
-          <path d="M12.1 12.1 16 16" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <input id="people-search" type="search" placeholder="جستجو در اعضا و گروه‌ها..." aria-label="جستجو در اعضا و گروه‌ها">
-      </label>
-      <button class="new-group" type="button">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-          <circle cx="7" cy="6.2" r="2.15" stroke="#ffffff" stroke-width="1.5"/>
-          <path d="M3.1 14.2c.7-2.3 2.2-3.4 3.9-3.4s3.2 1.1 3.9 3.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M13.2 6.1v4.4M11 8.3h4.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        گروه جدید
-      </button>
-    </div>
+    <nav class="people-switch" role="tablist" aria-label="بخش‌های اعضا">
+      <button class="switch-opt on" id="tab-specs" type="button" role="tab" aria-selected="true" aria-controls="panel-specs" data-panel="specs">مشخصات اعضا</button>
+      <button class="switch-opt" id="tab-members" type="button" role="tab" aria-selected="false" aria-controls="panel-members" data-panel="members">اعضای سامانه</button>
+      <button class="switch-opt" id="tab-groups" type="button" role="tab" aria-selected="false" aria-controls="panel-groups" data-panel="groups">گروه‌ها</button>
+      <button class="switch-opt" id="tab-tasks" type="button" role="tab" aria-selected="false" aria-controls="panel-tasks" data-panel="tasks">وظایف</button>
+      <button class="switch-opt" id="tab-chats" type="button" role="tab" aria-selected="false" aria-controls="panel-chats" data-panel="chats">گفتگو</button>
+    </nav>
 
-    <div class="filters" role="tablist" aria-label="فیلتر">
-      <button class="chip on" type="button" role="tab" aria-selected="true">همه</button>
-      <button class="chip" type="button" role="tab" aria-selected="false">اعضا</button>
-      <button class="chip" type="button" role="tab" aria-selected="false">گروه‌ها</button>
-    </div>
+    <div class="people-panel" id="panel-specs" data-panel="specs" role="tabpanel" aria-labelledby="tab-specs">
+    <nav class="people-switch specs-actions" role="tablist" aria-label="اقدام‌های مشخصات اعضا">
+      <button class="switch-opt on" id="tab-org-admin" type="button" role="tab" aria-selected="true" aria-controls="action-org" data-action="org">ساخت مدیر سازمان</button>
+      <button class="switch-opt" id="tab-access" type="button" role="tab" aria-selected="false" aria-controls="action-access" data-action="access">تعیین دسترسی</button>
+      <button class="switch-opt" id="tab-person" type="button" role="tab" aria-selected="false" aria-controls="action-person" data-action="person">پرونده فرد</button>
+    </nav>
+    <div class="specs-action" id="action-org" data-action="org" role="tabpanel" aria-labelledby="tab-org-admin">
     <form class="form-card" id="person-form">
-      <h2>ساخت مدیر سازمان</h2>
       <p class="empty-note">این کار فقط برای مدیر کل است. افراد عادی خودشان ثبت‌نام می‌کنند.</p>
       <div class="field"><label for="person-first">نام</label><input id="person-first" required autocomplete="given-name"></div>
       <div class="field"><label for="person-last">نام خانوادگی</label><input id="person-last" required autocomplete="family-name"></div>
@@ -867,8 +995,9 @@
       </div>
       <button class="primary-btn" type="submit">ثبت فرد</button>
     </form>
+    </div>
+    <div class="specs-action" id="action-access" data-action="access" role="tabpanel" aria-labelledby="tab-access" hidden>
     <form class="form-card" id="member-form">
-      <h2>تعیین دسترسی در پروژه</h2>
       <p class="empty-note">حساب را خود فرد ساخته است. نقش داخل پروژه را اینجا می‌گذارید.</p>
       <div class="field" id="member-project-field" hidden>
         <label for="member-project">پروژه</label>
@@ -886,10 +1015,9 @@
       </datalist>
       <button class="ghost-btn" type="submit">افزودن به پروژه</button>
     </form>
+    </div>
 
-    <div class="cols">
-      <aside class="members" id="people-list" aria-label="فهرست اعضا"></aside>
-
+    <div class="specs-action" id="action-person" data-action="person" role="tabpanel" aria-labelledby="tab-person" hidden>
       <section class="detail">
         <article class="pcard">
           <div class="who">
@@ -898,79 +1026,44 @@
                 <circle cx="12" cy="8.2" r="3.1" fill="rgba(255,255,255,0.9)"/>
                 <path d="M5.4 19.2c1.3-3.2 3.5-4.6 6.6-4.6s5.3 1.4 6.6 4.6" fill="rgba(255,255,255,0.9)"/>
               </svg>
-              <i class="dot"></i>
             </span>
             <div class="who-text">
               <div class="who-name">
                 <strong id="person-detail-name">یک نفر را انتخاب کنید</strong>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                  <path d="M7.6 2 3.6 6l4 4" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
               </div>
               <em id="person-detail-role">—</em>
             </div>
-          </div>
-          <div class="pacts">
-            <a class="ibtn" id="person-chat-link" href="chats.html" hidden aria-label="گفتگو">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="ibtn" type="button" aria-label="تماس تصویری">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3.2" y="6.4" width="11.2" height="11.2" rx="2" stroke="#ffffff" stroke-width="1.6"/>
-                <path d="M14.4 10.2 20.2 7.4v9.2l-5.8-2.8v-3.6z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="ibtn" type="button" aria-label="بیشتر">
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-                <circle cx="8" cy="3.2" r="1.15" fill="#ffffff"/>
-                <circle cx="8" cy="8" r="1.15" fill="#ffffff"/>
-                <circle cx="8" cy="12.8" r="1.15" fill="#ffffff"/>
-              </svg>
-            </button>
+            <div class="pacts">
+              <a class="ibtn" id="person-chat-link" href="chats.html" hidden aria-label="گفتگو">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
-          <div class="status-row">
-            <span class="pill online"><i class="odot"></i>آنلاین</span>
-            <span class="pill meta">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1.4" y="2.2" width="9.2" height="8.2" rx="1.2" stroke="rgba(255,255,255,0.7)" stroke-width="1.1"/>
-                <path d="M1.4 4.6h9.2M3.6 1.4v1.6M8.4 1.4v1.6" stroke="rgba(255,255,255,0.7)" stroke-width="1.1" stroke-linecap="round"/>
-              </svg>
-              سمت: مدیر کل
-            </span>
-            <span class="pill meta">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="2.4" y="5.2" width="7.2" height="5.2" rx="1.1" stroke="rgba(255,255,255,0.7)" stroke-width="1.1"/>
-                <path d="M4 5.2V3.7a2 2 0 0 1 4 0v1.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.1" stroke-linecap="round"/>
-              </svg>
-              مسئول پیگیری پروژه‌ها
-            </span>
-          </div>
-
-          <div class="ptabs" role="tablist" aria-label="بخش‌های عضو">
-            <button class="ptab on" type="button" role="tab" aria-selected="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M7 16.2 4.8 19.2l3.2-1.2A7.6 7.6 0 1 0 7 16.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-              </svg>
-              پیام‌ها
-            </button>
-            <button class="ptab" type="button" role="tab" aria-selected="false">
+          <div class="ptabs" id="person-tabs" role="tablist" aria-label="بخش‌های عضو">
+            <button class="ptab on" type="button" role="tab" aria-selected="true" data-view="tasks">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="5" y="3.6" width="14" height="16.8" rx="2" stroke="currentColor" stroke-width="1.7"/>
                 <path d="m8.2 12 2.1 2.1 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               وظایف
             </button>
-            <button class="ptab" type="button" role="tab" aria-selected="false">
+            <button class="ptab" type="button" role="tab" aria-selected="false" data-view="messages">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 16.2 4.8 19.2l3.2-1.2A7.6 7.6 0 1 0 7 16.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+              پیام‌ها
+            </button>
+            <button class="ptab" type="button" role="tab" aria-selected="false" data-view="files">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
                 <path d="M14 3.8V8.6h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
               </svg>
               فایل‌ها
             </button>
-            <button class="ptab" type="button" role="tab" aria-selected="false">
+            <button class="ptab" type="button" role="tab" aria-selected="false" data-view="info">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/>
                 <path d="M12 11v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
@@ -981,61 +1074,159 @@
           </div>
         </article>
 
-        <div class="chat" id="person-activity" aria-label="فعالیت"></div>
+        <div class="chat" id="person-activity" aria-live="polite">
+          <p class="empty-note">از فهرست اعضا یک نفر را انتخاب کنید.</p>
+        </div>
 
-        <form class="composer" action="#" onsubmit="return false;">
-          <div class="irow">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.5)" stroke-width="1.6"/>
-              <circle cx="9.1" cy="10.2" r="0.9" fill="rgba(255,255,255,0.5)"/>
-              <circle cx="14.9" cy="10.2" r="0.9" fill="rgba(255,255,255,0.5)"/>
-              <path d="M8.7 14c.9 1.25 2 1.9 3.3 1.9s2.4-.65 3.3-1.9" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-            <input class="field" type="text" placeholder="پیام خود را بنویسید..." aria-label="پیام">
+        <form class="composer" id="person-composer" hidden>
+          <input id="person-image-pick" type="file" hidden accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif">
+          <div class="composer-preview" id="person-image-preview" hidden>
+            <img id="person-image-thumb" alt="پیش‌نمایش تصویر">
+            <button class="clear-img" id="person-image-clear" type="button" aria-label="حذف تصویر">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M2 2l6 6M8 2 2 8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="irow composer-row">
+            <div class="attach-wrap">
+              <div class="attach-tray" id="person-attach-tray" hidden>
+                <div class="attach-actions">
+            <button class="attach-item" id="person-image" type="button" aria-label="ارسال تصویر">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.4" y="4.6" width="17.2" height="14.8" rx="2" stroke="#4ad4ff" stroke-width="1.6"/>
+                <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.4"/>
+                <path d="m4.2 16.4 4.2-3.4 3.1 2.4 2.5-2.1 5.2 4.2" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>عکس</span>
+            </button>
+                </div>
+              </div>
+              <button class="attach" id="person-attach" type="button" aria-label="پیوست عکس" aria-expanded="false" aria-controls="person-attach-tray">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4.2v11.6M4.2 10h11.6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <button class="mic-btn" id="person-voice" type="button" aria-label="ضبط صدا" data-steps="person-voice-steps">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="9" y="3.4" width="6" height="10.4" rx="3" stroke="#ffffff" stroke-width="1.6"/>
+                <path d="M6.6 11.2a5.4 5.4 0 0 0 10.8 0M12 16.6V20M9.2 20h5.6" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <input class="field" id="person-message" type="text" placeholder="پیام خود را بنویسید..." aria-label="پیام">
             <button class="send" type="submit" aria-label="ارسال">
               <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#ffffff" d="M20.4 3.6 2.8 10.2c-.9.34-.86 1.62.06 1.9l6.7 2.05 2.15 6.55c.3.9 1.56.94 1.92.06l6.85-17.4c.28-.7-.42-1.4-1.08-1.16z"/>
               </svg>
             </button>
           </div>
-          <div class="tools">
-            <button class="tool" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M7 3.6h7.2L19 8.4V20a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20V5.2A1.6 1.6 0 0 1 7 3.6z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
-                <path d="M14 3.8V8.6H19M8.4 12.2h7.2M8.4 15.6h5" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-              <span>متن</span>
-            </button>
-            <button class="tool" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="9" y="3.4" width="6" height="10.4" rx="3" stroke="#ffffff" stroke-width="1.6"/>
-                <path d="M6.6 11.2a5.4 5.4 0 0 0 10.8 0M12 16.6V20M9.2 20h5.6" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-              <span>صدا</span>
-            </button>
-            <button class="tool" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3.4" y="4.6" width="17.2" height="14.8" rx="2" stroke="#4ad4ff" stroke-width="1.6"/>
-                <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.4"/>
-                <path d="m4.2 16.4 4.2-3.4 3.1 2.4 2.5-2.1 5.2 4.2" stroke="#4ad4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>تصویر</span>
-            </button>
-            <button class="tool" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3.2" y="6.2" width="12" height="11.6" rx="2" stroke="#ffffff" stroke-width="1.6"/>
-                <path d="M15.2 10.1 20.4 7.4v9.2l-5.2-2.7v-3.8z" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-              </svg>
-              <span>ویدیو</span>
-            </button>
-            <button class="tool-send" type="submit" aria-label="ارسال">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill="#ffffff" d="M20.4 3.6 2.8 10.2c-.9.34-.86 1.62.06 1.9l6.7 2.05 2.15 6.55c.3.9 1.56.94 1.92.06l6.85-17.4c.28-.7-.42-1.4-1.08-1.16z"/>
-              </svg>
-            </button>
-          </div>
+          <p class="voice-steps" id="person-voice-steps">برای ضبط صدا دکمهٔ میکروفن را بزنید؛ برای پایان دوباره بزنید.</p>
         </form>
       </section>
+    </div>
+
+    </div>
+
+    <div class="people-panel" id="panel-members" data-panel="members" role="tabpanel" aria-labelledby="tab-members" hidden>
+      <div class="search-row">
+        <label class="search">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.2" stroke="rgba(255,255,255,0.4)" stroke-width="1.6"/>
+            <path d="M12.1 12.1 16 16" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input id="people-search" type="search" placeholder="جستجو در اعضا..." aria-label="جستجو در اعضا">
+        </label>
+      </div>
+      <aside class="members" id="people-list" aria-label="فهرست اعضا"></aside>
+    </div>
+
+    <div class="people-panel" id="panel-groups" data-panel="groups" role="tabpanel" aria-labelledby="tab-groups" hidden>
+      <p class="groups-empty">گروهی ثبت نشده. با دکمه پایین، گروه جدید بسازید.</p>
+      <button class="new-group" type="button" style="margin:14px 16px 0;width:calc(100% - 32px);justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <circle cx="7" cy="6.2" r="2.15" stroke="#ffffff" stroke-width="1.5"/>
+          <path d="M3.1 14.2c.7-2.3 2.2-3.4 3.9-3.4s3.2 1.1 3.9 3.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13.2 6.1v4.4M11 8.3h4.4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        گروه جدید
+      </button>
+    </div>
+
+    <div class="people-panel" id="panel-chats" data-panel="chats" role="tabpanel" aria-labelledby="tab-chats" hidden>
+      <div class="search-row">
+        <label class="search">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.2" stroke="rgba(255,255,255,0.4)" stroke-width="1.6"/>
+            <path d="M12.1 12.1 16 16" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input id="people-chat-search" type="search" placeholder="جستجوی نام..." aria-label="جستجوی افراد">
+        </label>
+      </div>
+      <p class="section-label">افراد</p>
+      <div id="people-chat-list"></div>
+    </div>
+
+    <div class="people-panel" id="panel-tasks" data-panel="tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+      <form class="form-card" id="task-form">
+        <div class="field" id="task-project-field">
+          <label for="task-project">پروژه</label>
+          <select id="task-project" required></select>
+        </div>
+        <div class="field">
+          <label for="task-title">عنوان وظیفه</label>
+          <input id="task-title" required maxlength="200" placeholder="مثلاً تهیه صورتجلسه">
+        </div>
+        <div class="field">
+          <label for="task-desc">شرح</label>
+          <textarea id="task-desc"></textarea>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="task-status">وضعیت</label>
+            <select id="task-status">
+              <option>شروع نشده</option>
+              <option>در حال انجام</option>
+              <option>در انتظار</option>
+              <option>تکمیل شده</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="task-priority">اولویت</label>
+            <select id="task-priority">
+              <option>متوسط</option>
+              <option>کم</option>
+              <option>زیاد</option>
+              <option>فوری</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="task-importance">اهمیت</label>
+            <select id="task-importance">
+              <option>متوسط</option>
+              <option>کم</option>
+              <option>زیاد</option>
+              <option>حیاتی</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="task-due">مهلت</label>
+            <input id="task-due" type="date">
+          </div>
+        </div>
+        <div class="field">
+          <label for="task-start">شروع</label>
+          <input id="task-start" type="date">
+        </div>
+        <div class="field">
+          <label for="task-assignee">مسئول (عضو پروژه)</label>
+          <select id="task-assignee"></select>
+        </div>
+        <button class="primary-btn" type="submit">ثبت وظیفه</button>
+      </form>
+      <div id="task-list"></div>
     </div>
 
     <nav class="bnav" aria-label="ناوبری">
@@ -1092,5 +1283,85 @@
     </nav>
   </main>
   <script src="mobile-app.js"></script>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".people-switch:not(.specs-actions) .switch-opt");
+      var panels = document.querySelectorAll(".people-panel");
+      function showPeoplePanel(name) {
+        buttons.forEach(function (item) {
+          var on = item.getAttribute("data-panel") === name;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== name;
+        });
+        var url = new URL(location.href);
+        if (name === "specs") url.searchParams.delete("panel");
+        else url.searchParams.set("panel", name);
+        history.replaceState(null, "", url);
+      }
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          showPeoplePanel(button.getAttribute("data-panel"));
+        });
+      });
+      window.showPeoplePanel = showPeoplePanel;
+      var initial = new URLSearchParams(location.search).get("panel");
+      if (initial && document.getElementById("panel-" + initial)) showPeoplePanel(initial);
+    })();
+    (function () {
+      var hub = document.querySelector(".specs-actions");
+      if (!hub) return;
+      var buttons = hub.querySelectorAll(".switch-opt");
+      function showAction(name) {
+        var visible = [];
+        buttons.forEach(function (item) {
+          if (!item.hidden) visible.push(item);
+        });
+        if (!visible.some(function (item) { return item.getAttribute("data-action") === name; })) {
+          name = visible.length ? visible[0].getAttribute("data-action") : "";
+        }
+        buttons.forEach(function (item) {
+          var on = item.getAttribute("data-action") === name;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        document.querySelectorAll(".specs-action").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-action") !== name;
+        });
+        hub.hidden = !visible.length;
+      }
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          showAction(button.getAttribute("data-action"));
+        });
+      });
+      window.showSpecsAction = showAction;
+      window.syncSpecsActions = function () {
+        var org = document.getElementById("person-form");
+        var access = document.getElementById("member-form");
+        var orgBtn = document.getElementById("tab-org-admin");
+        var accessBtn = document.getElementById("tab-access");
+        if (orgBtn) orgBtn.hidden = !!(org && org.hidden);
+        if (accessBtn) accessBtn.hidden = !!(access && access.hidden);
+        var current = hub.querySelector(".switch-opt.on");
+        showAction(current && !current.hidden ? current.getAttribute("data-action") : "org");
+      };
+    })();
+    (function () {
+      var tabs = document.getElementById("person-tabs");
+      if (!tabs) return;
+      tabs.addEventListener("click", function (event) {
+        var tab = event.target.closest(".ptab");
+        if (!tab || !tabs.contains(tab)) return;
+        tabs.querySelectorAll(".ptab").forEach(function (item) {
+          var on = item === tab;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

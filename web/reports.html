@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>نظر و جستجو</title>
+  <title>گزارش</title>
   <link rel="stylesheet" href="fonts/vazirmatn.css">
   <link rel="stylesheet" href="mobile-shell.css">
   <link rel="stylesheet" href="mobile-ui.css">
@@ -14,43 +14,30 @@
   <main class="screen">
     <div class="status"><time>سامانه</time></div>
     <header class="header">
-      <a class="back" href="admin-mobile.html" aria-label="بازگشت">→</a>
-      <h1>نظر و جستجو</h1>
+      <a class="back" id="reports-back" href="admin-mobile.html" aria-label="بازگشت">→</a>
+      <h1 id="reports-title">گزارش</h1>
       <span style="width:38px"></span>
     </header>
-    <div class="search-box">
-      <input id="search-query" type="search" placeholder="جستجوی واژه‌ای در جلسات و پیام‌ها">
-      <button id="search-go" type="button">جستجو</button>
-    </div>
-    <div id="search-list"></div>
-    <section class="form-card" id="semantic-panel">
-      <h2>امبدینگ و جستجوی معنایی</h2>
-      <p>تحلیل‌های ذخیره‌شده بردار می‌شوند. سؤال را بنویسید تا نزدیک‌ترین متن خام، موجودیت و نیت بیاید.</p>
-      <div class="search-box inset">
-        <input id="semantic-query" type="search" placeholder="مثلاً تأخیر پرداخت یا قطع سرور" aria-label="جستجوی معنایی">
-        <button id="semantic-go" type="button">جستجو</button>
-      </div>
-      <button class="ghost-btn" id="embed-pending" type="button">امبد کردن تحلیل‌های مانده</button>
-      <p id="embed-status"></p>
-      <div id="semantic-list"></div>
-    </section>
+    <nav class="form-card report-fold" id="reports-tools" aria-label="ابزار گزارش">
+      <a class="report-tool" href="projects.html">پروژه‌ها</a>
+      <a class="report-tool" href="meetings.html">جلسات</a>
+      <a class="report-tool" href="embedding.html">امبدینگ</a>
+      <a class="report-tool" href="semantic.html">جستجوی معنایی</a>
+      <a class="report-tool" href="raw-comment.html">ثبت نظر خام</a>
+    </nav>
     <form class="form-card" id="report-form">
-      <h2>ثبت نظر خام</h2>
-      <p>متن با پروژه، وظیفه و کاربر ذخیره می‌شود. بعد همان متن استخراج می‌شود و تحلیل پیشنهادی ذخیره می‌گردد.</p>
+      <h2>ثبت گزارش</h2>
+      <p>گزارش به پروژه وصل می‌شود. موجودیت‌ها از متن استخراج می‌شوند.</p>
       <div class="field">
         <label for="report-project">پروژه</label>
         <select id="report-project" required></select>
       </div>
       <div class="field">
-        <label for="report-task">وظیفه</label>
-        <select id="report-task" required></select>
-      </div>
-      <div class="field">
         <label for="report-body">متن</label>
-        <textarea id="report-body" required placeholder="نظر را بنویسید یا با دکمه صدا بگویید"></textarea>
+        <textarea id="report-body" required placeholder="گزارش را بنویسید یا با دکمه صدا بگویید"></textarea>
       </div>
       <button class="ghost-btn" id="report-voice" type="button" style="width:100%;margin:12px 0 0">ضبط صدا</button>
-      <button class="primary-btn" type="submit" style="width:100%;margin:12px 0 0">ذخیره پیام</button>
+      <button class="primary-btn" type="submit" style="width:100%;margin:12px 0 0">ثبت گزارش</button>
     </form>
   </main>
   <nav class="bnav">

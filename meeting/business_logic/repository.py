@@ -61,6 +61,7 @@ PARTICIPANT_COLUMNS = (
     "user_id",
     "external_contact_id",
     "role",
+    "display_name",
 )
 
 SYNC_ITEM_COLUMNS = (
@@ -98,8 +99,15 @@ JOIN meeting_statuses st ON st.id = m.status_id
 """
 
 _PARTICIPANT_SELECT = """
-SELECT id, meeting_id, user_id, external_contact_id, role
-FROM meeting_participants
+SELECT p.id, p.meeting_id, p.user_id, p.external_contact_id, p.role,
+       COALESCE(
+           NULLIF(btrim(concat_ws(' ', u.first_name, u.last_name)), ''),
+           u.username,
+           c.name
+       ) AS display_name
+FROM meeting_participants p
+LEFT JOIN users u ON u.id = p.user_id
+LEFT JOIN external_contacts c ON c.id = p.external_contact_id
 """
 
 _SYNC_ITEM_SELECT = """
@@ -311,7 +319,7 @@ def meeting_has_user_participant(meeting_id: int, user_id: int) -> bool:
 def fetch_participant_records(meeting_id: int) -> list:
     """شرکت‌کنندگان یک جلسه را می‌خواند."""
     return fetch_many(
-        _PARTICIPANT_SELECT + " WHERE meeting_id = %s ORDER BY id ASC",
+        _PARTICIPANT_SELECT + " WHERE p.meeting_id = %s ORDER BY p.id ASC",
         [meeting_id],
         PARTICIPANT_COLUMNS,
     )
@@ -408,6 +416,31 @@ def cancel_meeting_on(connection, meeting_id: int, cancelled_status_id: int):
             RETURNING id
             """,
             [cancelled_status_id, meeting_id],
+        )
+        row = cursor.fetchone()
+    if row is None:
+        return None
+    return int(row[0])
+
+
+def update_meeting_on(connection, meeting_id: int, fields: dict):
+    """عنوان، زمان، مکان، پروژه و نوع جلسه را به‌روز می‌کند."""
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE meetings
+            SET project_id = %(project_id)s,
+                meeting_type_id = %(meeting_type_id)s,
+                visibility = %(visibility)s,
+                title = %(title)s,
+                scheduled_at = %(scheduled_at)s,
+                scheduled_end_at = %(scheduled_end_at)s,
+                duration_minutes = %(duration_minutes)s,
+                location = %(location)s
+            WHERE id = %(id)s
+            RETURNING id
+            """,
+            {"id": meeting_id, **fields},
         )
         row = cursor.fetchone()
     if row is None:

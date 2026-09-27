@@ -120,9 +120,10 @@ class MeetingServiceTests(unittest.TestCase):
             self.assertEqual(raised.exception.error_code, MEETING_SLOT_CONFLICT)
             self.assertEqual(raised.exception.suggested_at, _WEEK_AFTER)
 
+            contact_name = unique_contact_name("وکیل")
             contact_id = insert_external_contact(
                 {
-                    "name": unique_contact_name("وکیل"),
+                    "name": contact_name,
                     "phone": unique_phone(),
                 },
                 actor_id=manager_id,
@@ -144,6 +145,10 @@ class MeetingServiceTests(unittest.TestCase):
                 targets,
                 {(teammate_id, None), (None, contact_id)},
             )
+            by_user = {row["user_id"]: row["display_name"] for row in people}
+            self.assertEqual(by_user[teammate_id], "آزمایش عضو-جلسه")
+            external = next(row for row in people if row["external_contact_id"] == contact_id)
+            self.assertEqual(external["display_name"], contact_name)
             with self.assertRaises(ValidationError):
                 validate_create_meeting_participant(
                     {

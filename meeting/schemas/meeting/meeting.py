@@ -115,6 +115,63 @@ class CancelMeetingInput(BaseModel):
         return reject_bool_for_int(value)
 
 
+class UpdateMeetingInput(BaseModel):
+    """ورودی به‌روزرسانی جلسهٔ موجود. حداقل یک فیلد لازم است."""
+
+    id: int = Field(ge=1, description="شناسه جلسه در meetings")
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    scheduled_at: Optional[datetime] = Field(default=None)
+    meeting_type_id: Optional[int] = Field(default=None, ge=1)
+    meeting_type: Optional[str] = Field(default=None, max_length=100)
+    duration_minutes: Optional[int] = Field(default=None, ge=1)
+    project_id: Optional[int] = Field(default=None, ge=1)
+    visibility: Optional[str] = Field(default=None)
+    location: Optional[str] = Field(default=None)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    @field_validator(
+        "id",
+        "meeting_type_id",
+        "duration_minutes",
+        "project_id",
+        mode="before",
+    )
+    @classmethod
+    def _reject_bool_for_ids(cls, value):
+        if value is None:
+            return None
+        return reject_bool_for_int(value)
+
+    @field_validator("title", "meeting_type", "location", "visibility")
+    @classmethod
+    def _text_not_empty(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        if not value:
+            raise ValueError("نمی‌تواند خالی باشد")
+        return value
+
+    @field_validator("visibility")
+    @classmethod
+    def _visibility_allowed(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        upper = value.upper()
+        if upper not in _VISIBILITY:
+            raise ValueError("visibility باید PRIVATE یا RESTRICTED یا PROJECT باشد")
+        return upper
+
+    @model_validator(mode="after")
+    def _require_writable_field(self):
+        dumped = self.model_dump()
+        writable = [
+            key for key, value in dumped.items() if key != "id" and value is not None
+        ]
+        if not writable:
+            raise ValueError("حداقل یک فیلد قابل‌به‌روزرسانی لازم است")
+        return self
+
+
 class GenerateMeetingsInput(BaseModel):
     """ورودی چیدن نمونه از روی الگو برای یک هفته."""
 

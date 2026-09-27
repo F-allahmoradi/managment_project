@@ -30,6 +30,7 @@ from business_logic.repository import (
     insert_meeting_on,
     meeting_has_user_participant,
     resolve_lookup_id,
+    update_meeting_on,
 )
 from business_logic.schedules import fetch_schedule
 
@@ -134,10 +135,20 @@ def find_slot_conflict(
     )
 
 
-def raise_if_conflict(manager_user_id: int, scheduled_at, duration_minutes: int) -> None:
+def raise_if_conflict(
+    manager_user_id: int,
+    scheduled_at,
+    duration_minutes: int,
+    exclude_meeting_id=None,
+) -> None:
     """اگر بازه پر باشد خطای تداخل با پیشنهاد هفتهٔ بعد می‌دهد."""
     end_at = scheduled_end(scheduled_at, duration_minutes)
-    conflict = find_slot_conflict(manager_user_id, scheduled_at, end_at)
+    conflict = find_slot_conflict(
+        manager_user_id,
+        scheduled_at,
+        end_at,
+        exclude_meeting_id=exclude_meeting_id,
+    )
     if conflict is None:
         return
     suggestion = suggest_after_conflict(scheduled_at, duration_minutes)
@@ -216,6 +227,76 @@ def insert_meeting(fields: dict, manager_user_id: int) -> int:
     return run_query(work)
 
 
+def update_meeting(fields: dict, actor_id: int) -> int:
+    """جلسهٔ مدیر جاری را به‌روز می‌کند؛ لغو شده ویرایش نمی‌شود."""
+    meeting_id = fields["id"]
+    meeting = require_meeting_access(actor_id, meeting_id)
+    require_meeting_manager(actor_id, meeting)
+    if meeting["status_name"] == "لغو شده":
+        raise InvalidInputError("جلسه لغو شده ویرایش نمی‌شود")
+    project_id = fields["project_id"] if "project_id" in fields else meeting.get("project_id")
+    if project_id is not None:
+        fetch_project(project_id)
+        membership = fetch_active_membership(project_id, actor_id)
+        if membership is None:
+            raise PermissionDeniedError("عضو فعال این پروژه نیستید")
+    visibility = fields.get("visibility") or meeting["visibility"]
+    visibility = resolve_visibility({"visibility": visibility}, project_id)
+    if "meeting_type_id" in fields or "meeting_type" in fields:
+        type_id = resolve_lookup_id(
+            "meeting_types",
+            fields.get("meeting_type_id"),
+            fields.get("meeting_type"),
+        )
+    else:
+        type_id = meeting["meeting_type_id"]
+    title = fields.get("title") or meeting["title"]
+    duration = fields.get("duration_minutes") or meeting["duration_minutes"]
+    scheduled_at = fields.get("scheduled_at", meeting["scheduled_at"])
+    if hasattr(scheduled_at, "tzinfo") and scheduled_at.tzinfo is not None:
+        scheduled_at = scheduled_at.replace(tzinfo=None)
+    location = fields["location"] if "location" in fields else meeting.get("location")
+    raise_if_conflict(
+        actor_id,
+        scheduled_at,
+        duration,
+        exclude_meeting_id=meeting_id,
+    )
+    payload = {
+        "project_id": project_id,
+        "meeting_type_id": type_id,
+        "visibility": visibility,
+        "title": title,
+        "scheduled_at": scheduled_at,
+        "scheduled_end_at": scheduled_end(scheduled_at, duration),
+        "duration_minutes": duration,
+        "location": location,
+    }
+
+    def work(connection):
+        updated = update_meeting_on(connection, meeting_id, payload)
+        if updated is None:
+            raise MeetingNotFoundError(_not_found_message(meeting_id))
+        record_audit_on(
+            connection,
+            actor_id,
+            ACTION_UPDATE,
+            "Meeting",
+            meeting_id,
+            {
+                "title": meeting["title"],
+                "scheduled_at": json_safe(meeting["scheduled_at"]),
+            },
+            {
+                "title": payload["title"],
+                "scheduled_at": json_safe(scheduled_at),
+            },
+        )
+        return updated
+
+    return run_query(work)
+
+
 def cancel_meeting(meeting_id: int, actor_id: int) -> int:
     """جلسهٔ برنامه‌ریزی‌شده را لغو می‌کند؛ ردیف حذف نمی‌شود."""
     meeting = require_meeting_access(actor_id, meeting_id)
@@ -247,6 +328,7 @@ def cancel_meeting(meeting_id: int, actor_id: int) -> int:
 fetch_meeting = logged_step("fetch")(fetch_meeting)
 fetch_meetings = logged_step("fetch")(fetch_meetings)
 insert_meeting = logged_step("insert")(insert_meeting)
+update_meeting = logged_step("update")(update_meeting)
 cancel_meeting = logged_step("update")(cancel_meeting)
 require_meeting_access = logged_step("auth")(require_meeting_access)
 find_slot_conflict = logged_step("calculate")(find_slot_conflict)

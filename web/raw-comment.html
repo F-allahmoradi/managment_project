@@ -3,41 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>گفتگو</title>
+  <title>ثبت نظر خام</title>
   <link rel="stylesheet" href="fonts/vazirmatn.css">
   <link rel="stylesheet" href="mobile-shell.css">
   <link rel="stylesheet" href="mobile-ui.css">
   <script src="mobile-session.js"></script>
   <script>MobileSession.redirectIfAnonymous();</script>
 </head>
-<body data-page="chat">
+<body data-page="raw-comment">
   <main class="screen">
     <div class="status"><time>سامانه</time></div>
     <header class="header">
-      <a class="back" href="chats.html" aria-label="بازگشت">→</a>
-      <h1 id="chat-title">گفتگو</h1>
+      <a class="back" href="reports.html" aria-label="بازگشت">→</a>
+      <h1>ثبت نظر خام</h1>
       <span style="width:38px"></span>
     </header>
-    <p class="empty-note" id="chat-meta">—</p>
-    <div class="thread" id="chat-thread"></div>
-    <form class="form-card" id="chat-form">
-      <div class="field" id="chat-task-field" hidden>
-        <label for="chat-task">وظیفه مشترک (اختیاری)</label>
-        <select id="chat-task"></select>
-      </div>
+    <form class="form-card" id="raw-comment-form">
+      <p>متن خام ذخیره می‌شود؛ بعد استخراج برای تأیید می‌آید.</p>
       <div class="field">
-        <label for="chat-body">پیام</label>
-        <textarea id="chat-body" required placeholder="پیام را بنویسید"></textarea>
+        <label for="raw-comment-body">متن</label>
+        <textarea id="raw-comment-body" required placeholder="نظر را بنویسید یا با دکمه صدا بگویید"></textarea>
       </div>
-      <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ارسال</button>
+      <button class="ghost-btn" id="raw-comment-voice" type="button" style="width:100%;margin:12px 0 0">ضبط صدا</button>
+      <button class="primary-btn" type="submit" style="width:100%;margin:12px 0 0">ثبت نظر خام</button>
     </form>
   </main>
   <nav class="bnav">
     <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
     <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
-    <a class="nitem on" href="chats.html"><span>گفتگو</span></a>
+    <a class="nitem" href="meetings.html"><span>جلسات</span></a>
     <a class="nitem" href="tasks.html"><span>وظایف</span></a>
-    <a class="nitem" href="progress.html"><span>پیشرفت</span></a>
+    <a class="nitem on" href="reports.html"><span>گزارش‌ها</span></a>
   </nav>
   <script src="mobile-app.js"></script>
 </body>

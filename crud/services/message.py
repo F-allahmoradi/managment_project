@@ -3,7 +3,7 @@
 متن در text است؛ content_id در این گام نوشته نمی‌شود.
 create می‌تواند گیرنده‌ها را همان لحظه در message_recipients بسازد.
 حداقل یک گیرنده لازم است. XOR روی هر ردیف گیرنده است.
-گفتگوی پروژه: فرستنده عضو فعال پروژه و تسک همان پروژه.
+گفتگوی پروژه: فرستنده عضو فعال پروژه است؛ تسک همان پروژه اختیاری است.
 گفتگوی خصوصی: بدون تسک؛ فرستنده عضو همان گفتگو است.
 """
 
@@ -36,19 +36,19 @@ def _require_text(text) -> str:
 
 
 def _prepare_message_task(chat: dict, task_id, sender_user_id: int):
-    """تسک را برای گفتگوی پروژه می‌سنجد؛ گفتگوی خصوصی تسک ندارد."""
+    """تسک اختیاری گفتگوی پروژه را می‌سنجد؛ گفتگوی خصوصی تسک ندارد."""
     project_id = chat.get("project_id")
     if project_id is None:
         if task_id is not None:
             raise InvalidInputError("گفتگوی خصوصی نباید به وظیفه وصل باشد")
         return None
+    if fetch_active_membership(project_id, sender_user_id) is None:
+        raise InvalidInputError("فرستنده باید عضو فعال همین پروژه باشد")
     if task_id is None:
-        raise InvalidInputError("پیام گفتگوی پروژه باید به یک وظیفه وصل باشد")
+        return None
     task = fetch_task(task_id)
     if task["project_id"] != project_id:
         raise InvalidInputError("تسک باید در همان پروژهٔ گفتگو باشد")
-    if fetch_active_membership(project_id, sender_user_id) is None:
-        raise InvalidInputError("فرستنده باید عضو فعال همین پروژه باشد")
     return task
 
 

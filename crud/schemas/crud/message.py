@@ -2,7 +2,7 @@
 
 متن در text است. content_id در این گام از کلاینت گرفته نمی‌شود.
 گیرندهٔ کاربر و مخاطب خارجی دو ردیف جدا در message_recipientsاند.
-تسک بستر ارسال است؛ ژانر از تحلیل می‌آید.
+پروژه بستر ارسال است؛ وظیفه اختیاری است. ژانر از تحلیل می‌آید.
 """
 
 from typing import Optional
@@ -18,14 +18,15 @@ class CreateMessageInput(BaseModel):
     recipient_user_id و recipient_external_contact_id اگر هر دو بیایند
     دو گیرندهٔ جدا ساخته می‌شوند، نه یک ردیف با هر دو فیلد.
     حداقل یکی لازم است.
-    گفتگوی پروژه task_id می‌خواهد؛ گفتگوی خصوصی نباید task_id داشته باشد.
+    در گفتگوی پروژه task_id اختیاری است و اگر بیاید باید همان پروژه باشد.
+    گفتگوی خصوصی نباید task_id داشته باشد.
     """
 
     chat_id: int = Field(ge=1, description="شناسه گفتگو")
     task_id: Optional[int] = Field(
         default=None,
         ge=1,
-        description="شناسه تسک بستر نظر در گفتگوی پروژه؛ در خصوصی خالی است",
+        description="وظیفهٔ اختیاری همان پروژه؛ در گفتگوی خصوصی خالی است",
     )
     text: str = Field(
         min_length=1,

@@ -3,6 +3,7 @@
 from typing import Callable, Optional
 
 from auth.gate import require_permission
+from auth.principal import resolve_actor
 from business_logic.repository import fetch_source_text
 from errors.crud import format_error, format_success
 from logging_module import logged_tool
@@ -38,8 +39,12 @@ def make_extract_runner(tool_name: str, extract_fn: Callable) -> Callable:
             body = parsed.get("text")
             extra_context = parsed.get("context")
             if resolved_type is not None and resolved_id is not None:
-                resource, action = _SOURCE_PERMISSION[resolved_type]
-                actor = require_permission(resource, action)
+                resource_action = _SOURCE_PERMISSION.get(resolved_type)
+                if resource_action is None:
+                    actor = resolve_actor()
+                else:
+                    resource, action = resource_action
+                    actor = require_permission(resource, action)
                 source = fetch_source_text(resolved_type, resolved_id, actor["id"])
                 body = source["text"]
             result = extract_fn(

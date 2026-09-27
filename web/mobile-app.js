@@ -93,10 +93,6 @@
     return Number((row && (row.user_id || row.id)) || 0);
   }
 
-  function personRole(row) {
-    return (row && (row.project_role_name || row.username || "")) || "";
-  }
-
   function chatHrefForPerson(row) {
     return "chat.html?user_id=" + personId(row);
   }
@@ -117,11 +113,10 @@
       var wrap = document.createElement("div");
       wrap.className = "person-row";
       wrap.innerHTML =
-        '<div class="person-copy"><strong></strong><em></em></div><a class="chat-chip" href="' +
+        '<div class="person-copy"><strong></strong></div><a class="chat-chip" href="' +
         chatHrefForPerson(row) +
         '">گفتگو</a>';
       wrap.querySelector("strong").textContent = displayName(row);
-      wrap.querySelector("em").textContent = personRole(row);
       container.appendChild(wrap);
     });
   }
@@ -181,9 +176,51 @@
 
   function parseDay(value) {
     if (!value) return null;
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      var bits = value.split("-");
+      return new Date(Number(bits[0]), Number(bits[1]) - 1, Number(bits[2]));
+    }
     var date = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(date.getTime())) return null;
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  function dayKey(value) {
+    var date = parseDay(value);
+    if (!date) return "";
+    var pad = function (n) { return String(n).padStart(2, "0"); };
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+  }
+
+  function eachDays(start, end, cap) {
+    var days = [];
+    if (!start || !end) return days;
+    var cursor = new Date(start.getTime());
+    var last = end.getTime();
+    var guard = 0;
+    var limit = cap || 400;
+    while (cursor.getTime() <= last && guard < limit) {
+      days.push(new Date(cursor.getTime()));
+      cursor.setDate(cursor.getDate() + 1);
+      guard += 1;
+    }
+    return days;
+  }
+
+  function isCompletedStatus(name) {
+    return name === "تکمیل شده";
+  }
+
+  function isCancelledStatus(name) {
+    return name === "لغو شده";
+  }
+
+  function taskDoneByDay(task, day) {
+    if (!task || isCancelledStatus(task.status_name)) return false;
+    if (!isCompletedStatus(task.status_name)) return false;
+    if (!task.completed_at) return true;
+    var done = parseDay(task.completed_at);
+    return !!(done && done.getTime() <= day.getTime());
   }
 
   function daysBetween(from, to) {
@@ -305,6 +342,47 @@
 
   function padClock(n) {
     return String(n).padStart(2, "0");
+  }
+
+  function isoDateOnly(value) {
+    if (!value) return "";
+    var text = String(value);
+    if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.slice(0, 10);
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.getFullYear() + "-" + padClock(date.getMonth() + 1) + "-" + padClock(date.getDate());
+  }
+
+  function clockFromStamp(value) {
+    var date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return "10:00";
+    return padClock(date.getHours()) + ":" + padClock(date.getMinutes());
+  }
+
+  function showOwnerEdit(linkId, href, allowed) {
+    var el = document.getElementById(linkId);
+    if (!el) return;
+    if (!allowed) {
+      el.hidden = true;
+      return;
+    }
+    el.hidden = false;
+    el.href = href;
+  }
+
+  function paintMeetingCalendar(date) {
+    var parts = jalaliParts(date instanceof Date ? date : new Date(date));
+    var days = document.getElementById("days");
+    var monthLabel = document.getElementById("meeting-month");
+    if (days) {
+      days.dataset.jy = String(parts.year);
+      days.dataset.jm = String(parts.month);
+    }
+    if (monthLabel) monthLabel.textContent = parts.monthName + " " + faDigits(parts.year);
+    document.querySelectorAll(".day.sel").forEach(function (el) { el.classList.remove("sel"); });
+    var dayBtn = document.querySelector('.day[data-day="' + parts.day + '"]');
+    if (dayBtn) dayBtn.classList.add("sel");
+    paintMeetingDate();
   }
 
   function hhmmFromParts(hourEl, minuteEl) {
@@ -897,6 +975,10 @@
     return listAll("crud", "list_assignable_users");
   }
 
+  async function loadExternalContacts() {
+    return listAll("crud", "list_external_contacts");
+  }
+
   function systemRoles(row) {
     return String((row && row.roles) || "");
   }
@@ -967,6 +1049,7 @@
     if (!button) return;
     var label = button.querySelector("span");
     var idleLabel = label ? label.textContent : button.textContent;
+    var idleSteps = button.getAttribute("data-idle") || IDLE_STEPS;
     var stepsId = button.getAttribute("data-steps");
     var steps = stepsId ? document.getElementById(stepsId) : null;
     if (!steps) {
@@ -978,7 +1061,7 @@
       }
       node.insertAdjacentElement("afterend", steps);
     }
-    steps.textContent = IDLE_STEPS;
+    steps.textContent = idleSteps;
 
     var recorder = null;
     var chunks = [];
@@ -1081,17 +1164,20 @@
           }
           if (!text) {
             toast("صحبتی تشخیص داده نشد");
-            steps.textContent = IDLE_STEPS;
+            steps.textContent = idleSteps;
             return;
           }
-          steps.textContent = "مرحله ۳: متن آماده شد";
-          busy = false;
-          resetButton();
+          if (button.hasAttribute("data-idle")) {
+            setButtonLabel(button, label, "در حال استخراج");
+            steps.textContent = "مرحله ۳: موجودیت‌ها طبق ستون‌های ثبت استخراج می‌شوند";
+          } else {
+            steps.textContent = "مرحله ۳: متن آماده شد";
+          }
           var result = onText(text, blob);
           if (result && typeof result.then === "function") result = await result;
-          steps.textContent = typeof result === "string" && result ? result : "مرحله ۳: صوت و متن هر دو ذخیره شد";
+          steps.textContent = typeof result === "string" && result ? result : idleSteps;
         } catch (error) {
-          steps.textContent = IDLE_STEPS;
+          steps.textContent = idleSteps;
           toast(error.message || "تبدیل صدا به متن انجام نشد");
         } finally {
           busy = false;
@@ -1321,6 +1407,274 @@
     return blocks;
   }
 
+  var PROJECT_TYPES = ["نرم‌افزاری", "تحقیقاتی", "فرهنگی", "اجرایی"];
+  var PROJECT_STATUSES = ["در انتظار شروع", "در حال اجرا", "متوقف", "تکمیل شده", "لغو شده"];
+  var MEETING_TYPES = ["جلسه تیم", "مذاکره خارجی", "مذاکره حقوقی", "مذاکره مدیران"];
+
+  function foldFa(value) {
+    return String(value || "")
+      .replace(/[\u200c\s]/g, "")
+      .replace(/ي/g, "ی")
+      .replace(/ك/g, "ک")
+      .replace(/ة/g, "ه");
+  }
+
+  function matchCatalog(text, options, fallback) {
+    var found = "";
+    var folded = foldFa(text);
+    options.forEach(function (option) {
+      if (folded.indexOf(foldFa(option)) !== -1) found = option;
+    });
+    return found || fallback || "";
+  }
+
+  function mentionName(item) {
+    return String((item && (item.canonical_name || item.mention_text)) || "").trim();
+  }
+
+  function mentionsByType(mentions, type) {
+    return (mentions || []).filter(function (item) { return item && item.type === type; });
+  }
+
+  function uniqueNames(items) {
+    var seen = {};
+    var names = [];
+    items.forEach(function (item) {
+      var name = mentionName(item);
+      var key = foldFa(name);
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      names.push(name);
+    });
+    return names;
+  }
+
+  function parseOccurred(value) {
+    var text = String(value || "").trim();
+    var match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+    if (!match) return null;
+    return {
+      date: match[1] + "-" + match[2] + "-" + match[3],
+      time: (match[4] || "00") + ":" + (match[5] || "00"),
+    };
+  }
+
+  function timePoints(mentions) {
+    var points = [];
+    mentionsByType(mentions, "TIME").forEach(function (item) {
+      var point = parseOccurred(item.occurred_at);
+      if (point) points.push(point);
+    });
+    points.sort(function (a, b) {
+      var left = a.date + "T" + a.time;
+      var right = b.date + "T" + b.time;
+      if (left < right) return -1;
+      if (left > right) return 1;
+      return 0;
+    });
+    return points;
+  }
+
+  function plusDays(isoDate, days) {
+    var date = new Date(String(isoDate || "") + "T12:00:00");
+    if (Number.isNaN(date.getTime())) return "";
+    date.setDate(date.getDate() + days);
+    return date.toISOString().slice(0, 10);
+  }
+
+  function splitNames(value) {
+    return String(value || "")
+      .split(/[،,]/)
+      .map(function (part) { return part.trim(); })
+      .filter(Boolean);
+  }
+
+  function nameHits(row, needle) {
+    var label = foldFa(displayName(row));
+    var username = foldFa(row && row.username);
+    if (!needle || (!label && !username)) return false;
+    return (label && (label.indexOf(needle) !== -1 || needle.indexOf(label) !== -1))
+      || (username && (username.indexOf(needle) !== -1 || needle.indexOf(username) !== -1));
+  }
+
+  function matchUsers(names, people, me) {
+    var matched = [];
+    var missed = [];
+    names.forEach(function (name) {
+      var needle = foldFa(name);
+      if (me && nameHits(me, needle)) return;
+      var found = (people || []).find(function (row) {
+        if (me && Number(row.id) === Number(me.id)) return false;
+        return nameHits(row, needle);
+      });
+      if (found && !matched.some(function (row) { return Number(row.id) === Number(found.id); })) matched.push(found);
+      else if (!found) missed.push(name);
+    });
+    return { matched: matched, missed: missed };
+  }
+
+  function projectColumns(spoken) {
+    var mentions = spoken.mentions || [];
+    var name = uniqueNames(mentionsByType(mentions, "PROJECT"))[0] || "";
+    if (!name && spoken.frame && spoken.frame.title) name = String(spoken.frame.title).trim();
+    var tasks = uniqueNames(mentionsByType(mentions, "TASK"));
+    var description = tasks.join("، ");
+    if (!description && spoken.frame && spoken.frame.about) description = String(spoken.frame.about).trim();
+    if (!description) description = spoken.text || "";
+    var times = timePoints(mentions);
+    return {
+      name: name,
+      description: description,
+      start_date: times[0] ? times[0].date : "",
+      end_date: times.length > 1 ? times[times.length - 1].date : "",
+      project_type: matchCatalog(spoken.text, PROJECT_TYPES, "اجرایی"),
+      project_status: matchCatalog(spoken.text, PROJECT_STATUSES, "در انتظار شروع"),
+      members: uniqueNames(mentionsByType(mentions, "PERSON")).join("، "),
+    };
+  }
+
+  function meetingColumns(spoken) {
+    var mentions = spoken.mentions || [];
+    var tasks = uniqueNames(mentionsByType(mentions, "TASK"));
+    var title = spoken.frame && spoken.frame.title ? String(spoken.frame.title).trim() : "";
+    if (!title && tasks[0]) title = tasks[0];
+    var notes = tasks.filter(function (item) { return item !== title; }).join("، ");
+    if (!notes && spoken.frame && spoken.frame.about && spoken.frame.about !== title) notes = String(spoken.frame.about).trim();
+    if (!notes) notes = spoken.text || "";
+    var times = timePoints(mentions);
+    var start = times[0] || null;
+    var end = times.length > 1 ? times[times.length - 1] : null;
+    return {
+      title: title,
+      date: start ? start.date : "",
+      start_time: start && start.time !== "00:00" ? start.time : "",
+      end_time: end && end.time !== "00:00" ? end.time : "",
+      location: uniqueNames(mentionsByType(mentions, "PLACE"))[0] || "",
+      notes: notes,
+      meeting_type: matchCatalog(spoken.text, MEETING_TYPES, "جلسه تیم"),
+      project_name: uniqueNames(mentionsByType(mentions, "PROJECT"))[0] || "",
+      members: uniqueNames(mentionsByType(mentions, "PERSON")).join("، "),
+    };
+  }
+
+  async function extractSpoken(text) {
+    var entities = {};
+    var frame = null;
+    var warnings = [];
+    var settled = await Promise.all([
+      tool("ner", "extract_entities", { text: text }).catch(function (error) {
+        warnings.push(error.message || "استخراج موجودیت انجام نشد");
+        return {};
+      }),
+      tool("nlp", "extract_frame", { text: text }).catch(function () {
+        return {};
+      }),
+    ]);
+    entities = settled[0] || {};
+    frame = settled[1] && settled[1].frame ? settled[1].frame : null;
+    return {
+      text: text,
+      mentions: entities.mentions || [],
+      frame: frame,
+      warnings: warnings,
+    };
+  }
+
+  function optionsFromSelect(select, blankLabel) {
+    var options = [{ value: "", label: blankLabel || "انتخاب کنید" }];
+    if (!select) return options;
+    Array.prototype.forEach.call(select.options, function (option) {
+      if (!option.value) return;
+      options.push({ value: option.value, label: option.textContent || option.value });
+    });
+    return options;
+  }
+
+  function reviewControl(field) {
+    var id = "voice-" + field.id;
+    if (field.type === "select") {
+      return (
+        "<select id='" + id + "'>" +
+        (field.options || []).map(function (option) {
+          var value = typeof option === "string" ? option : option.value;
+          var label = typeof option === "string" ? option : option.label;
+          var selected = String(value) === String(field.value || "") ? " selected" : "";
+          return "<option value='" + escapeHtml(value) + "'" + selected + ">" + escapeHtml(label) + "</option>";
+        }).join("") +
+        "</select>"
+      );
+    }
+    if (field.type === "textarea") {
+      return "<textarea id='" + id + "'>" + escapeHtml(field.value || "") + "</textarea>";
+    }
+    return "<input id='" + id + "' type='" + escapeHtml(field.type || "text") + "' value='" + escapeHtml(field.value || "") + "'>";
+  }
+
+  function openColumnReview(options) {
+    return new Promise(function (resolve) {
+      var fields = options.fields || [];
+      var sheet = document.createElement("div");
+      sheet.className = "review-sheet";
+      var body = fields.map(function (field) {
+        var hint = field.hint ? "<span class='review-meta'>" + escapeHtml(field.hint) + "</span>" : "";
+        return (
+          "<label class='review-field'><span>" +
+          escapeHtml(field.label) +
+          "</span>" +
+          reviewControl(field) +
+          hint +
+          "</label>"
+        );
+      }).join("");
+      var quote = options.quote
+        ? "<p class='review-quote'>گفتهٔ شما: «" + escapeHtml(options.quote) + "»</p>"
+        : "";
+      var warn = (options.warnings || []).filter(Boolean);
+      sheet.innerHTML =
+        "<div class='review-card' role='dialog' aria-modal='true'>" +
+        "<h2>" + escapeHtml(options.title || "مشخصات استخراج‌شده") + "</h2>" +
+        "<p class='review-note'>ستون‌های ثبت از گفته پر شده‌اند. قبل از تأیید می‌توانید ویرایش کنید.</p>" +
+        (warn.length ? "<p class='review-note'>" + escapeHtml(warn.join(" ")) + "</p>" : "") +
+        quote +
+        body +
+        "<div class='review-actions'>" +
+        "<button class='primary-btn' type='button' data-act='save'>تأیید و ثبت</button>" +
+        "<button class='ghost-btn' type='button' data-act='cancel'>انصراف</button>" +
+        "</div></div>";
+      document.body.appendChild(sheet);
+      var first = sheet.querySelector("input, textarea, select");
+      if (first) first.focus();
+      sheet.addEventListener("click", async function (event) {
+        var act = event.target && event.target.getAttribute("data-act");
+        if (!act) return;
+        if (act === "cancel") {
+          sheet.remove();
+          resolve(null);
+          return;
+        }
+        var values = {};
+        fields.forEach(function (field) {
+          var input = document.getElementById("voice-" + field.id);
+          values[field.id] = input ? String(input.value || "").trim() : "";
+        });
+        var button = event.target;
+        button.disabled = true;
+        try {
+          var saved = options.onConfirm ? await options.onConfirm(values) : true;
+          if (saved === false) {
+            button.disabled = false;
+            return;
+          }
+          sheet.remove();
+          resolve(values);
+        } catch (error) {
+          button.disabled = false;
+          if (error && error.message) toast(error.message);
+        }
+      });
+    });
+  }
+
   function openReview(preview) {
     return new Promise(function (resolve) {
       var fields = preview.fields || {};
@@ -1395,6 +1749,16 @@
 
   var homeUserId = 0;
   var homeProfile = null;
+  var homeChatMode = "get";
+  var homeCal = {
+    mode: "project",
+    projectId: 0,
+    project: null,
+    tasks: [],
+    meetings: [],
+    members: [],
+    progress: null,
+  };
   var homeRestoring = false;
 
   function homeMemoryKey() {
@@ -1510,6 +1874,48 @@
     });
   }
 
+
+  function closeAttachTrays() {
+    document.querySelectorAll(".attach-tray").forEach(function (tray) {
+      tray.hidden = true;
+    });
+    document.querySelectorAll(".attach.is-open").forEach(function (btn) {
+      btn.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function bindAttachMenus() {
+    document.querySelectorAll(".attach[aria-controls]").forEach(function (btn) {
+      if (btn.dataset.attachBound) return;
+      btn.dataset.attachBound = "1";
+      var tray = document.getElementById(btn.getAttribute("aria-controls"));
+      if (!tray) return;
+      btn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var willOpen = tray.hidden;
+        closeAttachTrays();
+        if (!willOpen) return;
+        tray.hidden = false;
+        btn.classList.add("is-open");
+        btn.setAttribute("aria-expanded", "true");
+      });
+    });
+    document.querySelectorAll(".attach-item").forEach(function (item) {
+      if (item.dataset.attachItemBound) return;
+      item.dataset.attachItemBound = "1";
+      item.addEventListener("click", function () {
+        closeAttachTrays();
+      });
+    });
+    if (document.documentElement.dataset.attachDocBound) return;
+    document.documentElement.dataset.attachDocBound = "1";
+    document.addEventListener("click", function (event) {
+      if (event.target.closest(".attach-wrap")) return;
+      closeAttachTrays();
+    });
+  }
+
   function bindHomeUpload(buttonId, inputId, label) {
     var button = document.getElementById(buttonId);
     var input = document.getElementById(inputId);
@@ -1517,6 +1923,7 @@
     button.dataset.bound = "1";
     button.addEventListener("click", function () {
       input.click();
+      closeAttachTrays();
     });
     input.addEventListener("change", async function () {
       var file = input.files && input.files[0];
@@ -1532,7 +1939,7 @@
         if (query) {
           if (pending) pending.remove();
           if (queryInput) queryInput.value = "";
-          await answerHome(query, { userHtml: html + "<p>" + escapeHtml(query) + "</p>" });
+          await submitHome(query, { userHtml: html + "<p>" + escapeHtml(query) + "</p>" });
           return;
         }
         if (pending) pending.innerHTML = html;
@@ -1567,27 +1974,14 @@
     homeProfile = user;
     setText("session-name", displayName(user));
     setText("session-role", (user.roles && user.roles[0]) || "کاربر");
-    var hints = document.querySelectorAll(".chat-body > .hint");
-    var queryBox = document.getElementById("home-query");
-    if (isDirector(user)) {
-      if (hints[0]) hints[0].textContent = "نام پروژه یا فرد را بگویید.";
-      if (hints[1]) hints[1].textContent = "پیشرفت و گزارش همان محدوده می‌آید.";
-      if (queryBox) queryBox.placeholder = "جستجو در پروژه‌ها و افراد...";
-    } else if (canManage(user)) {
-      if (hints[0]) hints[0].textContent = "درباره پروژه‌ها و اعضای خودتان بپرسید.";
-      if (hints[1]) hints[1].textContent = "افراد دیگر سازمان‌ها اینجا نمی‌آیند.";
-      if (queryBox) queryBox.placeholder = "جستجو در پروژه‌ها و اعضای خودتان...";
-    } else {
-      if (hints[0]) hints[0].textContent = "درباره تسک خودتان یا گزارشی که داده‌اید بپرسید.";
-      if (hints[1]) hints[1].textContent = "سطح دسترسی داخل پروژه را مدیر پروژه تعیین می‌کند.";
-      if (queryBox) queryBox.placeholder = "تسک‌ها و گزارش‌های خودتان...";
-    }
     if (!canManage(user)) {
       document.querySelectorAll(".cta-project, .cta-meet").forEach(function (link) {
         link.hidden = true;
       });
     }
     restoreHomeThread();
+    bindHomeChatModes();
+    applyHomeChatHints();
     var logout = document.getElementById("logout");
     if (logout) logout.addEventListener("click", function () { S.logout(); });
 
@@ -1598,7 +1992,8 @@
         event.preventDefault();
         var text = (input && input.value) || "";
         if (input) input.value = "";
-        answerHome(text);
+        closeAttachTrays();
+        submitHome(text);
       });
     }
     bindSpeechButton(document.getElementById("home-voice"), async function (text, blob) {
@@ -1613,8 +2008,8 @@
       }
       var userHtml = "<p>" + escapeHtml(text) + "</p>";
       if (blob && blob.size) userHtml += "<p>صوت ثبت شد" + note + ".</p>";
-      await answerHome(text, { userHtml: userHtml });
-      return "مرحله ۳: جواب سؤال آماده شد";
+      await submitHome(text, { userHtml: userHtml });
+      return homeChatMode === "save" ? "مرحله ۳: گزارش آماده ثبت شد" : "مرحله ۳: جواب سؤال آماده شد";
     });
     var textBtn = document.getElementById("home-text");
     if (textBtn && input) {
@@ -1625,6 +2020,372 @@
     bindHomeUpload("home-file", "home-file-pick", "فایل");
     bindHomeUpload("home-image", "home-image-pick", "عکس");
     bindHomeUpload("home-video", "home-video-pick", "فیلم");
+  }
+
+  function homeCalStoreKey() {
+    return "home_cal_project_" + String(homeUserId || "anon");
+  }
+
+  function faDayTitle(date) {
+    return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(date);
+  }
+
+  function projectDateSpan(project, tasks, meetings) {
+    var start = parseDay(project && project.start_date);
+    var end = parseDay(project && project.end_date);
+    var extras = [];
+    (tasks || []).forEach(function (row) {
+      extras.push(parseDay(row.start_date || row.created_at));
+      extras.push(parseDay(row.due_date));
+    });
+    (meetings || []).forEach(function (row) {
+      extras.push(parseDay(row.scheduled_at));
+    });
+    extras = extras.filter(Boolean);
+    extras.forEach(function (day) {
+      if (!start || day.getTime() < start.getTime()) start = day;
+      if (!end || day.getTime() > end.getTime()) end = day;
+    });
+    if (!start) start = todayStamp();
+    if (!end) end = start;
+    if (end.getTime() < start.getTime()) end = start;
+    return { start: start, end: end };
+  }
+
+  function tasksDueOn(tasks, day) {
+    var key = dayKey(day);
+    return (tasks || []).filter(function (row) {
+      return !isCancelledStatus(row.status_name) && dayKey(row.due_date) === key;
+    });
+  }
+
+  function meetingsOn(meetings, day) {
+    var key = dayKey(day);
+    return (meetings || []).filter(function (row) {
+      return dayKey(row.scheduled_at) === key;
+    });
+  }
+
+  function memberProgressAsOf(tasks, members, day, keepEmpty) {
+    return (members || []).map(function (member) {
+      var uid = personId(member);
+      var mine = (tasks || []).filter(function (row) {
+        if (Number(row.assigned_to_user_id) !== uid) return false;
+        if (isCancelledStatus(row.status_name)) return false;
+        var start = parseDay(row.start_date || row.created_at);
+        return !start || start.getTime() <= day.getTime();
+      });
+      var done = mine.filter(function (row) { return taskDoneByDay(row, day); });
+      var total = mine.length;
+      return {
+        name: displayName(member),
+        role: member.project_role_name || "",
+        userId: uid,
+        member: member,
+        total: total,
+        done: done.length,
+        percent: total ? Math.round((done.length / total) * 100) : 0,
+        tasks: mine,
+      };
+    }).filter(function (row) { return keepEmpty || row.total > 0; });
+  }
+
+  function closeDaySheet(immediate) {
+    var sheet = document.getElementById("home-day-sheet");
+    if (!sheet) return;
+    if (immediate) {
+      sheet.remove();
+      return;
+    }
+    sheet.classList.remove("is-open");
+    setTimeout(function () {
+      if (sheet.parentNode) sheet.remove();
+    }, 320);
+  }
+
+  function showDayPanel(html) {
+    closeDaySheet(true);
+    var sheet = document.createElement("div");
+    sheet.className = "cal-sheet day-pop";
+    sheet.id = "home-day-sheet";
+    sheet.innerHTML =
+      "<div class='cal-panel day-sheet' role='dialog' aria-label='جزئیات روز'>" +
+      "<div class='cal-handle' aria-hidden='true'></div>" +
+      html +
+      "<div class='cal-actions'><button type='button' id='home-day-close'>بستن</button></div></div>";
+    document.body.appendChild(sheet);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        sheet.classList.add("is-open");
+      });
+    });
+    sheet.addEventListener("click", function (event) {
+      if (event.target === sheet) closeDaySheet();
+    });
+    document.getElementById("home-day-close").addEventListener("click", function () {
+      closeDaySheet();
+    });
+  }
+
+  function openProjectDaySheet(day) {
+    var due = tasksDueOn(homeCal.tasks, day);
+    var people = memberProgressAsOf(homeCal.tasks, homeCal.members, day);
+    var dueHtml = due.length
+      ? due.map(function (row) {
+          return (
+            "<a class='day-row' href='task-details.html?id=" + row.id + "'>" +
+            "<strong>" + escapeHtml(row.title || "وظیفه") + "</strong></a>"
+          );
+        }).join("")
+      : "<p class='hint'>در این روز مهلت وظیفه‌ای ثبت نشده.</p>";
+    var peopleHtml = people.length
+      ? people.map(function (row) {
+          return (
+            "<div class='member-row'><header><strong>" + escapeHtml(row.name) +
+            "</strong><span>" + faDigits(row.done) + " از " + faDigits(row.total) +
+            " · " + faDigits(row.percent) + "٪</span></header>" +
+            "<div class='member-bar'><i style='width:" + row.percent + "%'></i></div></div>"
+          );
+        }).join("")
+      : "<p class='hint'>تا این روز وظیفه‌ای برای اعضا شروع نشده.</p>";
+    showDayPanel(
+      "<h2>" + faDayTitle(day) + "</h2>" +
+      "<p class='hint'>" + escapeHtml((homeCal.project && homeCal.project.name) || "") + "</p>" +
+      "<div class='day-block'><h3>وظایفی که باید این روز تمام می‌شدند</h3>" + dueHtml + "</div>" +
+      "<div class='day-block'><h3>تکمیل کار اعضا تا این روز</h3>" + peopleHtml + "</div>"
+    );
+  }
+
+  function openMeetingDaySheet(day) {
+    var rows = meetingsOn(homeCal.meetings, day);
+    var until = (homeCal.meetings || []).filter(function (row) {
+      var when = parseDay(row.scheduled_at);
+      return when && when.getTime() <= day.getTime();
+    });
+    var list = rows.length
+      ? rows.map(function (row) {
+          return (
+            "<a class='day-row' href='meeting-details.html?id=" + row.id + "'>" +
+            "<strong>" + escapeHtml(row.title || "جلسه") + "</strong></a>"
+          );
+        }).join("")
+      : "<p class='hint'>جلسه‌ای در این روز نیست.</p>";
+    showDayPanel(
+      "<h2>" + faDayTitle(day) + "</h2>" +
+      "<p class='hint'>تا این روز " + faDigits(until.length) + " از " +
+      faDigits((homeCal.meetings || []).length) + " جلسه این پروژه گذشته است.</p>" +
+      "<div class='day-block'><h3>جلسات این روز</h3>" + list + "</div>"
+    );
+  }
+
+  function paintHomeProgress() {
+    var box = document.getElementById("home-cal-progress");
+    var pctEl = document.getElementById("home-cal-progress-pct");
+    var bar = document.getElementById("home-cal-progress-bar");
+    var meter = document.getElementById("home-cal-progress-meter");
+    var meta = document.getElementById("home-cal-progress-meta");
+    if (!box || !pctEl || !bar || !meta) return;
+    if (!homeCal.project) {
+      box.hidden = true;
+      return;
+    }
+    var stats = homeCal.progress || {};
+    function asCount(value) {
+      var n = Number(value);
+      return isFinite(n) && n >= 0 ? n : null;
+    }
+    var total = asCount(stats.task_count);
+    var done = asCount(stats.completed_count);
+    var cancelled = asCount(stats.cancelled_count);
+    var overdue = asCount(stats.overdue_count);
+    if (total == null || done == null) {
+      var rows = (homeCal.tasks || []).filter(function (row) {
+        return !isCancelledStatus(row.status_name);
+      });
+      var finished = rows.filter(function (row) {
+        return isCompletedStatus(row.status_name);
+      });
+      total = rows.length;
+      done = finished.length;
+      cancelled = (homeCal.tasks || []).length - rows.length;
+      overdue = rows.filter(function (row) {
+        if (isCompletedStatus(row.status_name)) return false;
+        var due = parseDay(row.due_date);
+        return due && due.getTime() < todayStamp().getTime();
+      }).length;
+    }
+    if (cancelled == null) cancelled = 0;
+    if (overdue == null) overdue = 0;
+    var percent = stats.progress_percent;
+    if (percent == null) percent = stats.percent;
+    if (percent == null) percent = total ? Math.round((done / total) * 100) : 0;
+    percent = Math.max(0, Math.min(100, Math.round(Number(percent) || 0)));
+    box.hidden = false;
+    pctEl.textContent = faDigits(percent) + "٪";
+    bar.style.width = percent + "%";
+    if (meter) {
+      meter.setAttribute("aria-valuenow", String(percent));
+    }
+    var parts = [];
+    if (total) {
+      parts.push(faDigits(done) + " از " + faDigits(total) + " وظیفه تکمیل شده");
+    } else {
+      parts.push("هنوز وظیفه‌ای برای این پروژه ثبت نشده");
+    }
+    if (cancelled > 0) parts.push(faDigits(cancelled) + " لغو شده");
+    if (overdue > 0) parts.push(faDigits(overdue) + " عقب‌افتاده");
+    meta.textContent = parts.join(" · ");
+  }
+
+  function paintHomeCalendar() {
+    paintHomeProgress();
+    var track = document.getElementById("home-cal-track");
+    if (!track) return;
+    if (!homeCal.project) {
+      track.innerHTML = "<p class='foot-cal-empty'>یک پروژه انتخاب کنید تا روند آن دیده شود.</p>";
+      return;
+    }
+    var span = projectDateSpan(homeCal.project, homeCal.tasks, homeCal.meetings);
+    var days = eachDays(span.start, span.end);
+    if (!days.length) {
+      track.innerHTML = "<p class='foot-cal-empty'>بازهٔ زمانی برای این پروژه پیدا نشد.</p>";
+      return;
+    }
+    var dueKeys = {};
+    var meetKeys = {};
+    homeCal.tasks.forEach(function (row) {
+      var key = dayKey(row.due_date);
+      if (key) dueKeys[key] = true;
+    });
+    homeCal.meetings.forEach(function (row) {
+      var key = dayKey(row.scheduled_at);
+      if (key) meetKeys[key] = true;
+    });
+    var today = dayKey(todayStamp());
+    var startKey = dayKey(span.start);
+    var endKey = dayKey(span.end);
+    var html = days.map(function (day) {
+      var key = dayKey(day);
+      var parts = jalaliParts(day);
+      var isStart = key === startKey;
+      var isEnd = key === endKey && startKey !== endKey;
+      var classes = ["cal-dot"];
+      if (isStart) classes.push("edge", "is-start");
+      if (isEnd) classes.push("edge", "is-end");
+      if (key === today) classes.push("is-today");
+      if (homeCal.mode === "project" && dueKeys[key]) classes.push("has-due");
+      if (homeCal.mode === "meetings" && meetKeys[key]) classes.push("has-meet");
+      var label = isStart ? "آغاز" : (isEnd ? "پایان" : faDigits(parts.day));
+      var weekday = new Intl.DateTimeFormat("fa-IR", { weekday: "narrow" }).format(day);
+      var sub = isStart || isEnd ? faDigits(parts.day) : weekday;
+      return (
+        "<button class='" + classes.join(" ") + "' type='button' role='listitem' data-day='" + key +
+        "' aria-label='" + faDayTitle(day) + "'><em>" + sub + "</em><strong>" + label + "</strong></button>"
+      );
+    }).join("");
+    track.innerHTML = html;
+    track.querySelectorAll(".cal-dot").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        track.querySelectorAll(".cal-dot.is-on").forEach(function (el) { el.classList.remove("is-on"); });
+        btn.classList.add("is-on");
+        var day = parseDay(btn.getAttribute("data-day"));
+        if (!day) return;
+        if (homeCal.mode === "meetings") openMeetingDaySheet(day);
+        else openProjectDaySheet(day);
+      });
+    });
+    var focus = track.querySelector(".is-today") || track.querySelector(".has-meet") || track.querySelector(".has-due") || track.querySelector(".is-start");
+    if (focus) focus.scrollIntoView({ inline: "center", block: "nearest" });
+  }
+
+  async function loadHomeCalendarProject(projectId) {
+    homeCal.projectId = Number(projectId) || 0;
+    homeCal.project = null;
+    homeCal.tasks = [];
+    homeCal.meetings = [];
+    homeCal.members = [];
+    homeCal.progress = null;
+    closeDaySheet(true);
+    paintHomeProgress();
+    if (!homeCal.projectId) {
+      paintHomeCalendar();
+      return;
+    }
+    try {
+      localStorage.setItem(homeCalStoreKey(), String(homeCal.projectId));
+    } catch (ignored) {}
+    var track = document.getElementById("home-cal-track");
+    if (track) track.innerHTML = "<p class='foot-cal-empty'>در حال خواندن روند…</p>";
+    try {
+      var packed = await Promise.all([
+        tool("crud", "get_project", { id: homeCal.projectId }),
+        listAll("crud", "list_tasks", { project_id: homeCal.projectId }),
+        listAll("crud", "list_project_members", { project_id: homeCal.projectId }),
+        listAll("meeting", "list_meetings"),
+        tool("stats", "get_project_progress", { project_id: homeCal.projectId }).catch(function () { return null; }),
+      ]);
+      homeCal.project = packed[0];
+      homeCal.tasks = packed[1] || [];
+      homeCal.members = packed[2] || [];
+      homeCal.meetings = (packed[3] || []).filter(function (row) {
+        return Number(row.project_id) === homeCal.projectId;
+      });
+      homeCal.progress = packed[4] || null;
+      paintHomeCalendar();
+    } catch (error) {
+      homeCal.project = null;
+      paintHomeProgress();
+      if (track) track.innerHTML = "<p class='foot-cal-empty'>" + escapeHtml(error.message) + "</p>";
+    }
+  }
+
+  async function fillHomeCalendarProjects() {
+    var root = document.getElementById("home-cal");
+    var select = document.getElementById("home-cal-project");
+    if (!root || !select) return;
+    var projects = [];
+    try {
+      projects = await loadProjects();
+    } catch (error) {
+      var track = document.getElementById("home-cal-track");
+      if (track) track.innerHTML = "<p class='foot-cal-empty'>" + escapeHtml(error.message) + "</p>";
+      return;
+    }
+    await fillSelect(select, projects, function (row) { return row.name; });
+    var saved = "";
+    try { saved = localStorage.getItem(homeCalStoreKey()) || ""; } catch (ignored) {}
+    if (saved && select.querySelector("option[value='" + saved + "']")) {
+      select.value = saved;
+    } else if (projects[0]) {
+      select.value = String(projects[0].id);
+    }
+    if (!select.dataset.bound) {
+      select.dataset.bound = "1";
+      select.addEventListener("change", function () {
+        loadHomeCalendarProject(select.value);
+      });
+      root.querySelectorAll(".foot-cal-modes button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          homeCal.mode = btn.getAttribute("data-mode") || "project";
+          root.querySelectorAll(".foot-cal-modes button").forEach(function (el) {
+            el.classList.toggle("on", el === btn);
+          });
+          paintHomeCalendar();
+        });
+      });
+    }
+    await loadHomeCalendarProject(select.value);
+  }
+
+  async function bootCalendar() {
+    var user = await S.currentUser();
+    if (user) homeUserId = Number(user.id || user.user_id || 0);
+    await fillHomeCalendarProjects();
   }
 
   function foldFa(value) {
@@ -1640,6 +2401,167 @@
     return [row.first_name, row.last_name].filter(Boolean).join(" ").trim() || row.username || "";
   }
 
+  var HOME_NAME_SKIP = {
+    گزارش: true,
+    جلسه: true,
+    پروژه: true,
+    این: true,
+    است: true,
+    هست: true,
+    برای: true,
+    از: true,
+    تا: true,
+    که: true,
+    را: true,
+    رو: true,
+    و: true,
+    یا: true,
+    حرف: true,
+    حرفها: true,
+    حرف‌ها: true,
+  };
+
+  function pickNamedRow(query, rows, getName) {
+    var hit = null;
+    var score = 0;
+    (rows || []).forEach(function (row) {
+      var name = foldFa(getName(row));
+      if (!name || name.length < 2) return;
+      var matched = 0;
+      if (query.indexOf(name) !== -1) {
+        matched = name.length;
+      } else {
+        name.split(" ").forEach(function (part) {
+          if (part.length < 3 || HOME_NAME_SKIP[part]) return;
+          if (query.indexOf(part) !== -1 && part.length > matched) matched = part.length;
+        });
+      }
+      if (matched > score) {
+        hit = row;
+        score = matched;
+      }
+    });
+    return hit;
+  }
+
+  function bindHomeChatModes() {
+    var root = document.querySelector(".chat-modes");
+    if (!root || root.dataset.bound) return;
+    root.dataset.bound = "1";
+    root.addEventListener("click", function (event) {
+      var btn = event.target.closest(".chat-mode");
+      if (!btn) return;
+      homeChatMode = btn.getAttribute("data-mode") === "save" ? "save" : "get";
+      applyHomeChatHints();
+      var input = document.getElementById("home-query");
+      if (input) input.focus();
+    });
+  }
+
+  function applyHomeChatHints() {
+    var hints = document.querySelectorAll(".chat-body > .hint");
+    var queryBox = document.getElementById("home-query");
+    document.querySelectorAll(".chat-mode").forEach(function (btn) {
+      var on = btn.getAttribute("data-mode") === homeChatMode;
+      btn.classList.toggle("on", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    if (homeChatMode === "save") {
+      if (hints[0]) hints[0].textContent = "نام پروژه را بگویید و متن گزارش را بنویسید.";
+      if (hints[1]) hints[1].textContent = "مثلاً: این گزارش جلسه آفتاب است و این حرف‌هاست.";
+      if (queryBox) {
+        queryBox.placeholder = "گزارش را بنویسید و نام پروژه را هم بگویید...";
+        queryBox.setAttribute("aria-label", "ثبت گزارش");
+      }
+      return;
+    }
+    if (isDirector(homeProfile)) {
+      if (hints[0]) hints[0].textContent = "نام پروژه یا فرد را بگویید.";
+      if (hints[1]) hints[1].textContent = "موارد مشابه و پیشرفت همان محدوده می‌آید.";
+      if (queryBox) queryBox.placeholder = "جستجو در جلسات و گزارش‌ها...";
+    } else if (canManage(homeProfile)) {
+      if (hints[0]) hints[0].textContent = "درباره پروژه‌ها و اعضای خودتان بپرسید.";
+      if (hints[1]) hints[1].textContent = "موارد مشابه از گزارش‌های در دسترس می‌آید.";
+      if (queryBox) queryBox.placeholder = "جستجو در پروژه‌ها و گزارش‌ها...";
+    } else {
+      if (hints[0]) hints[0].textContent = "درباره تسک خودتان یا گزارشی که داده‌اید بپرسید.";
+      if (hints[1]) hints[1].textContent = "موارد مشابه از گزارش‌های خودتان می‌آید.";
+      if (queryBox) queryBox.placeholder = "تسک‌ها و گزارش‌های خودتان...";
+    }
+    if (queryBox) queryBox.setAttribute("aria-label", "گرفتن گزارش");
+  }
+
+  async function submitHome(raw, options) {
+    if (homeChatMode === "save") {
+      await saveHomeReport(raw, options);
+      return;
+    }
+    await answerHome(raw, options);
+  }
+
+  async function resolveProjectFromText(query) {
+    var projects = await loadProjects();
+    var project = pickNamedRow(query, projects, function (row) { return row.name; });
+    if (project) return { project: project, source: "پروژه" };
+    var meetings = [];
+    try {
+      meetings = await listAll("meeting", "list_meetings");
+    } catch (ignored) {}
+    var meeting = pickNamedRow(query, meetings, function (row) { return row.title; });
+    if (meeting && meeting.project_id) {
+      var fromMeet = projects.find(function (row) {
+        return Number(row.id) === Number(meeting.project_id);
+      });
+      if (!fromMeet) {
+        try {
+          fromMeet = await tool("crud", "get_project", { id: meeting.project_id });
+        } catch (ignored) {}
+      }
+      if (fromMeet) return { project: fromMeet, source: "جلسه", meeting: meeting };
+    }
+    return { project: null };
+  }
+
+  async function saveHomeReport(raw, options) {
+    options = options || {};
+    var query = foldFa(raw);
+    if (!query) {
+      toast("متن گزارش را بنویسید و نام پروژه را هم بگویید");
+      return;
+    }
+    var userHtml = options.userHtml || ("<p>" + escapeHtml(String(raw).trim()) + "</p>");
+    pushHomeTurn("user", userHtml);
+    var panel = pushHomeTurn("bot", "<p>در حال تشخیص پروژه و ثبت گزارش…</p>");
+    try {
+      var user = homeProfile || await S.currentUser();
+      if (!user) return;
+      var found = await resolveProjectFromText(query);
+      if (!found.project) {
+        if (panel) panel.innerHTML = "<p>نام پروژه از متن تشخیص داده نشد. نام پروژه را صریح بگویید، مثلاً «این گزارش جلسه آفتاب است».</p>";
+        return;
+      }
+      var chatId = await ensureProjectChat(found.project.id, found.project.name);
+      var posted = await tool("crud", "create_message", {
+        chat_id: chatId,
+        text: String(raw).trim(),
+        recipient_user_id: user.id,
+      });
+      var via = found.meeting ? " از روی جلسه «" + escapeHtml(found.meeting.title || "") + "»" : "";
+      if (panel) {
+        panel.innerHTML =
+          "<h2>گزارش ثبت شد</h2>" +
+          "<p>پروژه: " + escapeHtml(found.project.name) + via + "</p>" +
+          "<a href='project-details.html?id=" + found.project.id + "'>جزئیات پروژه</a>";
+      }
+      await analyzeSaved("message", posted.id);
+    } catch (error) {
+      if (panel) panel.innerHTML = "<p>" + escapeHtml(error.message) + "</p>";
+    } finally {
+      persistHomeThread();
+      if (panel && panel.parentNode) panel.parentNode.scrollTop = panel.parentNode.scrollHeight;
+    }
+  }
+
   async function answerHome(raw, options) {
     options = options || {};
     var query = foldFa(raw);
@@ -1651,6 +2573,15 @@
     pushHomeTurn("user", userHtml);
     var panel = pushHomeTurn("bot", "<p>در حال پیدا کردن…</p>");
     try {
+      var similarFirst = /گزارش|مشابه/.test(query);
+      if (similarFirst) {
+        var early = await tool("embedding", "search_similar", { query: String(raw).trim(), limit: 6 });
+        var earlyRows = early.records || [];
+        if (earlyRows.length && panel) {
+          panel.innerHTML = semanticPanelHtml(earlyRows);
+          return;
+        }
+      }
       if (!canManage(homeProfile)) {
         await showOwnWork(panel, query, String(raw).trim());
         return;
@@ -1658,13 +2589,7 @@
       var projects = await loadProjects();
       var users = isDirector(homeProfile) ? await loadUsers() : await loadAssignable();
       var wantsProject = query.indexOf("پروژه") !== -1;
-      var project = null;
-      projects.forEach(function (row) {
-        var name = foldFa(row.name);
-        if (name && query.indexOf(name) !== -1 && (!project || name.length > foldFa(project.name).length)) {
-          project = row;
-        }
-      });
+      var project = pickNamedRow(query, projects, function (row) { return row.name; });
       var person = null;
       users.forEach(function (row) {
         var full = foldFa(personName(row));
@@ -1814,7 +2739,7 @@
     }
     var taskLines = tasks.length
       ? tasks.slice(0, 8).map(function (row) {
-          return "<li>" + escapeHtml(row.title || "") + " · " + escapeHtml(row.status_name || "") + "</li>";
+          return "<li>" + escapeHtml(row.title || "") + "</li>";
         }).join("")
       : "<li>تسکی به شما سپرده نشده.</li>";
     var reportLines = reports.length
@@ -1848,22 +2773,10 @@
       }
       list.innerHTML = "";
       records.forEach(function (row) {
-        var waiting = row.status_name === "برنامه‌ریزی شده";
         list.appendChild(
           cardLink(
             "meeting-details.html?id=" + row.id,
-            '<span class="tag' + (waiting ? " wait" : "") + '">' +
-              (row.status_name || "جلسه") +
-              "</span><h2>" +
-              (row.title || "بدون عنوان") +
-              "</h2><p>" +
-              (row.location || row.meeting_type_name || "") +
-              '</p><div class="meta"><div><span>تاریخ </span>' +
-              faStamp(row.scheduled_at) +
-              "</div><div><span>ساعت </span>" +
-              faTime(row.scheduled_at) +
-              (row.scheduled_end_at ? " - " + faTime(row.scheduled_end_at) : "") +
-              "</div></div>"
+            "<h2>" + escapeHtml(row.title || "بدون عنوان") + "</h2>"
           )
         );
       });
@@ -1895,21 +2808,15 @@
     bindMeetingClock();
     var back = document.getElementById("meeting-back");
     var presetProject = Number(param("project_id") || 0);
+    var editId = Number(param("id") || 0);
+    var editing = null;
     if (back && presetProject) back.href = "project-details.html?id=" + presetProject;
+    if (back && editId) back.href = "meeting-details.html?id=" + editId;
     var mapBtn = document.getElementById("open-map-picker");
     if (mapBtn) mapBtn.addEventListener("click", openMapPicker);
     var today = jalaliParts(new Date());
+    paintMeetingCalendar(new Date());
     var days = document.getElementById("days");
-    var monthLabel = document.getElementById("meeting-month");
-    if (days) {
-      days.dataset.jy = String(today.year);
-      days.dataset.jm = String(today.month);
-    }
-    if (monthLabel) monthLabel.textContent = today.monthName + " " + faDigits(today.year);
-    document.querySelectorAll(".day.sel").forEach(function (el) { el.classList.remove("sel"); });
-    var todayBtn = document.querySelector('.day[data-day="' + today.day + '"]');
-    if (todayBtn) todayBtn.classList.add("sel");
-    paintMeetingDate();
     if (days) {
       days.addEventListener("click", function (event) {
         var day = event.target.closest(".day[data-day]");
@@ -1934,16 +2841,294 @@
     }
     var submit = document.getElementById("meeting-submit");
     var send = document.getElementById("meeting-send");
-    if (!submit && !send) return;
-    async function createMeeting() {
-      var titleEl = document.getElementById("meeting-title");
-      var hint = document.querySelector(".hint");
-      var title = (titleEl && titleEl.value || "").trim() || ((hint && hint.value) || "").trim();
-      if (!title) {
-        toast("عنوان جلسه لازم است");
+    if (editId) {
+      try {
+        editing = await tool("meeting", "get_meeting", { id: editId });
+        if (Number(editing.manager_user_id) !== Number(user.id)) {
+          toast("فقط سازنده جلسه می‌تواند ویرایش کند");
+          location.replace("meeting-details.html?id=" + editId);
+          return;
+        }
+        setText("meeting-form-title", "ویرایش جلسه");
+        setText("meeting-form-lead", "تغییر مشخصات جلسه");
+        if (submit) submit.textContent = "ذخیره تغییرات";
+        var titleFill = document.getElementById("meeting-title");
+        if (titleFill) titleFill.value = editing.title || "";
+        var locEl = document.getElementById("meeting-location");
+        if (locEl) locEl.value = editing.location || "";
+        if (projectSelect && editing.project_id) projectSelect.value = String(editing.project_id);
+        var startAt = editing.scheduled_at ? new Date(editing.scheduled_at) : new Date();
+        paintMeetingCalendar(startAt);
+        var startClock = clockFromStamp(editing.scheduled_at);
+        var endClock = editing.scheduled_end_at
+          ? clockFromStamp(editing.scheduled_end_at)
+          : addMinutesToHHmm(startClock, Number(editing.duration_minutes) || 60);
+        paintMeetingClock(startClock, endClock);
+      } catch (error) {
+        toast(error.message);
         return;
       }
-      if (titleEl && !titleEl.value.trim() && hint) titleEl.value = title;
+    }
+    var picked = [];
+    var systemPeople = [];
+    var externalPeople = [];
+    var systemLoaded = false;
+    var externalLoaded = false;
+    var memberSource = "system";
+    var memberList = document.getElementById("meeting-member-list");
+    var memberPicker = document.getElementById("meeting-member-picker");
+    var memberSearch = document.getElementById("meeting-member-search");
+    var memberAdd = document.getElementById("meeting-add-member");
+    var memberPanel = document.getElementById("meeting-add-panel");
+    var memberSources = document.querySelectorAll("#meeting-add-panel .source-opt");
+    var externalForm = document.getElementById("meeting-external-form");
+
+    function pickedHas(kind, id) {
+      return picked.some(function (row) {
+        return row.kind === kind && Number(row.id) === Number(id);
+      });
+    }
+
+    function paintPicked() {
+      if (!memberList) return;
+      memberList.innerHTML = "";
+      var creator = document.createElement("div");
+      creator.className = "live-member";
+      var creatorName = document.createElement("span");
+      creatorName.textContent = displayName(user);
+      var creatorRole = document.createElement("em");
+      creatorRole.textContent = "مدیر جلسه";
+      creator.appendChild(creatorName);
+      creator.appendChild(creatorRole);
+      memberList.appendChild(creator);
+      picked.forEach(function (row) {
+        if (row.kind === "user" && Number(row.id) === Number(user.id)) return;
+        var item = document.createElement("div");
+        item.className = "live-member";
+        var name = document.createElement("span");
+        name.textContent = row.name || (row.kind === "external" ? "مخاطب " + row.id : "کاربر " + row.id);
+        var role = document.createElement("em");
+        role.textContent = row.kind === "external" ? "خارج از سامانه" : "سامانه";
+        item.appendChild(name);
+        item.appendChild(role);
+        if (!row.saved) {
+          var drop = document.createElement("button");
+          drop.type = "button";
+          drop.className = "member-drop";
+          drop.textContent = "حذف";
+          drop.addEventListener("click", function () {
+            picked = picked.filter(function (itemRow) {
+              return !(itemRow.kind === row.kind && Number(itemRow.id) === Number(row.id));
+            });
+            paintPicked();
+            paintPicker();
+          });
+          item.appendChild(drop);
+        }
+        memberList.appendChild(item);
+      });
+    }
+
+    function searchNeedle() {
+      return foldFa((memberSearch && memberSearch.value) || "");
+    }
+
+    function matchesNeedle(text) {
+      var needle = searchNeedle();
+      if (!needle) return true;
+      return foldFa(text).indexOf(needle) !== -1;
+    }
+
+    function appendPickButton(label, kind, id, extra) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "member-pick";
+      if (pickedHas(kind, id)) button.classList.add("on");
+      var title = document.createElement("span");
+      title.textContent = label;
+      button.appendChild(title);
+      if (extra) {
+        var note = document.createElement("em");
+        note.textContent = extra;
+        button.appendChild(note);
+      }
+      button.addEventListener("click", function () {
+        var existing = picked.find(function (row) {
+          return row.kind === kind && Number(row.id) === Number(id);
+        });
+        if (existing && existing.saved) return;
+        if (existing) {
+          picked = picked.filter(function (row) {
+            return !(row.kind === kind && Number(row.id) === Number(id));
+          });
+        } else {
+          picked.push({ kind: kind, id: Number(id), name: label });
+        }
+        paintPicker();
+        paintPicked();
+      });
+      memberPicker.appendChild(button);
+    }
+
+    function paintPicker() {
+      if (!memberPicker) return;
+      memberPicker.innerHTML = "";
+      if (memberSource === "external") {
+        var shownContacts = externalPeople.filter(function (row) {
+          return matchesNeedle([row.name, row.phone, row.email].filter(Boolean).join(" "));
+        });
+        if (!shownContacts.length) {
+          var emptyNote = document.createElement("p");
+          emptyNote.className = "member-note";
+          emptyNote.textContent = externalPeople.length
+            ? "با این جستجو کسی پیدا نشد."
+            : "هنوز فردی خارج از سامانه ثبت نشده. نام را پایین بنویسید.";
+          memberPicker.appendChild(emptyNote);
+          return;
+        }
+        shownContacts.forEach(function (row) {
+          appendPickButton(row.name || ("مخاطب " + row.id), "external", row.id, row.phone || "");
+        });
+        return;
+      }
+      var shownUsers = systemPeople.filter(function (row) {
+        return Number(row.id) !== Number(user.id) && matchesNeedle(displayName(row) + " " + (row.username || ""));
+      });
+      if (!shownUsers.length) {
+        var emptyUsers = document.createElement("p");
+        emptyUsers.className = "member-note";
+        emptyUsers.textContent = systemPeople.length
+          ? "با این جستجو کسی پیدا نشد."
+          : "کاربری در سامانه برای انتخاب نیست.";
+        memberPicker.appendChild(emptyUsers);
+        return;
+      }
+      shownUsers.forEach(function (row) {
+        var username = row.username && displayName(row) !== row.username ? row.username : "";
+        appendPickButton(displayName(row), "user", row.id, username);
+      });
+    }
+
+    function showMemberSource(next) {
+      memberSource = next === "external" ? "external" : "system";
+      memberSources.forEach(function (button) {
+        var on = button.getAttribute("data-source") === memberSource;
+        button.classList.toggle("on", on);
+        button.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      if (externalForm) externalForm.hidden = memberSource !== "external";
+      if (memberSearch) {
+        memberSearch.placeholder = memberSource === "external"
+          ? "جستجو در افراد خارج سامانه..."
+          : "جستجو در اعضای سامانه...";
+      }
+      paintPicker();
+    }
+
+    async function ensureMemberLists() {
+      if (!systemLoaded) {
+        try {
+          systemPeople = await loadAssignable();
+          systemLoaded = true;
+        } catch (error) {
+          toast(error.message);
+        }
+      }
+      if (!externalLoaded) {
+        try {
+          externalPeople = await loadExternalContacts();
+          externalLoaded = true;
+        } catch (error) {
+          toast(error.message);
+        }
+      }
+    }
+
+    memberSources.forEach(function (button) {
+      button.addEventListener("click", function () {
+        showMemberSource(button.getAttribute("data-source"));
+      });
+    });
+    if (memberSearch) memberSearch.addEventListener("input", paintPicker);
+    if (externalForm) {
+      externalForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        var nameInput = document.getElementById("meeting-external-name");
+        var phoneInput = document.getElementById("meeting-external-phone");
+        var name = ((nameInput && nameInput.value) || "").trim();
+        var phone = ((phoneInput && phoneInput.value) || "").trim();
+        if (!name) {
+          toast("نام فرد خارج از سامانه لازم است");
+          return;
+        }
+        try {
+          var created = await tool("crud", "create_external_contact", {
+            name: name,
+            phone: phone || undefined,
+          });
+          externalPeople.push({ id: created.id, name: name, phone: phone || null });
+          if (!pickedHas("external", created.id)) {
+            picked.push({ kind: "external", id: Number(created.id), name: name });
+          }
+          if (nameInput) nameInput.value = "";
+          if (phoneInput) phoneInput.value = "";
+          paintPicker();
+          paintPicked();
+        } catch (error) {
+          toast(error.message);
+        }
+      });
+    }
+    if (memberAdd && memberPanel) {
+      memberAdd.addEventListener("click", async function () {
+        var opening = memberPanel.hidden;
+        memberPanel.hidden = !opening;
+        memberAdd.setAttribute("aria-expanded", opening ? "true" : "false");
+        if (!opening) return;
+        await ensureMemberLists();
+        showMemberSource(memberSource);
+      });
+    }
+    if (editing && Array.isArray(editing.participants) && editing.participants.length) {
+      await ensureMemberLists();
+      editing.participants.forEach(function (person) {
+        if (person.user_id && Number(person.user_id) !== Number(user.id) && !pickedHas("user", person.user_id)) {
+          var known = systemPeople.find(function (row) {
+            return Number(row.id) === Number(person.user_id);
+          });
+          picked.push({
+            kind: "user",
+            id: Number(person.user_id),
+            name: known ? displayName(known) : ("کاربر " + person.user_id),
+            saved: true,
+          });
+        }
+        if (person.external_contact_id && !pickedHas("external", person.external_contact_id)) {
+          var knownContact = externalPeople.find(function (row) {
+            return Number(row.id) === Number(person.external_contact_id);
+          });
+          picked.push({
+            kind: "external",
+            id: Number(person.external_contact_id),
+            name: knownContact ? (knownContact.name || ("مخاطب " + person.external_contact_id)) : ("مخاطب " + person.external_contact_id),
+            saved: true,
+          });
+        }
+      });
+    }
+    paintPicked();
+    if (!submit && !send) return;
+    async function createMeeting(override) {
+      var titleEl = document.getElementById("meeting-title");
+      var hint = document.querySelector(".hint");
+      var title = override
+        ? String(override.title || "").trim()
+        : ((titleEl && titleEl.value || "").trim() || ((hint && hint.value) || "").trim());
+      if (!title) {
+        toast("عنوان جلسه لازم است");
+        return false;
+      }
+      if (titleEl) titleEl.value = title;
       var start = document.getElementById("meeting-hour")
         ? hhmmFromParts(document.getElementById("meeting-hour"), document.getElementById("meeting-minute"))
         : ((document.getElementById("meeting-start") || {}).value || "10:00");
@@ -1952,47 +3137,170 @@
         : ((document.getElementById("meeting-end") || {}).value || "11:00");
       var day = Number((document.querySelector(".day.sel") || {}).dataset.day) || today.day;
       var isoPreset = ((document.getElementById("meeting-scheduled-iso") || {}).value || "").trim();
-      var projectId = Number((projectSelect && projectSelect.value) || 0);
-      var locationText = ((document.getElementById("meeting-location") || {}).value || "").trim();
-      var desc = ((document.getElementById("desc") || {}).value || "").trim();
+      var projectId = override
+        ? Number(override.project_id || 0)
+        : Number((projectSelect && projectSelect.value) || 0);
+      var locationText = override
+        ? String(override.location || "").trim()
+        : ((document.getElementById("meeting-location") || {}).value || "").trim();
+      var desc = override
+        ? String(override.notes || "").trim()
+        : ((document.getElementById("desc") || {}).value || "").trim();
+      var scheduled = override && override.scheduled_at
+        ? override.scheduled_at
+        : (isoPreset || isoFromJalali(Number(days.dataset.jy), Number(days.dataset.jm), day, start));
+      var duration = override && override.duration_minutes
+        ? Number(override.duration_minutes)
+        : minutesBetween(start, end);
+      var meetingType = override
+        ? (override.meeting_type || "جلسه تیم")
+        : ((editing && editing.meeting_type_name) || "جلسه تیم");
+      if (override) {
+        var locEl = document.getElementById("meeting-location");
+        if (locEl) locEl.value = locationText;
+        var noteEl = document.getElementById("desc");
+        if (noteEl) noteEl.value = desc;
+        if (projectSelect) projectSelect.value = projectId ? String(projectId) : "";
+        var isoEl = document.getElementById("meeting-scheduled-iso");
+        if (isoEl) isoEl.value = scheduled;
+      }
       if (submit) submit.disabled = true;
       if (send) send.disabled = true;
       try {
-        var created = await tool("meeting", "create_meeting", {
+        var payload = {
           title: title,
-          scheduled_at: isoPreset || isoFromJalali(Number(days.dataset.jy), Number(days.dataset.jm), day, start),
-          meeting_type: "جلسه تیم",
-          duration_minutes: minutesBetween(start, end),
+          scheduled_at: scheduled,
+          meeting_type: meetingType,
+          duration_minutes: duration,
           project_id: projectId || undefined,
           visibility: projectId ? "PROJECT" : "PRIVATE",
           location: locationText || undefined,
-        });
-        if (desc) {
+        };
+        var saved;
+        if (editing) {
+          saved = await tool("meeting", "update_meeting", Object.assign({ id: editing.id }, payload));
+        } else {
+          saved = await tool("meeting", "create_meeting", payload);
+        }
+        if (desc && (!editing || override)) {
           var descArea = document.getElementById("desc");
           var contentId = await saveCaptured(desc, clipOf(descArea));
           keepClip(descArea, null);
-          await tool("meeting", "record_meeting", { id: created.id, content_id: contentId });
-          await analyzeSaved("meeting", created.id);
+          await tool("meeting", "record_meeting", { id: saved.id, content_id: contentId });
+          if (!override) await analyzeSaved("meeting", saved.id);
         }
-        location.replace("meeting-details.html?id=" + created.id);
+        ((override && override.member_ids) || []).forEach(function (memberId) {
+          if (pickedHas("user", memberId) || Number(memberId) === Number(user.id)) return;
+          picked.push({ kind: "user", id: Number(memberId), name: "کاربر " + memberId });
+        });
+        for (var memberIndex = 0; memberIndex < picked.length; memberIndex += 1) {
+          var member = picked[memberIndex];
+          if (member.saved) continue;
+          if (member.kind === "user" && Number(member.id) === Number(user.id)) continue;
+          try {
+            var participant = { meeting_id: saved.id };
+            if (member.kind === "external") participant.external_contact_id = member.id;
+            else participant.user_id = member.id;
+            await tool("meeting", "create_meeting_participant", participant);
+          } catch (memberError) {
+            toast(memberError.message);
+          }
+        }
+        location.replace("meeting-details.html?id=" + saved.id);
+        return true;
       } catch (error) {
         toast(error.message);
         if (submit) submit.disabled = false;
         if (send) send.disabled = false;
+        return false;
       }
     }
     if (submit) submit.addEventListener("click", createMeeting);
     if (send) send.addEventListener("click", createMeeting);
     var fillCal = document.getElementById("fill-from-calendar");
     if (fillCal) fillCal.addEventListener("click", function () { startCalendarImport("fill"); });
-    bindSpeechButton(document.getElementById("meeting-voice"), function (text, blob) {
+    bindSpeechButton(document.getElementById("meeting-voice"), async function (text, blob) {
       var area = document.getElementById("desc");
-      if (area) {
-        area.value = (area.value ? area.value + "\n" : "") + text;
-        keepClip(area, blob);
-        area.dispatchEvent(new Event("input"));
+      keepClip(area, blob);
+      var spoken = await extractSpoken(text);
+      var draft = meetingColumns(spoken);
+      if (draft.project_name && projectSelect) {
+        Array.prototype.forEach.call(projectSelect.options, function (option) {
+          if (draft.project_id) return;
+          var label = foldFa(option.textContent);
+          var needle = foldFa(draft.project_name);
+          if (label && needle && (label.indexOf(needle) !== -1 || needle.indexOf(label) !== -1)) {
+            draft.project_id = option.value;
+          }
+        });
       }
-      toast("متن صدا آماده است. با ثبت جلسه، صوت و متن هر دو ذخیره می‌شوند");
+      if (!draft.project_id && projectSelect && projectSelect.value) draft.project_id = projectSelect.value;
+      if (!draft.date && days) {
+        var day = Number((document.querySelector(".day.sel") || {}).dataset.day) || today.day;
+        var gregorian = jalaliToGregorian(Number(days.dataset.jy), Number(days.dataset.jm), day);
+        draft.date = padClock(gregorian.year) + "-" + padClock(gregorian.month) + "-" + padClock(gregorian.day);
+      }
+      if (!draft.start_time) {
+        draft.start_time = document.getElementById("meeting-hour")
+          ? hhmmFromParts(document.getElementById("meeting-hour"), document.getElementById("meeting-minute"))
+          : "10:00";
+      }
+      if (!draft.end_time) {
+        draft.end_time = document.getElementById("meeting-end-hour")
+          ? hhmmFromParts(document.getElementById("meeting-end-hour"), document.getElementById("meeting-end-minute"))
+          : "11:00";
+      }
+      var warnings = spoken.warnings.slice();
+      if (!spoken.mentions.length) warnings.push("موجودیتی از گفته تشخیص داده نشد؛ ستون‌ها را کامل کنید.");
+      var confirmed = await openColumnReview({
+        title: "مشخصات جلسه",
+        quote: text,
+        warnings: warnings,
+        fields: [
+          { id: "title", label: "عنوان جلسه", value: draft.title, hint: draft.title ? "" : "از گفته تشخیص داده نشد" },
+          { id: "date", label: "تاریخ", type: "date", value: draft.date },
+          { id: "start_time", label: "ساعت شروع", type: "time", value: draft.start_time },
+          { id: "end_time", label: "ساعت پایان", type: "time", value: draft.end_time },
+          { id: "location", label: "آدرس / مکان", value: draft.location },
+          { id: "notes", label: "یادداشت", type: "textarea", value: draft.notes },
+          { id: "meeting_type", label: "نوع جلسه", type: "select", value: draft.meeting_type, options: MEETING_TYPES },
+          { id: "project_id", label: "پروژه", type: "select", value: draft.project_id || "", options: optionsFromSelect(projectSelect, "بدون پروژه") },
+          { id: "members", label: "اعضا", value: draft.members, hint: "نام‌ها را با ویرگول جدا کنید. فقط کاربران سامانه ثبت می‌شوند." },
+        ],
+        onConfirm: async function (values) {
+          if (!values.title) {
+            toast("عنوان جلسه لازم است");
+            return false;
+          }
+          if (!values.date || !values.start_time) {
+            toast("تاریخ و ساعت شروع لازم است");
+            return false;
+          }
+          var people = [];
+          try {
+            people = await loadAssignable();
+          } catch (error) {
+            toast(error.message);
+          }
+          var linked = matchUsers(splitNames(values.members), people, user);
+          if (linked.missed.length) toast("این نام‌ها در کاربران نیست: " + linked.missed.join("، "));
+          return createMeeting({
+            title: values.title,
+            scheduled_at: values.date + "T" + values.start_time + ":00",
+            duration_minutes: minutesBetween(values.start_time, values.end_time || values.start_time),
+            location: values.location,
+            notes: values.notes,
+            meeting_type: values.meeting_type || "جلسه تیم",
+            project_id: values.project_id,
+            member_ids: linked.matched.map(function (row) { return row.id; }),
+          });
+        },
+      });
+      if (!confirmed) {
+        if (area && text) area.value = (area.value ? area.value + "\n" : "") + text;
+        return "مرحله ۳: ثبت لغو شد. متن در یادداشت ماند.";
+      }
+      return "مرحله ۳: جلسه ثبت شد";
     });
   }
 
@@ -2010,6 +3318,12 @@
       setText("meeting-location", meeting.location || "—");
       setText("meeting-time", faTime(meeting.scheduled_at) + (meeting.scheduled_end_at ? " - " + faTime(meeting.scheduled_end_at) : ""));
       setText("meeting-date", faStamp(meeting.scheduled_at));
+      var viewer = await S.currentUser();
+      showOwnerEdit(
+        "meeting-edit",
+        "new-meeting.html?id=" + id,
+        viewer && Number(meeting.manager_user_id) === Number(viewer.id)
+      );
       var summary = "وضعیت: " + (meeting.status_name || "—");
       if (meeting.content_id) {
         try {
@@ -2018,23 +3332,28 @@
         } catch (ignored) {}
       }
       setText("meeting-summary", summary);
-      var box = document.getElementById("meeting-people");
-      if (box) {
-        box.innerHTML = "";
-        (meeting.participants || []).forEach(function (person) {
+      var talk = document.getElementById("meeting-people");
+      if (talk) empty(talk, "گفت‌وگویی ثبت نشده.");
+      var attendees = document.getElementById("meeting-attendees");
+      if (attendees) {
+        var people = meeting.participants || [];
+        attendees.innerHTML = "";
+        people.forEach(function (person) {
+          var name = String(person.display_name || "").trim();
+          if (!name) {
+            name = person.user_id ? "کاربر " + person.user_id : "مخاطب";
+          }
           var item = document.createElement("article");
           item.className = "msg";
           item.innerHTML =
             '<div class="msg-body"><div class="msg-meta"><span class="msg-name">' +
-            (person.role || "شرکت‌کننده") +
-            "</span></div><div class=\"bubble\"><p>کاربر " +
-            (person.user_id || person.external_contact_id || "—") +
+            escapeHtml(name) +
+            '</span></div><div class="bubble"><p>' +
+            escapeHtml(person.role || "حاضر") +
             "</p></div></div>";
-          box.appendChild(item);
+          attendees.appendChild(item);
         });
-        if (!(meeting.participants || []).length) {
-          box.textContent = "شرکت‌کننده‌ای ثبت نشده.";
-        }
+        if (!people.length) empty(attendees, "حاضری ثبت نشده.");
       }
     } catch (error) {
       toast(error.message);
@@ -2085,17 +3404,7 @@
         list.appendChild(
           cardLink(
             "project-details.html?id=" + row.id,
-            '<span class="tag wait">' +
-              (row.project_status_name || "") +
-              "</span><h2>" +
-              (row.name || "") +
-              "</h2><p>" +
-              (row.description || row.project_type_name || "") +
-              '</p><div class="meta"><div><span>شروع </span>' +
-              faStamp(row.start_date) +
-              "</div><div><span>نوع </span>" +
-              (row.project_type_name || "") +
-              "</div></div>"
+            "<h2>" + escapeHtml(row.name || "بدون عنوان") + "</h2>"
           )
         );
       });
@@ -2123,8 +3432,8 @@
     if (list) {
       list.innerHTML =
         "<div class='live-member'><span>" +
-        displayName(user) +
-        "</span><em>مدیر پروژه بعد از ثبت</em></div>";
+        escapeHtml(displayName(user)) +
+        "</span></div>";
     }
 
     var startEl = document.getElementById("project-start");
@@ -2137,6 +3446,38 @@
       if (endEl) endEl.value = later.toISOString().slice(0, 10);
     }
 
+    var editId = Number(param("id") || 0);
+    var editing = null;
+    var back = document.getElementById("project-back");
+    if (editId && back) back.href = "project-details.html?id=" + editId;
+    if (editId) {
+      try {
+        editing = await tool("crud", "get_project", { id: editId });
+        if (Number(editing.created_by) !== Number(user.id)) {
+          toast("فقط سازنده پروژه می‌تواند ویرایش کند");
+          location.replace("project-details.html?id=" + editId);
+          return;
+        }
+        setText("project-form-title", "ویرایش پروژه");
+        setText("project-form-lead", "تغییر مشخصات پروژه");
+        setText("project-submit-label", "ذخیره تغییرات");
+        document.title = "ویرایش پروژه";
+        var nameFill = document.getElementById("project-name");
+        if (nameFill) nameFill.value = editing.name || "";
+        var descFill = document.getElementById("project-desc");
+        if (descFill) descFill.value = editing.description || "";
+        var typeFill = document.getElementById("project-type");
+        if (typeFill) typeFill.value = editing.project_type_name || typeFill.value;
+        var statusFill = document.getElementById("project-status");
+        if (statusFill) statusFill.value = editing.project_status_name || statusFill.value;
+        if (startEl) startEl.value = isoDateOnly(editing.start_date) || startEl.value;
+        if (endEl) endEl.value = isoDateOnly(editing.end_date) || endEl.value;
+      } catch (error) {
+        toast(error.message);
+        return;
+      }
+    }
+
     var picked = [];
     var people = [];
     var picker = document.getElementById("project-member-picker");
@@ -2145,16 +3486,14 @@
       if (!list) return;
       var creator =
         "<div class='live-member'><span>" +
-        displayName(user) +
-        "</span><em>مدیر پروژه بعد از ثبت</em></div>";
+        escapeHtml(displayName(user)) +
+        "</span></div>";
       var extra = picked
         .map(function (row) {
           return (
             "<div class='live-member'><span>" +
-            displayName(row) +
-            "</span><em>" +
-            (row.username || "") +
-            "</em></div>"
+            escapeHtml(displayName(row)) +
+            "</span></div>"
           );
         })
         .join("");
@@ -2177,8 +3516,7 @@
         button.className = "member-pick";
         var chosen = picked.some(function (item) { return item.id === row.id; });
         if (chosen) button.classList.add("on");
-        button.innerHTML =
-          "<span>" + displayName(row) + "</span><em>" + (chosen ? "انتخاب شد" : row.username || "") + "</em>";
+        button.innerHTML = "<span>" + escapeHtml(displayName(row)) + "</span>";
         button.addEventListener("click", function () {
           if (chosen) {
             picked = picked.filter(function (item) { return item.id !== row.id; });
@@ -2214,12 +3552,69 @@
       });
     }
 
-    bindSpeechButton(document.getElementById("project-voice"), function (text) {
+    var addSpokenMembers = false;
+    bindSpeechButton(document.getElementById("project-voice"), async function (text, blob) {
       var area = document.getElementById("project-desc");
-      if (area) area.value = (area.value ? area.value + "\n" : "") + text;
-      var bubble = document.querySelector(".chat-card .bubble p");
-      if (bubble) bubble.textContent = text;
-      toast("متن صدا آماده است و با ایجاد پروژه ذخیره می‌شود");
+      keepClip(area, blob);
+      var spoken = await extractSpoken(text);
+      var draft = projectColumns(spoken);
+      if (!draft.start_date && startEl && startEl.value) draft.start_date = startEl.value;
+      if (!draft.end_date && draft.start_date) draft.end_date = plusDays(draft.start_date, 30);
+      if (!draft.end_date && endEl && endEl.value) draft.end_date = endEl.value;
+      var warnings = spoken.warnings.slice();
+      if (!spoken.mentions.length) warnings.push("موجودیتی از گفته تشخیص داده نشد؛ ستون‌ها را کامل کنید.");
+      var confirmed = await openColumnReview({
+        title: "مشخصات پروژه",
+        quote: text,
+        warnings: warnings,
+        fields: [
+          { id: "name", label: "نام پروژه", value: draft.name, hint: draft.name ? "" : "از گفته تشخیص داده نشد" },
+          { id: "description", label: "هدف پروژه", type: "textarea", value: draft.description },
+          { id: "start_date", label: "زمان آغاز", type: "date", value: draft.start_date },
+          { id: "end_date", label: "زمان پایان", type: "date", value: draft.end_date, hint: spoken.mentions.length && timePoints(spoken.mentions).length < 2 ? "اگر پایان گفته نشده، سی روز بعد از آغاز گذاشته شده است." : "" },
+          { id: "project_type", label: "نوع", type: "select", value: draft.project_type, options: PROJECT_TYPES },
+          { id: "project_status", label: "وضعیت", type: "select", value: draft.project_status, options: PROJECT_STATUSES },
+          { id: "members", label: "اعضا", value: draft.members, hint: "نام‌ها را با ویرگول جدا کنید. فقط کاربران سامانه به‌عنوان عضو ثبت می‌شوند." },
+        ],
+        onConfirm: async function (values) {
+          var nameEl = document.getElementById("project-name");
+          var descEl = document.getElementById("project-desc");
+          var typeEl = document.getElementById("project-type");
+          var statusEl = document.getElementById("project-status");
+          if (nameEl) nameEl.value = values.name;
+          if (descEl) descEl.value = values.description;
+          if (startEl) startEl.value = values.start_date;
+          if (endEl) endEl.value = values.end_date;
+          if (typeEl) typeEl.value = values.project_type || "اجرایی";
+          if (statusEl) statusEl.value = values.project_status || "در انتظار شروع";
+          if (!values.name) {
+            toast("نام پروژه لازم است");
+            return false;
+          }
+          if (!values.start_date || !values.end_date) {
+            toast("زمان آغاز و پایان لازم است");
+            return false;
+          }
+          var people = [];
+          try {
+            people = await loadAssignable();
+          } catch (error) {
+            toast(error.message);
+          }
+          var linked = matchUsers(splitNames(values.members), people, user);
+          picked = linked.matched;
+          addSpokenMembers = true;
+          paintPicked();
+          if (linked.missed.length) toast("این نام‌ها در کاربران نیست: " + linked.missed.join("، "));
+          return createProject();
+        },
+      });
+      if (!confirmed) {
+        var descKeep = document.getElementById("project-desc");
+        if (descKeep && text) descKeep.value = (descKeep.value ? descKeep.value + "\n" : "") + text;
+        return "مرحله ۳: ثبت لغو شد. متن در هدف پروژه ماند.";
+      }
+      return "مرحله ۳: پروژه ثبت شد";
     });
 
     async function createProject() {
@@ -2227,7 +3622,7 @@
       var name = ((nameEl && nameEl.value) || "").trim();
       if (!name) {
         toast("نام پروژه لازم است");
-        return;
+        return false;
       }
       if (submit) submit.disabled = true;
       if (send) send.disabled = true;
@@ -2235,36 +3630,48 @@
         var typeEl = document.getElementById("project-type");
         var statusEl = document.getElementById("project-status");
         var descEl = document.getElementById("project-desc");
-        var startEl = document.getElementById("project-start");
-        var endEl = document.getElementById("project-end");
         var startValue = (startEl && startEl.value) || "";
         var endValue = (endEl && endEl.value) || "";
         if (!startValue || !endValue) {
           toast("زمان آغاز و پایان لازم است");
           if (submit) submit.disabled = false;
           if (send) send.disabled = false;
-          return;
+          return false;
         }
-        var created = await tool("crud", "create_project", {
+        var payload = {
           name: name,
           description: ((descEl && descEl.value) || "").trim() || undefined,
           project_type: (typeEl && typeEl.value) || "اجرایی",
           project_status: (statusEl && statusEl.value) || "در انتظار شروع",
           start_date: startValue,
           end_date: endValue,
-        });
-        for (var i = 0; i < picked.length; i += 1) {
-          await tool("crud", "create_project_member", {
-            project_id: created.id,
-            user_id: picked[i].id,
-            project_role: "عضو",
-          });
+        };
+        var saved;
+        if (editing) {
+          saved = await tool("crud", "update_project", Object.assign({ id: editing.id }, payload));
+        } else {
+          saved = await tool("crud", "create_project", payload);
         }
-        location.replace("project-details.html?id=" + created.id);
+        if (!editing || addSpokenMembers) {
+          for (var i = 0; i < picked.length; i += 1) {
+            try {
+              await tool("crud", "create_project_member", {
+                project_id: saved.id,
+                user_id: picked[i].id,
+                project_role: "عضو",
+              });
+            } catch (memberError) {
+              toast(memberError.message);
+            }
+          }
+        }
+        location.replace("project-details.html?id=" + saved.id);
+        return true;
       } catch (error) {
         toast(error.message);
         if (submit) submit.disabled = false;
         if (send) send.disabled = false;
+        return false;
       }
     }
 
@@ -2302,44 +3709,22 @@
       setText("project-end", faStamp(project.end_date));
       setText("project-start", faStamp(project.start_date));
       setText("project-desc", project.description || "توضیحی ثبت نشده.");
-      setText("project-mini-status", project.project_status_name);
-      setText("project-mini-type", project.project_type_name);
+      var viewer = await S.currentUser();
+      showOwnerEdit(
+        "project-edit",
+        "new-project-mobile.html?id=" + id,
+        viewer && Number(project.created_by) === Number(viewer.id)
+      );
       var members = await listAll("crud", "list_project_members", { project_id: id });
-      setText("project-team-count", members.length + " نفر");
-      var team = document.getElementById("project-team");
-      if (team) {
-        team.innerHTML = members.length
-          ? members.map(function (row) {
-              return "<div class='person'><strong>" + (row.username || "") + "</strong><em>" + (row.project_role_name || "") + "</em></div>";
-            }).join("")
-          : "<p>عضوی نیست</p>";
-      }
-      var tasks = [];
-      try {
-        tasks = await listAll("crud", "list_tasks", { project_id: id });
-      } catch (ignored) {}
-      setText("project-task-count", tasks.length);
-      var goals = document.getElementById("project-goals");
-      if (goals) {
-        goals.innerHTML = tasks.length
-          ? tasks.map(function (row) {
-              return "<li><span>" + (row.title || "") + "</span></li>";
-            }).join("")
-          : "<li><span>وظیفه‌ای ثبت نشده.</span></li>";
-      }
-      try {
-        var meetings = await listAll("meeting", "list_meetings");
-        var related = meetings.filter(function (row) { return Number(row.project_id) === id; });
-        setText("project-meeting-count", related.length);
-      } catch (ignored) {
-        setText("project-meeting-count", "—");
-      }
+      setText("project-team-count", faDigits(members.length) + " نفر");
       var meetLink = document.getElementById("project-new-meeting");
       if (meetLink) meetLink.href = "new-meeting.html?project_id=" + id;
+      var noteTab = document.getElementById("tab-note");
+      if (noteTab) noteTab.href = "project-note.html?id=" + id;
       var reportLink = document.getElementById("project-reports");
-      if (reportLink) reportLink.href = "reports.html";
+      if (reportLink) reportLink.href = "reports.html?project_id=" + id;
       var reportsTab = document.querySelector('.tab[href="reports.html"]');
-      if (reportsTab) reportsTab.href = "reports.html";
+      if (reportsTab) reportsTab.href = "reports.html?project_id=" + id;
       try {
         var progress = await tool("stats", "get_project_progress", { project_id: id });
         var percent = progress.progress_percent != null ? progress.progress_percent : progress.percent;
@@ -2347,27 +3732,40 @@
       } catch (ignored) {
         setText("project-progress", "—");
       }
-      var noteTask = document.getElementById("project-note-task");
-      if (noteTask) {
-        await fillSelect(noteTask, tasks, function (row) { return row.title; });
-        if (!tasks.length) {
-          noteTask.innerHTML = "<option value=''>اول یک وظیفه بسازید</option>";
-        } else if (!noteTask.value) {
-          noteTask.value = String(tasks[0].id);
-        }
-      }
+      var tasksTab = document.getElementById("tab-tasks");
+      if (tasksTab) tasksTab.href = "tasks.html?project_id=" + id;
+      var peopleTab = document.getElementById("tab-people");
+      if (peopleTab) peopleTab.href = "members-groups.html?project_id=" + id;
+      var teamTab = document.getElementById("tab-team");
+      if (teamTab) teamTab.href = "project-team.html?id=" + id;
+      var chatsTab = document.getElementById("tab-chats");
+      if (chatsTab) chatsTab.href = "chats.html?project_id=" + id;
+      var progressTab = document.querySelector('.tab[href="progress.html"]');
+      if (progressTab) progressTab.href = "progress.html?project_id=" + id;
+      var seeAll = document.querySelector(".see-all");
+      if (seeAll) seeAll.href = "members-groups.html?project_id=" + id;
+    } catch (error) {
+      toast(error.message);
+    }
+  }
+
+  async function bootProjectNote() {
+    var id = Number(param("id") || param("project_id") || 0);
+    if (!id) {
+      toast("پروژه لازم است");
+      return;
+    }
+    var back = document.querySelector(".header .back");
+    if (back) back.href = "project-details.html?id=" + id;
+    try {
+      var project = await tool("crud", "get_project", { id: id });
       var noteForm = document.getElementById("project-note");
       if (noteForm && !noteForm.dataset.bound) {
         noteForm.dataset.bound = "1";
         noteForm.addEventListener("submit", async function (event) {
           event.preventDefault();
-          var tid = Number((noteTask && noteTask.value) || 0);
           var body = document.getElementById("project-note-body");
           var text = ((body && body.value) || "").trim();
-          if (!tid) {
-            toast("برای ثبت، یک وظیفه انتخاب کنید");
-            return;
-          }
           if (!text) {
             toast("متن لازم است");
             return;
@@ -2380,12 +3778,12 @@
             var chatId = await ensureProjectChat(id, project.name);
             var posted = await tool("crud", "create_message", {
               chat_id: chatId,
-              task_id: tid,
               text: text,
               recipient_user_id: user.id,
             });
             await analyzeSaved("message", posted.id);
             if (body) body.value = "";
+            toast("گزارش ثبت شد");
           } catch (error) {
             toast(error.message);
           }
@@ -2399,18 +3797,215 @@
         }
         toast("متن صدا آماده است. با ثبت، صوت و متن ذخیره می‌شوند و استخراج نشان داده می‌شود");
       });
-      var tasksTab = document.getElementById("tab-tasks");
-      if (tasksTab) tasksTab.href = "tasks.html?project_id=" + id;
-      var peopleTab = document.getElementById("tab-people");
-      if (peopleTab) peopleTab.href = "members-groups.html?project_id=" + id;
-      var chatsTab = document.getElementById("tab-chats");
-      if (chatsTab) chatsTab.href = "chats.html?project_id=" + id;
-      var progressTab = document.querySelector('.tab[href="progress.html"]');
-      if (progressTab) progressTab.href = "progress.html?project_id=" + id;
-      var seeAll = document.querySelector(".see-all");
-      if (seeAll) seeAll.href = "members-groups.html?project_id=" + id;
     } catch (error) {
       toast(error.message);
+    }
+  }
+
+  function dossierItem(href, title, meta) {
+    var item = document.createElement(href ? "a" : "div");
+    item.className = "dossier-item";
+    if (href) item.href = href;
+    item.appendChild(document.createTextNode(title || ""));
+    if (meta) {
+      var em = document.createElement("em");
+      em.textContent = meta;
+      item.appendChild(em);
+    }
+    return item;
+  }
+
+  async function fillPersonDossier(activity, person, view, opts) {
+    if (!activity) return;
+    opts = opts || {};
+    var userId = personId(person);
+    var projectId = Number(opts.projectId || 0);
+    var viewerId = Number(opts.viewerId || 0);
+    if (!userId) {
+      empty(activity, "این عضو شناسه ندارد.");
+      return;
+    }
+    if (view === "info") {
+      var extra = {};
+      try {
+        extra = await tool("crud", "get_user", { id: userId });
+      } catch (ignored) {}
+      activity.innerHTML = "";
+      var lines = 0;
+      function infoLine(label, value) {
+        if (value == null || String(value).trim() === "") return;
+        var line = document.createElement("p");
+        line.className = "info-line";
+        var span = document.createElement("span");
+        span.textContent = label;
+        var strong = document.createElement("strong");
+        strong.textContent = String(value);
+        line.appendChild(span);
+        line.appendChild(strong);
+        activity.appendChild(line);
+        lines += 1;
+      }
+      infoLine("نام", displayName(Object.assign({}, person, extra)));
+      infoLine("نام کاربری", extra.username || person.username);
+      infoLine("تلفن", extra.phone || person.phone);
+      infoLine("نقش در پروژه", person.project_role_name);
+      if (Array.isArray(extra.roles)) infoLine("نقش سازمانی", extra.roles.join("، "));
+      else if (person.roles) infoLine("نقش سازمانی", person.roles);
+      if (person.joined_at) infoLine("تاریخ عضویت", faStamp(person.joined_at));
+      if (!lines) empty(activity, "اطلاعات بیشتری برای این فرد نیست.");
+      return;
+    }
+    empty(activity, "در حال خواندن...");
+    try {
+      if (view === "messages") {
+        var messages = await listAll("crud", "list_messages");
+        var sent = messages.filter(function (message) {
+          if (Number(message.sender_user_id) !== userId) return false;
+          if (projectId && message.project_id && Number(message.project_id) !== projectId) return false;
+          return true;
+        });
+        activity.innerHTML = "";
+        if (!sent.length) {
+          empty(activity, "پیامی از این فرد در گفتگوهای مشترک نیست.");
+          return;
+        }
+        sent.forEach(function (message) {
+          var href = message.chat_id
+            ? "chat.html?id=" + message.chat_id + (projectId ? "&project_id=" + projectId : "")
+            : "";
+          activity.appendChild(dossierItem(
+            href,
+            message.text || "پیام",
+            [message.chat_title, message.created_at ? faStamp(message.created_at) : ""].filter(Boolean).join(" · ")
+          ));
+        });
+        return;
+      }
+      if (view === "files") {
+        if (viewerId && viewerId !== userId) {
+          empty(activity, "فایل اعضای دیگر از این صفحه دیده نمی‌شود.");
+          return;
+        }
+        var contents = await listAll("crud", "list_contents");
+        var files = contents.filter(function (item) {
+          return item.content_kind_code && item.content_kind_code !== "TEXT";
+        });
+        activity.innerHTML = "";
+        if (!files.length) {
+          empty(activity, "فایلی ثبت نشده.");
+          return;
+        }
+        files.forEach(function (item) {
+          activity.appendChild(dossierItem(
+            "",
+            item.original_filename || item.content_kind_name || "فایل",
+            [item.content_kind_name, item.created_at ? faStamp(item.created_at) : ""].filter(Boolean).join(" · ")
+          ));
+        });
+        return;
+      }
+      var tasks = opts.tasks;
+      if (!tasks) {
+        tasks = await listAll("crud", "list_tasks", projectId ? { project_id: projectId } : {});
+      }
+      var mine = tasks.filter(function (task) {
+        return Number(task.assigned_to_user_id) === userId;
+      });
+      activity.innerHTML = "";
+      if (!mine.length) {
+        empty(activity, "وظیفه‌ای برای این فرد نیست.");
+        return;
+      }
+      mine.forEach(function (task) {
+        var href = "task-details.html?id=" + task.id;
+        var taskProject = task.project_id || projectId;
+        if (taskProject) href += "&project_id=" + taskProject;
+        activity.appendChild(dossierItem(href, task.title || "وظیفه", task.status_name || ""));
+      });
+    } catch (error) {
+      empty(activity, error.message);
+    }
+  }
+
+  function paintProjectTeamWork(container, members, tasks, projectId, viewer) {
+    if (!container) return;
+    if (!members.length) {
+      container.innerHTML = "<p class='pd-team-empty'>عضوی در این پروژه نیست.</p>";
+      return;
+    }
+    var today = parseDay(todayStamp()) || new Date();
+    var rows = memberProgressAsOf(tasks, members, today, true);
+    var viewerId = Number(viewer && viewer.id);
+    container.innerHTML = "";
+    rows.forEach(function (row) {
+      var article = document.createElement("article");
+      article.className = "pd-mem";
+      article.innerHTML =
+        "<header><strong></strong><span></span></header>" +
+        "<div class='member-bar'><i></i></div>" +
+        (row.role ? "<em class='pd-mem-role'></em>" : "") +
+        "<div class='ptabs' role='tablist' aria-label='بخش‌های عضو'>" +
+        "<button class='ptab on' type='button' role='tab' aria-selected='true' data-view='tasks'>وظایف</button>" +
+        "<button class='ptab' type='button' role='tab' aria-selected='false' data-view='messages'>پیام‌ها</button>" +
+        "<button class='ptab' type='button' role='tab' aria-selected='false' data-view='files'>فایل‌ها</button>" +
+        "<button class='ptab' type='button' role='tab' aria-selected='false' data-view='info'>اطلاعات</button>" +
+        "</div>" +
+        "<div class='pd-mem-activity' aria-live='polite'></div>";
+      article.querySelector("header strong").textContent = row.name;
+      article.querySelector("header span").textContent =
+        faDigits(row.done) + " از " + faDigits(row.total) + " · " + faDigits(row.percent) + "٪";
+      article.querySelector(".member-bar i").style.width = row.percent + "%";
+      var roleEl = article.querySelector(".pd-mem-role");
+      if (roleEl) roleEl.textContent = row.role;
+      var activity = article.querySelector(".pd-mem-activity");
+      var person = row.member || { user_id: row.userId, username: row.name, project_role_name: row.role };
+      var tabs = article.querySelector(".ptabs");
+      tabs.addEventListener("click", function (event) {
+        var tab = event.target.closest(".ptab");
+        if (!tab || !tabs.contains(tab)) return;
+        tabs.querySelectorAll(".ptab").forEach(function (item) {
+          var on = item === tab;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        fillPersonDossier(activity, person, tab.getAttribute("data-view") || "tasks", {
+          projectId: projectId,
+          viewerId: viewerId,
+          tasks: tab.getAttribute("data-view") === "tasks" ? tasks : undefined,
+        });
+      });
+      fillPersonDossier(activity, person, "tasks", {
+        projectId: projectId,
+        viewerId: viewerId,
+        tasks: tasks,
+      });
+      container.appendChild(article);
+    });
+  }
+
+  async function bootProjectTeam() {
+    var id = Number(param("id"));
+    var back = document.getElementById("team-back");
+    if (id && back) back.href = "project-details.html?id=" + id;
+    var box = document.getElementById("project-team");
+    if (!id) {
+      setText("team-project-name", "پروژه‌ای انتخاب نشده.");
+      if (box) box.innerHTML = "<p class='pd-team-empty'>از جزئیات پروژه روی تیم پروژه بزنید.</p>";
+      return;
+    }
+    try {
+      var project = await tool("crud", "get_project", { id: id });
+      setText("team-project-name", project.name || "پروژه");
+      var members = await listAll("crud", "list_project_members", { project_id: id });
+      var tasks = [];
+      try {
+        tasks = await listAll("crud", "list_tasks", { project_id: id });
+      } catch (ignored) {}
+      var viewer = await S.currentUser();
+      paintProjectTeamWork(box, members, tasks, id, viewer);
+    } catch (error) {
+      toast(error.message);
+      if (box) box.innerHTML = "<p class='pd-team-empty'>" + escapeHtml(error.message) + "</p>";
     }
   }
 
@@ -2422,6 +4017,19 @@
     var viewer = await S.currentUser();
     if (!viewer) return;
     var orgRoleId = 0;
+    if (projectId) {
+      var membersTab = document.getElementById("tab-members");
+      var membersPanel = document.getElementById("panel-members");
+      var personTab = document.getElementById("tab-person");
+      var personPanel = document.getElementById("action-person");
+      if (membersTab) membersTab.hidden = true;
+      if (membersPanel) membersPanel.hidden = true;
+      if (personTab) personTab.hidden = true;
+      if (personPanel) personPanel.hidden = true;
+      if (window.showPeoplePanel && param("panel") === "members") {
+        window.showPeoplePanel("specs");
+      }
+    }
     if (isDirector(viewer)) {
       try {
         var roleRows = await listAll("crud", "list_roles");
@@ -2449,11 +4057,8 @@
         btn.className = "mem-pick";
         btn.innerHTML =
           '<span class="mtext"><strong>' +
-          displayName(row) +
-          "</strong><em>" +
-          (row.username || "") +
-          (row.project_role_name ? " · " + row.project_role_name : "") +
-          "</em></span>";
+          escapeHtml(displayName(row)) +
+          "</strong></span>";
         btn.addEventListener("click", function () {
           showPerson(row);
         });
@@ -2468,7 +4073,7 @@
         }
         list.appendChild(wrap);
       });
-      if (rows[0]) showPerson(rows[0]);
+      if (rows[0] && !projectId) showPerson(rows[0]);
     }
 
     async function showPerson(row) {
@@ -2522,7 +4127,7 @@
         mine.forEach(function (task) {
           var item = document.createElement("p");
           item.className = "bubble";
-          item.textContent = (task.title || "") + " · " + (task.status_name || "");
+          item.textContent = task.title || "";
           activity.appendChild(item);
         });
       } catch (error) {
@@ -2532,16 +4137,13 @@
 
     try {
       if (projectId) {
-        cache = await listAll("crud", "list_project_members", { project_id: projectId });
-        cache = cache.map(function (row) {
-          return Object.assign({}, row, { username: row.username, first_name: row.username });
-        });
+        cache = [];
       } else if (canManage(viewer)) {
         cache = await loadAssignable();
       } else {
         cache = await loadChatPeople(viewer, 0);
       }
-      render("");
+      if (!projectId) render("");
     } catch (error) {
       if (list) empty(list, error.message);
     }
@@ -2628,6 +4230,7 @@
         }
       });
     }
+    if (typeof window.syncSpecsActions === "function") window.syncSpecsActions();
   }
 
   async function bootTasks() {
@@ -2671,17 +4274,7 @@
         records.forEach(function (row) {
           list.appendChild(cardLink(
             "task-details.html?id=" + row.id,
-            '<span class="tag">' +
-              (row.status_name || "") +
-              "</span><h2>" +
-              (row.title || "") +
-              "</h2><p>" +
-              (row.description || row.project_name || "") +
-              '</p><div class="meta"><div><span>اولویت </span>' +
-              (row.priority_name || "") +
-              "</div><div><span>مسئول </span>" +
-              (row.assigned_to_username || "—") +
-              "</div></div>"
+            "<h2>" + escapeHtml(row.title || "بدون عنوان") + "</h2>"
           ));
         });
       } catch (error) {
@@ -2902,10 +4495,6 @@
           if (!text) return;
           try {
             var chosenTask = taskSelect && taskSelect.value ? Number(taskSelect.value) : taskId;
-            if (chat.project_id && !chosenTask) {
-              toast("برای گفتگوی پروژه یک وظیفه انتخاب کنید");
-              return;
-            }
             await postChatMessage(
               chatId,
               text,
@@ -2971,12 +4560,8 @@
               ' data-id="' +
               row.id +
               '"><div><h2>' +
-              (row.title || "") +
-              "</h2><p>" +
-              (row.description || "") +
-              "</p><div class='meta'><span>مهلت </span>" +
-              faStamp(row.end_date) +
-              "</div></div>";
+              escapeHtml(row.title || "") +
+              "</h2></div>";
             var box = article.querySelector("input");
             box.addEventListener("change", async function () {
               try {
@@ -3077,17 +4662,7 @@
       mine.forEach(function (row) {
         list.appendChild(cardLink(
           "task-details.html?id=" + row.id,
-          '<span class="tag">' +
-            (row.status_name || "") +
-            "</span><h2>" +
-            (row.title || "") +
-            "</h2><p>" +
-            (row.project_name || "") +
-            '</p><div class="meta"><div><span>رفته </span>' +
-            formatDays(taskElapsed(row)) +
-            "</div><div><span>باقی </span>" +
-            formatDays(taskRemaining(row)) +
-            "</div></div>"
+          "<h2>" + escapeHtml(row.title || "بدون عنوان") + "</h2>"
         ));
       });
     } catch (error) {
@@ -3099,7 +4674,6 @@
     var list = document.getElementById("search-list");
     var input = document.getElementById("search-query");
     var projectSelect = document.getElementById("report-project");
-    var taskSelect = document.getElementById("report-task");
     var user = await S.currentUser();
     if (!user) return;
     if (param("q") && input) input.value = param("q");
@@ -3107,26 +4681,11 @@
     try {
       projects = await loadProjects();
       await fillSelect(projectSelect, projects, function (row) { return row.name; });
+      var preset = Number(param("project_id") || param("id") || 0);
+      if (preset && projectSelect) projectSelect.value = String(preset);
     } catch (error) {
       toast(error.message);
     }
-
-    async function refreshTasks() {
-      var pid = Number(projectSelect && projectSelect.value || 0);
-      if (!pid) {
-        await fillSelect(taskSelect, [], function (row) { return row.title; });
-        return;
-      }
-      var tasks = await listAll("crud", "list_tasks", { project_id: pid });
-      await fillSelect(taskSelect, tasks, function (row) { return row.title; });
-    }
-
-    if (projectSelect) {
-      projectSelect.addEventListener("change", function () {
-        refreshTasks().catch(function (error) { toast(error.message); });
-      });
-    }
-    await refreshTasks();
 
     async function runSearch() {
       var q = (input && input.value || "").trim();
@@ -3195,14 +4754,9 @@
       form.addEventListener("submit", async function (event) {
         event.preventDefault();
         var pid = Number(projectSelect.value || 0);
-        var tid = Number(taskSelect && taskSelect.value || 0);
         var text = document.getElementById("report-body").value.trim();
         if (!pid) {
           toast("پروژه لازم است");
-          return;
-        }
-        if (!tid) {
-          toast("وظیفه لازم است");
           return;
         }
         if (!text) {
@@ -3214,7 +4768,6 @@
           var chatId = await ensureProjectChat(pid, project.name);
           var posted = await tool("crud", "create_message", {
             chat_id: chatId,
-            task_id: tid,
             text: text,
             recipient_user_id: user.id,
           });
@@ -3222,7 +4775,6 @@
           await analyzeSaved("message", posted.id);
           form.reset();
           if (projectSelect) projectSelect.value = String(pid);
-          await refreshTasks();
           await runSearch();
         } catch (error) {
           toast(error.message);
@@ -3521,17 +5073,21 @@
   }
 
   async function boot() {
+    bindAttachMenus();
     bindBells();
     fillBadge();
     var page = pageName();
     try {
       if (page === "home") await bootHome();
+      if (page === "calendar") await bootCalendar();
       if (page === "meetings") await bootMeetings();
       if (page === "new-meeting") await bootNewMeeting();
       if (page === "meeting-details") await bootMeetingDetails();
       if (page === "projects") await bootProjects();
       if (page === "new-project") await bootNewProject();
       if (page === "project-details") await bootProjectDetails();
+      if (page === "project-note") await bootProjectNote();
+      if (page === "project-team") await bootProjectTeam();
       if (page === "people") await bootPeople();
       if (page === "tasks") await bootTasks();
       if (page === "task-details") await bootTaskDetails();

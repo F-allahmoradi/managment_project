@@ -28,7 +28,7 @@
 
     .screen {
       width: min(430px, 100%);
-      padding-top: env(safe-area-inset-top);
+      padding-top: max(48px, env(safe-area-inset-top, 0px));
       min-height: 100dvh;
       display: flex;
       flex-direction: column;

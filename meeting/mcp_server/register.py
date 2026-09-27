@@ -12,6 +12,7 @@ from mcp_server.tools.meeting.cancel_meeting import register as register_cancel_
 from mcp_server.tools.meeting.create_meeting import register as register_create_meeting
 from mcp_server.tools.meeting.get_meeting import register as register_get_meeting
 from mcp_server.tools.meeting.list_meetings import register as register_list_meetings
+from mcp_server.tools.meeting.update_meeting import register as register_update_meeting
 from mcp_server.tools.meeting.record_meeting import register as register_record_meeting
 from mcp_server.tools.meeting.sync_meeting import register as register_sync_meeting
 from mcp_server.tools.meeting_participant.create_meeting_participant import (
@@ -37,6 +38,7 @@ def register_meeting_tools(mcp: MCPServer) -> None:
     register_create_meeting(mcp)
     register_get_meeting(mcp)
     register_list_meetings(mcp)
+    register_update_meeting(mcp)
     register_cancel_meeting(mcp)
     register_create_meeting_participant(mcp)
     register_generate_meetings(mcp)

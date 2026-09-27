@@ -285,6 +285,12 @@
     });
   }
 
+  function pollAnalysis(jobId) {
+    return request("/api/v1/text-analyses/preview/" + encodeURIComponent(jobId), {
+      method: "GET",
+    });
+  }
+
   function commitAnalysis(fields) {
     return request("/api/v1/text-analyses/commit", {
       method: "POST",
@@ -318,6 +324,7 @@
     saveMedia: saveMedia,
     analyzeSource: analyzeSource,
     previewAnalysis: previewAnalysis,
+    pollAnalysis: pollAnalysis,
     commitAnalysis: commitAnalysis,
     callTool: callTool,
   };

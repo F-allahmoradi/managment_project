@@ -935,6 +935,45 @@ class MessageContactServiceTests(unittest.TestCase):
             delete_temp_user(peer_id)
             delete_temp_user(owner_id)
 
+    def test_project_chat_message_without_task(self) -> None:
+        owner_id = insert_temp_user(last_name="گزارش-پروژه")
+        project_id = None
+        chat_id = None
+        try:
+            project_id = insert_project(
+                {
+                    "name": unique_project_name(),
+                    "project_type": "نرم‌افزاری",
+                    "project_status": "در حال اجرا",
+                },
+                created_by=owner_id,
+            )
+            chat_id = insert_chat(
+                {
+                    "title": unique_chat_title("پروژه"),
+                    "project_id": project_id,
+                    "chat_type": "گفتگوی پروژه",
+                },
+                created_by=owner_id,
+            )
+            message_id = insert_message(
+                {
+                    "chat_id": chat_id,
+                    "text": "وضعیت پروژه بدون اشاره به وظیفه.",
+                    "recipient_user_id": owner_id,
+                },
+                sender_user_id=owner_id,
+            )
+            message = fetch_message(message_id)
+            self.assertEqual(message["text"], "وضعیت پروژه بدون اشاره به وظیفه.")
+            self.assertIsNone(message["task_id"])
+        finally:
+            if chat_id is not None:
+                delete_temp_chat(chat_id)
+            if project_id is not None:
+                delete_temp_project(project_id)
+            delete_temp_user(owner_id)
+
 
 class PerformanceActionServiceTests(unittest.TestCase):
     """ثبت اقدام امتیاز را در scores می‌نویسد و با جمع اقدام‌ها یکی می‌ماند."""

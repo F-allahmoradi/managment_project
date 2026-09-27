@@ -128,6 +128,14 @@ def translate_db_error(exc: PsycopgError, unique_messages: dict | None = None) -
             raise InvalidInputError("شناسه وظیفه زیرکار عوض نمی‌شود") from exc
         if "created_by_user_id cannot be changed" in primary:
             raise InvalidInputError("سازنده زیرکار عوض نمی‌شود") from exc
+        if "private chat must not have a task" in primary:
+            raise InvalidInputError("گفتگوی خصوصی نباید به وظیفه وصل باشد") from exc
+        if "task must belong to the same project as the chat" in primary:
+            raise InvalidInputError("تسک باید در همان پروژهٔ گفتگو باشد") from exc
+        if "sender must be an active project member" in primary:
+            raise InvalidInputError("فرستنده باید عضو فعال همین پروژه باشد") from exc
+        if "sender must be a chat member" in primary:
+            raise InvalidInputError("فرستنده باید عضو همین گفتگو باشد") from exc
         raise InvalidInputError("تغییر زیرکار مجاز نیست") from exc
     raise DatabaseError("اجرای کوئری در PostgreSQL ناموفق بود") from exc
 

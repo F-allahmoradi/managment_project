@@ -9,6 +9,34 @@
   <link rel="stylesheet" href="mobile-ui.css">
   <script src="mobile-session.js"></script>
   <script>MobileSession.redirectIfAnonymous();</script>
+  <style>
+    .notice-switch {
+      margin: 12px 16px 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .switch-opt {
+      min-height: 52px;
+      border-radius: 12px;
+      padding: 8px 6px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    .switch-opt.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
+    }
+  </style>
 </head>
 <body data-page="notifications">
   <main class="screen">
@@ -18,14 +46,23 @@
       <h1>اعلان‌ها</h1>
       <span style="width:38px"></span>
     </header>
-    <p class="empty-note">فقط اعلان‌های رسیده‌شده به همین حساب اینجا هستند. گفتگو در صفحهٔ گفتگو است.</p>
-    <h2 class="empty-note" style="margin:8px 16px 0">صندوق شما</h2>
-    <div id="notice-list"></div>
-    <div id="notice-sent-wrap" hidden>
-      <h2 class="empty-note" style="margin:16px 16px 0">یادآوری‌هایی که فرستاده‌اید</h2>
-      <div id="notice-sent"></div>
+    <nav class="notice-switch" role="tablist" aria-label="بخش‌های اعلان">
+      <button class="switch-opt on" id="tab-inbox" type="button" role="tab" aria-selected="true" aria-controls="panel-inbox" data-panel="inbox">صندوق شما</button>
+      <button class="switch-opt" id="tab-sent" type="button" role="tab" aria-selected="false" aria-controls="panel-sent" data-panel="sent">یادآوری‌هایی که فرستاده‌اید</button>
+      <button class="switch-opt" id="tab-send" type="button" role="tab" aria-selected="false" aria-controls="panel-send" data-panel="send">ارسال یادآوری</button>
+    </nav>
+    <div class="notice-panel" id="panel-inbox" data-panel="inbox" role="tabpanel" aria-labelledby="tab-inbox">
+      <p class="empty-note">فقط اعلان‌های رسیده‌شده به همین حساب اینجا هستند. گفتگو در صفحهٔ گفتگو است.</p>
+      <div id="notice-list"></div>
     </div>
-    <form class="form-card" id="notice-form" hidden>
+    <div class="notice-panel" id="panel-sent" data-panel="sent" role="tabpanel" aria-labelledby="tab-sent" hidden>
+      <div id="notice-sent-wrap">
+        <div id="notice-sent"></div>
+      </div>
+      <p class="empty-note" id="notice-sent-denied" hidden>دیدن یادآوری‌های فرستاده‌شده فقط برای مدیر کل و مدیر پروژه است.</p>
+    </div>
+    <div class="notice-panel" id="panel-send" data-panel="send" role="tabpanel" aria-labelledby="tab-send" hidden>
+    <form class="form-card" id="notice-form">
       <h2>ارسال یادآوری</h2>
       <p>برای گیرنده در صندوق اعلان‌های همان حساب می‌آید، نه در صندوق شما.</p>
       <div class="field">
@@ -64,14 +101,36 @@
       <p class="empty-note">ارسال همین حالا یک‌بار انجام می‌شود. تکرار روزانه یا هفتگی ذخیره می‌شود؛ زمان‌بند خودکار روی این سرور نیست.</p>
       <button class="primary-btn" type="submit" style="width:100%;margin:16px 0 0">ارسال یادآوری</button>
     </form>
+      <p class="empty-note" id="notice-send-denied" hidden>ارسال یادآوری فقط برای مدیر کل و مدیر پروژه است.</p>
+    </div>
   </main>
-  <nav class="bnav">
+  <nav class="bnav" aria-label="ناوبری">
     <a class="nitem" href="admin-mobile.html"><span>خانه</span></a>
     <a class="nitem" href="projects.html"><span>پروژه‌ها</span></a>
     <a class="nitem" href="meetings.html"><span>جلسات</span></a>
-    <a class="nitem" href="members-groups.html"><span>افراد</span></a>
-    <a class="nitem on" href="notifications.html"><span>اعلان</span></a>
+    <a class="nitem" href="tasks.html"><span>وظایف</span></a>
+    <a class="nitem" href="reports.html"><span>گزارش‌ها</span></a>
+    <a class="nitem" href="members-groups.html"><span>اعضا</span></a>
   </nav>
   <script src="mobile-app.js"></script>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".notice-switch .switch-opt");
+      var panels = document.querySelectorAll(".notice-panel");
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var name = button.getAttribute("data-panel");
+          buttons.forEach(function (item) {
+            var on = item === button;
+            item.classList.toggle("on", on);
+            item.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          panels.forEach(function (panel) {
+            panel.hidden = panel.getAttribute("data-panel") !== name;
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

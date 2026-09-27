@@ -25,28 +25,20 @@
     input, textarea { outline: none; }
 
     .shell {
-      width: 1160px;
-      min-height: 860px;
-      margin: 20px auto;
-      border-radius: 28px;
+      width: 100%;
+      max-width: 480px;
+      min-height: 100dvh;
+      margin: 0 auto;
       overflow: hidden;
       background: linear-gradient(160deg, rgba(15, 25, 60, 0.95), rgba(8, 12, 35, 0.98));
-      border: 1px solid rgba(100, 140, 255, 0.3);
-      box-shadow:
-        0 0 80px rgba(80, 100, 255, 0.3),
-        0 0 160px rgba(60, 80, 200, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      display: grid;
-      direction: ltr;
-      grid-template-columns: 1fr 380px;
-      grid-template-rows: auto 1fr auto auto;
-      gap: 0;
+      display: flex;
+      flex-direction: column;
+      direction: rtl;
+      padding-top: var(--app-safe-top, max(48px, env(safe-area-inset-top, 0px)));
+      padding-bottom: 96px;
     }
 
     .header {
-      grid-column: 1 / -1;
       height: 80px;
       padding: 0 24px;
       display: flex;
@@ -149,17 +141,48 @@
     }
     .icon-btn:hover { transform: translateY(-1px); filter: drop-shadow(0 0 8px rgba(74, 212, 255, 0.45)); }
 
+    .meeting-switch {
+      margin: 12px 16px 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(25, 45, 95, 0.92), rgba(12, 22, 55, 0.96));
+      border: 1px solid rgba(100, 180, 255, 0.32);
+      box-shadow: 0 0 25px rgba(80, 140, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .switch-opt {
+      min-height: 48px;
+      border-radius: 12px;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.72);
+      transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    }
+    .switch-opt.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(120, 80, 255, 0.45);
+    }
+    .meeting-panel[hidden] { display: none; }
+    .meeting-panel { padding: 0 16px; }
+    #panel-meetings { padding: 0; }
+    #panel-meetings .meet,
+    #panel-meetings .empty-note { margin-right: 16px; margin-left: 16px; }
+
     .body {
-      grid-column: 1;
-      grid-row: 2;
-      padding: 16px 18px 8px 12px;
+      padding: 0;
       min-height: 0;
       direction: rtl;
     }
     .chat {
-      height: 100%;
-      max-height: 640px;
-      padding: 20px;
+      height: auto;
+      max-height: none;
+      padding: 16px;
       overflow-y: auto;
       background: linear-gradient(160deg, rgba(12, 20, 50, 0.9), rgba(6, 10, 30, 0.95));
       border: 1px solid rgba(80, 140, 255, 0.2);
@@ -264,18 +287,16 @@
     .confirm-topic { font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-top: 4px; }
 
     .side {
-      grid-column: 2;
-      grid-row: 2;
-      padding: 18px;
-      overflow-y: auto;
+      padding: 0;
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       direction: rtl;
-      scrollbar-width: none;
     }
     .side::-webkit-scrollbar { width: 0; display: none; }
 
+    .meeting-panel .card { margin-top: 12px; }
     .card {
       border-radius: 18px;
       padding: 16px;
@@ -325,8 +346,7 @@
 
     .week, .days {
       display: grid;
-      grid-template-columns: repeat(7, 36px);
-      justify-content: space-between;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
     }
     .week { margin-bottom: 6px; }
     .week span {
@@ -337,7 +357,7 @@
     }
     .days { gap: 4px; }
     .day {
-      width: 36px;
+      width: auto;
       height: 36px;
       border-radius: 8px;
       background: rgba(15, 35, 70, 0.5);
@@ -451,19 +471,134 @@
       white-space: nowrap;
     }
 
-    .dock {
-      grid-column: 1 / -1;
-      grid-row: 3;
-      padding: 16px 24px;
-      background: linear-gradient(180deg, rgba(15, 25, 60, 0.95), rgba(8, 12, 35, 0.98));
-      border-top: 1px solid rgba(100, 160, 255, 0.2);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      direction: rtl;
-      backdrop-filter: blur(16px);
+    .dock { display: none; }
+    .chat-tools {
+      margin-top: 12px;
+      overflow: visible;
     }
+    .chat-tools .hint {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(10, 25, 55, 0.5);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+    }
+    .members-head h2 { font-size: 15px; font-weight: 700; color: #ffffff; }
+    .members-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .add-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3a5aaa, #2a4a9a);
+      border: 1px solid rgba(100, 180, 255, 0.4);
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+    }
+    .member-note {
+      margin: 10px 4px 0;
+      font-size: 12px;
+      line-height: 1.7;
+      color: rgba(168, 212, 255, 0.9);
+    }
+    .member-search {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.28);
+      color: #ffffff;
+      font-size: 14px;
+    }
+    .member-search::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .member-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .member-pick {
+      width: 100%;
+      text-align: right;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.25);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .member-pick.on {
+      border-color: rgba(120, 220, 180, 0.7);
+      box-shadow: 0 0 12px rgba(80, 200, 160, 0.25);
+    }
+    .member-pick em { font-style: normal; color: rgba(255,255,255,0.55); font-size: 12px; }
+    .member-sources {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .source-opt {
+      min-height: 40px;
+      border-radius: 12px;
+      padding: 8px 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.28);
+    }
+    .source-opt.on {
+      background: linear-gradient(135deg, #2a5acc, #6a3acc);
+      color: #ffffff;
+      border-color: transparent;
+    }
+    .external-add {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .external-add .add-btn { align-self: stretch; justify-content: center; }
+    .member-drop {
+      flex: none;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 120, 140, 0.45);
+      background: rgba(80, 20, 40, 0.35);
+      color: #ffd0d8;
+      font-size: 11px;
+    }
+    .live-member {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(10, 25, 55, 0.55);
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .live-member em { color: rgba(255,255,255,0.55); font-style: normal; font-size: 11px; }
     .hint {
       flex: 1;
       font-size: 12px;
@@ -535,16 +670,7 @@
     }
 
     .status {
-      grid-column: 1 / -1;
-      grid-row: 4;
-      height: 36px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      padding: 0 24px;
-      direction: rtl;
-      background: rgba(5, 10, 25, 0.8);
+      display: none;
     }
     .dot {
       width: 6px;
@@ -556,9 +682,12 @@
     .status span { font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
 
     .meet-submit {
-      width: 100%;
-      height: 52px;
-      margin-top: 12px;
+      position: sticky;
+      bottom: 12px;
+      z-index: 5;
+      width: calc(100% - 32px);
+      margin: 14px 16px 0;
+      height: 56px;
       border-radius: 16px;
       border: 1px solid rgba(180, 160, 255, 0.5);
       background: linear-gradient(135deg, #2a5acc, #8a3acc);
@@ -568,40 +697,16 @@
       box-shadow: 0 0 24px rgba(120, 80, 255, 0.4);
     }
 
-    @media (max-width: 980px) {
-      .shell {
-        width: 100%;
-        max-width: 100%;
-        min-height: 100dvh;
-        margin: 0;
-        border-radius: 0;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr auto auto;
-      }
-      .header {
-        height: 64px;
-        padding: 0 12px;
-        min-width: 0;
-      }
-      .who { display: none; min-width: 0; }
-      .tools { min-width: 0; justify-content: flex-end; }
-      .brand { flex: 1; min-width: 0; gap: 8px; }
-      .brand h1 { font-size: 16px; }
-      .brand p { display: none; }
-      .body { display: none; }
-      .side {
-        grid-column: 1;
-        grid-row: 2;
-        padding: 12px 16px 24px;
-        overflow: visible;
-      }
-      .week, .days {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-      }
-      .day { width: auto; }
-      .dock { display: none; }
-      .status { grid-column: 1; grid-row: 3; }
+    .header {
+      height: 64px;
+      padding: 0 12px;
+      min-width: 0;
     }
+    .who { display: none; }
+    .tools { min-width: 0; justify-content: flex-end; }
+    .brand { flex: 1; min-width: 0; gap: 8px; }
+    .brand h1 { font-size: 16px; }
+    .brand p { display: none; }
   </style>
 </head>
 <body data-page="new-meeting">
@@ -636,8 +741,8 @@
           <path d="M4 11.2h20M9 3.8v4.2M19 3.8v4.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
         </svg>
         <div class="brand-text">
-          <h1>جلسه جدید</h1>
-          <p>ثبت و برنامه‌ریزی جلسه سازمانی</p>
+          <h1 id="meeting-form-title">جلسه جدید</h1>
+          <p id="meeting-form-lead">ثبت و برنامه‌ریزی جلسه سازمانی</p>
         </div>
       </div>
 
@@ -659,91 +764,14 @@
       </div>
     </header>
 
-    <section class="body">
-      <div class="chat">
-        <article class="msg">
-          <div class="bot-av" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M11 2.2v2.2" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
-              <circle cx="11" cy="2" r="1" fill="#ffffff"/>
-              <rect x="4.2" y="5.2" width="13.6" height="10.2" rx="2.4" stroke="#ffffff" stroke-width="1.6"/>
-              <circle cx="8.4" cy="10" r="1.15" fill="#ffffff"/>
-              <circle cx="13.6" cy="10" r="1.15" fill="#ffffff"/>
-              <path d="M8 16.6v1.6M14 16.6v1.6M7.2 18.4h7.6" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="bubble">
-            <div class="hello" id="session-hello">سلام</div>
-            <p class="line">برای ثبت جلسه، لطفاً موضوع جلسه را بنویسید یا با من صحبت کنید.</p>
-            <p class="line">می‌توانید متن، صدا یا فایل جلسه را هم اضافه کنید.</p>
-            <div class="time">۰۹:۴۱</div>
-          </div>
-        </article>
-      </div>
-    </section>
+    <nav class="meeting-switch" role="tablist" aria-label="بخش‌های جلسه">
+      <button class="switch-opt on" id="tab-specs" type="button" role="tab" aria-selected="true" aria-controls="panel-specs" data-panel="specs">مشخصات جلسه</button>
+      <button class="switch-opt" id="tab-members" type="button" role="tab" aria-selected="false" aria-controls="panel-members" data-panel="members">اعضای جلسه</button>
+      <button class="switch-opt" id="tab-calendar" type="button" role="tab" aria-selected="false" aria-controls="panel-calendar" data-panel="calendar">تقویم جلسه</button>
+      <button class="switch-opt" id="tab-meetings" type="button" role="tab" aria-selected="false" aria-controls="panel-meetings" data-panel="meetings">جلسات</button>
+    </nav>
 
-    <aside class="side">
-      <section class="card">
-        <div class="card-h">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3.4" y="5" width="17.2" height="15.2" rx="2.4" stroke="#4ad4ff" stroke-width="1.7"/>
-            <path d="M3.4 9.5h17.2M8 3.2v3.2M16 3.2v3.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
-          </svg>
-          <h2 class="grow">تقویم جلسه</h2>
-          <button class="cal-from" id="fill-from-calendar" type="button">از تقویم گوگل</button>
-        </div>
-        <div class="month">
-          <button class="nav-ch" type="button" aria-label="ماه بعد">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 3.2 10.8 8 6 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <strong id="meeting-month">—</strong>
-          <button class="nav-ch" type="button" aria-label="ماه قبل">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3.2 5.2 8 10 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="week">
-          <span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span><span>سه‌شنبه</span><span>چهارشنبه</span><span>پنجشنبه</span><span>جمعه</span>
-        </div>
-        <div class="days" id="days">
-          <span class="day blank"></span><span class="day blank"></span>
-          <button class="day" type="button" data-day="1">۱</button>
-          <button class="day" type="button" data-day="2">۲</button>
-          <button class="day" type="button" data-day="3">۳</button>
-          <button class="day" type="button" data-day="4">۴</button>
-          <button class="day" type="button" data-day="5">۵</button>
-          <button class="day" type="button" data-day="6">۶</button>
-          <button class="day" type="button" data-day="7">۷</button>
-          <button class="day" type="button" data-day="8">۸</button>
-          <button class="day" type="button" data-day="9">۹</button>
-          <button class="day" type="button" data-day="10">۱۰</button>
-          <button class="day" type="button" data-day="11">۱۱</button>
-          <button class="day" type="button" data-day="12">۱۲</button>
-          <button class="day today" type="button" data-day="13">۱۳</button>
-          <button class="day" type="button" data-day="14">۱۴</button>
-          <button class="day" type="button" data-day="15">۱۵</button>
-          <button class="day" type="button" data-day="16">۱۶</button>
-          <button class="day sel" type="button" data-day="17">۱۷</button>
-          <button class="day" type="button" data-day="18">۱۸</button>
-          <button class="day" type="button" data-day="19">۱۹</button>
-          <button class="day" type="button" data-day="20">۲۰</button>
-          <button class="day" type="button" data-day="21">۲۱</button>
-          <button class="day" type="button" data-day="22">۲۲</button>
-          <button class="day" type="button" data-day="23">۲۳</button>
-          <button class="day" type="button" data-day="24">۲۴</button>
-          <button class="day" type="button" data-day="25">۲۵</button>
-          <button class="day" type="button" data-day="26">۲۶</button>
-          <button class="day" type="button" data-day="27">۲۷</button>
-          <button class="day" type="button" data-day="28">۲۸</button>
-          <button class="day" type="button" data-day="29">۲۹</button>
-          <button class="day" type="button" data-day="30">۳۰</button>
-          <span class="day blank"></span><span class="day blank"></span><span class="day blank"></span>
-        </div>
-      </section>
-
+    <div class="meeting-panel" id="panel-specs" data-panel="specs" role="tabpanel" aria-labelledby="tab-specs">
       <section class="card">
         <div class="card-h leftish">
           <span class="info-dot" aria-hidden="true">
@@ -850,65 +878,198 @@
             <select id="meeting-project"></select>
           </label>
         </div>
-        <button class="meet-submit" id="meeting-submit" type="button">ثبت جلسه</button>
       </section>
-    </aside>
 
-    <footer class="dock">
-      <button class="mic" type="button" aria-label="ضبط صدا">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <rect x="9" y="3" width="6" height="11" rx="3" stroke="#ffffff" stroke-width="1.7"/>
-          <path d="M6.5 11.2a5.5 5.5 0 0 0 11 0M12 16.8V21M9 21h6" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <button class="send" id="meeting-send" type="button" aria-label="ثبت جلسه">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3.2 11.2 20 4.2l-6.6 16.2-2.6-6.4-7.6-2.8z" fill="#ffffff"/>
-        </svg>
-      </button>
-      <div class="acts">
-        <button class="act" id="meeting-voice" type="button">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="9" y="3.2" width="6" height="10.2" rx="3" stroke="#4ad4ff" stroke-width="1.7"/>
-            <path d="M7 11.2a5 5 0 0 0 10 0M12 16.2V20" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
-          </svg>
-          <span>صدا</span>
-        </button>
-        <button class="act" type="button">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3.2" y="6.4" width="11.2" height="11.2" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
-            <path d="M14.4 10.2 20.2 7.4v9.2l-5.8-2.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
-          </svg>
-          <span>ویدیو</span>
-        </button>
-        <button class="act" type="button">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3.4" y="5" width="17.2" height="14" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
-            <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.5"/>
-            <path d="m4 16.4 4.6-4 3.2 2.6 2.2-1.8L20 17" stroke="#4ad4ff" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg>
-          <span>عکس</span>
-        </button>
-        <button class="act" type="button">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 7.2h5.2l1.6 1.8H20a1.4 1.4 0 0 1 1.4 1.4v7.2A1.6 1.6 0 0 1 19.8 19H4.6A1.6 1.6 0 0 1 3 17.4V8.6A1.4 1.4 0 0 1 4 7.2z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
-          <span>فایل</span>
-        </button>
-        <button class="plus" type="button" aria-label="افزودن">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <path d="M11 4.5v13M4.5 11h13" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <input class="hint" type="text" placeholder="پیام خود را بنویسید یا از طریق صدا ارسال کنید..." aria-label="پیام">
-    </footer>
-
-    <div class="status">
-      <span class="dot"></span>
-      <span>آماده برای ثبت جلسه</span>
+      <section class="card body">
+        <div class="chat">
+          <article class="msg">
+            <div class="bot-av" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2.2v2.2" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+                <circle cx="11" cy="2" r="1" fill="#ffffff"/>
+                <rect x="4.2" y="5.2" width="13.6" height="10.2" rx="2.4" stroke="#ffffff" stroke-width="1.6"/>
+                <circle cx="8.4" cy="10" r="1.15" fill="#ffffff"/>
+                <circle cx="13.6" cy="10" r="1.15" fill="#ffffff"/>
+                <path d="M8 16.6v1.6M14 16.6v1.6M7.2 18.4h7.6" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="bubble">
+              <div class="hello" id="session-hello">سلام</div>
+              <p class="line">موضوع، زمان، مکان، پروژه و نام اعضا را بگویید.</p>
+              <p class="line">بعد از استخراج می‌توانید ویرایش کنید و با تأیید، جلسه ثبت می‌شود.</p>
+              <div class="time">۰۹:۴۱</div>
+            </div>
+          </article>
+        </div>
+        <div class="chat-tools composer-row">
+          <div class="attach-wrap">
+            <div class="attach-tray" id="new-meeting-attach-tray" hidden>
+              <div class="attach-actions">
+            <button class="attach-item" type="button">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.2" y="6.4" width="11.2" height="11.2" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
+                <path d="M14.4 10.2 20.2 7.4v9.2l-5.8-2.6" stroke="#4ad4ff" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+              <span>ویدیو</span>
+            </button>
+            <button class="attach-item" type="button">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.4" y="5" width="17.2" height="14" rx="2" stroke="#4ad4ff" stroke-width="1.7"/>
+                <circle cx="8.4" cy="9.2" r="1.4" stroke="#4ad4ff" stroke-width="1.5"/>
+                <path d="m4 16.4 4.6-4 3.2 2.6 2.2-1.8L20 17" stroke="#4ad4ff" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+              <span>عکس</span>
+            </button>
+            <button class="attach-item" type="button">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7.2h5.2l1.6 1.8H20a1.4 1.4 0 0 1 1.4 1.4v7.2A1.6 1.6 0 0 1 19.8 19H4.6A1.6 1.6 0 0 1 3 17.4V8.6A1.4 1.4 0 0 1 4 7.2z" stroke="#4ad4ff" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+              <span>فایل</span>
+            </button>
+              </div>
+            </div>
+            <button class="attach" id="new-meeting-attach" type="button" aria-label="پیوست فایل، عکس یا فیلم" aria-expanded="false" aria-controls="new-meeting-attach-tray">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 4.2v11.6M4.2 10h11.6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <button class="mic-btn" id="meeting-voice" type="button" aria-label="ضبط صدا" data-idle="۱ ضبط صدا  ·  ۲ تبدیل به متن  ·  ۳ تأیید مشخصات جلسه">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="9" y="3.4" width="6" height="11" rx="3" stroke="#ffffff" stroke-width="1.7"/>
+              <path d="M6.4 11.2a5.6 5.6 0 0 0 11.2 0M12 16.8V20.4M9 20.4h6" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="hint" type="text" placeholder="پیام خود را بنویسید یا از طریق صدا ارسال کنید..." aria-label="پیام">
+          <button class="send" id="meeting-send" type="button" aria-label="ثبت جلسه">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3.2 11.2 20 4.2l-6.6 16.2-2.6-6.4-7.6-2.8z" fill="#ffffff"/>
+            </svg>
+          </button>
+        </div>
+      </section>
     </div>
+
+    <div class="meeting-panel" id="panel-members" data-panel="members" role="tabpanel" aria-labelledby="tab-members" hidden>
+      <section class="card">
+        <div class="members-head">
+          <div>
+            <h2>اعضای جلسه</h2>
+            <p class="member-note">سازنده بعد از ثبت، مدیر همین جلسه می‌شود. عضو را از سامانه یا از افراد خارج سامانه انتخاب کنید.</p>
+          </div>
+          <button class="add-btn" id="meeting-add-member" type="button" aria-expanded="false" aria-controls="meeting-add-panel">افزودن عضو</button>
+        </div>
+        <div id="meeting-add-panel" hidden>
+          <div class="member-sources" role="tablist" aria-label="منبع عضو">
+            <button class="source-opt on" id="meeting-source-system" type="button" role="tab" aria-selected="true" data-source="system">از سامانه</button>
+            <button class="source-opt" id="meeting-source-external" type="button" role="tab" aria-selected="false" data-source="external">خارج از سامانه</button>
+          </div>
+          <input class="member-search" id="meeting-member-search" type="search" placeholder="جستجو در اعضای سامانه..." aria-label="جستجو در اعضا">
+          <div id="meeting-member-picker" class="member-picker"></div>
+          <form class="external-add" id="meeting-external-form" hidden>
+            <label class="box">
+              <input id="meeting-external-name" type="text" placeholder="نام فرد خارج از سامانه" autocomplete="name">
+            </label>
+            <label class="box">
+              <input id="meeting-external-phone" type="tel" placeholder="تلفن (اختیاری)" autocomplete="tel">
+            </label>
+            <button class="add-btn" type="submit">ثبت فرد خارج از سامانه</button>
+          </form>
+        </div>
+        <div id="meeting-member-list"></div>
+      </section>
+    </div>
+
+    <div class="meeting-panel" id="panel-calendar" data-panel="calendar" role="tabpanel" aria-labelledby="tab-calendar" hidden>
+      <section class="card">
+        <div class="card-h">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.4" y="5" width="17.2" height="15.2" rx="2.4" stroke="#4ad4ff" stroke-width="1.7"/>
+            <path d="M3.4 9.5h17.2M8 3.2v3.2M16 3.2v3.2" stroke="#4ad4ff" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <h2 class="grow">تقویم جلسه</h2>
+          <button class="cal-from" id="fill-from-calendar" type="button">از تقویم گوگل</button>
+        </div>
+        <div class="month">
+          <button class="nav-ch" type="button" aria-label="ماه بعد">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3.2 10.8 8 6 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <strong id="meeting-month">—</strong>
+          <button class="nav-ch" type="button" aria-label="ماه قبل">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3.2 5.2 8 10 12.8" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="week">
+          <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
+        </div>
+        <div class="days" id="days">
+          <span class="day blank"></span><span class="day blank"></span>
+          <button class="day" type="button" data-day="1">۱</button>
+          <button class="day" type="button" data-day="2">۲</button>
+          <button class="day" type="button" data-day="3">۳</button>
+          <button class="day" type="button" data-day="4">۴</button>
+          <button class="day" type="button" data-day="5">۵</button>
+          <button class="day" type="button" data-day="6">۶</button>
+          <button class="day" type="button" data-day="7">۷</button>
+          <button class="day" type="button" data-day="8">۸</button>
+          <button class="day" type="button" data-day="9">۹</button>
+          <button class="day" type="button" data-day="10">۱۰</button>
+          <button class="day" type="button" data-day="11">۱۱</button>
+          <button class="day" type="button" data-day="12">۱۲</button>
+          <button class="day today" type="button" data-day="13">۱۳</button>
+          <button class="day" type="button" data-day="14">۱۴</button>
+          <button class="day" type="button" data-day="15">۱۵</button>
+          <button class="day" type="button" data-day="16">۱۶</button>
+          <button class="day sel" type="button" data-day="17">۱۷</button>
+          <button class="day" type="button" data-day="18">۱۸</button>
+          <button class="day" type="button" data-day="19">۱۹</button>
+          <button class="day" type="button" data-day="20">۲۰</button>
+          <button class="day" type="button" data-day="21">۲۱</button>
+          <button class="day" type="button" data-day="22">۲۲</button>
+          <button class="day" type="button" data-day="23">۲۳</button>
+          <button class="day" type="button" data-day="24">۲۴</button>
+          <button class="day" type="button" data-day="25">۲۵</button>
+          <button class="day" type="button" data-day="26">۲۶</button>
+          <button class="day" type="button" data-day="27">۲۷</button>
+          <button class="day" type="button" data-day="28">۲۸</button>
+          <button class="day" type="button" data-day="29">۲۹</button>
+          <button class="day" type="button" data-day="30">۳۰</button>
+          <span class="day blank"></span><span class="day blank"></span><span class="day blank"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="meeting-panel" id="panel-meetings" data-panel="meetings" role="tabpanel" aria-labelledby="tab-meetings" hidden>
+      <div id="meeting-list"></div>
+    </div>
+
+    <button class="meet-submit" id="meeting-submit" type="button">ثبت جلسه</button>
   </main>
   <script src="mobile-app.js"></script>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".meeting-switch .switch-opt");
+      var panels = document.querySelectorAll(".meeting-panel");
+      var submit = document.getElementById("meeting-submit");
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var name = button.getAttribute("data-panel");
+          buttons.forEach(function (item) {
+            var on = item === button;
+            item.classList.toggle("on", on);
+            item.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          panels.forEach(function (panel) {
+            panel.hidden = panel.getAttribute("data-panel") !== name;
+          });
+          if (submit) submit.hidden = name === "meetings";
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
