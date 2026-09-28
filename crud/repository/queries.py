@@ -157,8 +157,24 @@ def fetch_project_record(project_id: int):
     )
 
 
-def fetch_projects_for_actor_records(user_id: int, limit: int, offset: int) -> list:
-    """پروژه‌هایی را می‌خواند که کاربر عضو فعال‌شان است."""
+def fetch_projects_for_actor_records(
+    user_id: int,
+    limit: int,
+    offset: int,
+    unrestricted: bool = False,
+) -> list:
+    """پروژه‌های قابل‌مشاهده: همه برای مدیر کل، وگرنه عضویت فعال."""
+    if unrestricted:
+        return fetch_many(
+            f"""
+            {_PROJECT_SELECT}
+            WHERE ps.name <> %s
+            ORDER BY p.id DESC
+            LIMIT %s OFFSET %s
+            """,
+            [CANCELLED_STATUS_NAME, limit, offset],
+            PROJECT_COLUMNS,
+        )
     return fetch_many(
         f"""
         {_PROJECT_SELECT}
@@ -294,15 +310,24 @@ def fetch_tasks_for_actor_records(
     limit: int,
     offset: int,
     project_id=None,
+    scope: str = "member",
 ) -> list:
-    """وظایف پروژه‌هایی را می‌خواند که کاربر عضو فعال‌شان است."""
-    sql = f"""
-        {_TASK_SELECT}
+    """وظایف را با محدودهٔ مدیر کل، مدیر سازمان، یا مسئول وظیفه می‌خواند."""
+    sql = f"{_TASK_SELECT}"
+    params = []
+    if scope == "all":
+        sql += " WHERE ts.name <> %s"
+        params.append(CANCELLED_STATUS_NAME)
+    else:
+        sql += """
         JOIN project_members pm ON pm.project_id = t.project_id
         WHERE pm.user_id = %s AND pm.is_active = true
           AND ts.name <> %s
-    """
-    params = [user_id, CANCELLED_STATUS_NAME]
+        """
+        params.extend([user_id, CANCELLED_STATUS_NAME])
+        if scope == "assigned":
+            sql += " AND t.assigned_to_user_id = %s"
+            params.append(user_id)
     if project_id is not None:
         sql += " AND t.project_id = %s"
         params.append(project_id)

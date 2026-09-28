@@ -2,7 +2,7 @@
 
 from mcp.server.mcpserver import MCPServer
 
-from auth.gate import require_permission
+from auth.gate import require_active_actor
 from business_logic.transcribe import transcribe_file
 from errors.crud import format_error, format_success
 from logging_module import logged_tool
@@ -15,7 +15,7 @@ from validators.audio import validate_transcribe_audio
 def run_transcribe_audio(file_path: str, language: str = "fa-IR") -> dict:
     """مسیر کامل رونویسی فایل را بدون دکوراتور MCP اجرا می‌کند."""
     try:
-        require_permission("Content", "Read")
+        require_active_actor()
         parsed = validate_transcribe_audio(file_path, language)
         text = transcribe_file(parsed["file_path"], parsed["language"])
         return format_success(

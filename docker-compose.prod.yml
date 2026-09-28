@@ -1,0 +1,91 @@
+version: "2.4"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: management_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/sql:ro
+      - ./deploy/postgres/initdb.sh:/docker-entrypoint-initdb.d/000_apply_sql.sh:ro
+    networks:
+      - management_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: management_backend:local
+    container_name: management_backend
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      API_HOST: 0.0.0.0
+      API_PORT: "8080"
+      FFMPEG_PATH: /usr/local/bin/ffmpeg
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    volumes:
+      - media_data:/app/stt/media
+      - /usr/local/bin/ffmpeg:/usr/local/bin/ffmpeg:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - management_network
+    expose:
+      - "8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection(('127.0.0.1', 8080), 2); s.close()",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: management_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d/http.conf:/etc/nginx/mgmt-templates/http.conf:ro
+      - ./deploy/nginx/http-redirect.conf:/etc/nginx/mgmt-templates/http-redirect.conf:ro
+      - ./deploy/nginx/https.conf:/etc/nginx/mgmt-templates/https.conf:ro
+      - ./deploy/nginx/40-enable-ssl.sh:/docker-entrypoint.d/40-enable-ssl.sh:ro
+      - ./deploy/nginx/certs:/etc/nginx/certs:ro
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - backend
+    networks:
+      - management_network
+
+networks:
+  management_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  media_data:
+  certbot_www:

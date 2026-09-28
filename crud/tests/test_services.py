@@ -4,6 +4,7 @@
 """
 
 from pathlib import Path
+import os
 import sys
 import unittest
 
@@ -111,11 +112,25 @@ class ConnectionTests(unittest.TestCase):
     def test_yaml_points_at_management_postgres(self) -> None:
         source = load_database_config()
         self.assertEqual(source["type"], "postgresql")
-        self.assertEqual(source["host"], "127.0.0.1")
-        self.assertEqual(int(source["port"]), 5437)
-        self.assertEqual(source["database"], "management_db")
-        self.assertEqual(source["user"], "management")
+        expected_host = (os.environ.get("POSTGRES_HOST") or "127.0.0.1").strip()
+        expected_port = int((os.environ.get("POSTGRES_PORT") or "5437").strip())
+        self.assertEqual(source["host"], expected_host)
+        self.assertEqual(int(source["port"]), expected_port)
+        self.assertEqual(source["database"], os.environ.get("POSTGRES_DB") or "management_db")
+        self.assertEqual(source["user"], os.environ.get("POSTGRES_USER") or "management")
         self.assertEqual(source["users_table"], "users")
+
+    def test_postgres_env_overrides_yaml_host(self) -> None:
+        previous = os.environ.get("POSTGRES_HOST")
+        os.environ["POSTGRES_HOST"] = "postgres"
+        try:
+            source = load_database_config()
+            self.assertEqual(source["host"], "postgres")
+        finally:
+            if previous is None:
+                os.environ.pop("POSTGRES_HOST", None)
+            else:
+                os.environ["POSTGRES_HOST"] = previous
 
     def test_timeout_is_ten_seconds(self) -> None:
         self.assertEqual(load_timeout_ms(), 10_000)

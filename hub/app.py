@@ -6,6 +6,7 @@ CORS، و ترجمهٔ درخواست HTTP به همان ابزار است.
 
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
+import base64
 import json
 import logging
 from pathlib import Path
@@ -122,9 +123,14 @@ def create_app(settings: dict | None = None) -> CORSMiddleware:
             )
         )
     inner = Starlette(routes=routes, lifespan=lifespan)
+    origins = list(chosen["cors_origins"])
+    for extra in ("https://localhost", "http://localhost", "capacitor://localhost"):
+        if extra not in origins:
+            origins.append(extra)
     return CORSMiddleware(
         inner,
-        allow_origins=list(chosen["cors_origins"]),
+        allow_origins=origins,
+        allow_origin_regex=r"https?://localhost(:\d+)?",
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
         expose_headers=["X-Request-Id"],
@@ -270,6 +276,9 @@ _AUDIO_SUFFIX = {
     "audio/x-wav": ".wav",
     "audio/mpeg": ".mp3",
     "audio/mp4": ".m4a",
+    "audio/aac": ".aac",
+    "audio/3gpp": ".3gp",
+    "audio/amr": ".amr",
 }
 
 
@@ -280,13 +289,28 @@ async def transcribe_speech(request: Request) -> Json:
         return failure
     if "stt" not in request.app.state.settings["domains"]:
         return _error(DOMAIN_UNAVAILABLE, "تبدیل گفتار روی این سرور فعال نیست")
-    body = await request.body()
+    content_type = (request.headers.get("content-type") or "").split(";")[0].strip().lower()
+    if content_type in {"application/json", "text/json"}:
+        payload = await _json_object(request)
+        if isinstance(payload, Json):
+            return payload
+        raw = str(payload.get("audio_base64") or payload.get("data") or "").strip()
+        if not raw:
+            return _error(INVALID_INPUT, "فایل صوتی خالی است")
+        try:
+            body = base64.b64decode(raw)
+        except (ValueError, TypeError):
+            return _error(INVALID_INPUT, "فایل صوتی نامعتبر است")
+        content_type = str(payload.get("mime_type") or "audio/webm").split(";")[0].strip().lower()
+    else:
+        body = await request.body()
+        if not content_type:
+            content_type = "audio/webm"
     limit = request.app.state.settings["max_body_bytes"]
     if not body:
         return _error(INVALID_INPUT, "فایل صوتی خالی است")
     if len(body) > limit:
         return _error(PAYLOAD_TOO_LARGE, "حجم صدا از حد مجاز بیشتر است")
-    content_type = (request.headers.get("content-type") or "audio/webm").split(";")[0].strip().lower()
     suffix = _AUDIO_SUFFIX.get(content_type, ".webm")
     temp_path = None
     try:

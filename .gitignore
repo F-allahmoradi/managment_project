@@ -1,9 +1,14 @@
 venv/
 .venv/
+web/www/
 __pycache__/
 *.py[cod]
 *.egg-info/
 .env
+.env.production
+deploy/nginx/certs/*
+!deploy/nginx/certs/.gitkeep
+deploy/postgres/backups/
 .pytest_cache/
 .mypy_cache/
 **/logs/*.log
@@ -12,3 +17,5 @@ web/node_modules/
 web/dist/
 web/.vite/
 stt/media/
+docker_packages/
+web/mobile-api-base.txt

@@ -5,6 +5,7 @@ project_members می‌شود. فهرست فقط پروژه‌هایی را بر
 که کاربر جاری عضو فعال‌شان است.
 """
 
+from auth.permissions import is_director
 from errors.crud import InvalidInputError, ProjectNotFoundError
 from logging_module import logged_step
 from repository import (
@@ -55,8 +56,13 @@ def fetch_active_membership(project_id: int, user_id: int):
 
 
 def fetch_projects_for_actor(user_id: int, limit: int, offset: int) -> list:
-    """پروژه‌هایی را می‌خواند که کاربر عضو فعال‌شان است."""
-    return fetch_projects_for_actor_records(user_id, limit, offset)
+    """مدیر کل همهٔ پروژه‌ها را می‌بیند؛ بقیه فقط عضویت فعال."""
+    return fetch_projects_for_actor_records(
+        user_id,
+        limit,
+        offset,
+        unrestricted=is_director(user_id),
+    )
 
 
 def _resolve_type_and_status(fields: dict) -> tuple[int, int]:

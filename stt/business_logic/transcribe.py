@@ -1,15 +1,22 @@
-"""تبدیل گفتار به متن با Google Web Speech API.
+"""تبدیل گفتار به متن.
 
-همان موتور پروژه ایجنت وقایع است: speech_recognition + ffmpeg.
-فایل قبل از ارسال به گوگل مونو ۱۶ کیلوهرتز می‌شود تا حجم و زمان کمتر شود.
-ffmpeg روی لینوکس از PATH خوانده می‌شود؛ ffmpeg.exe محلی هم پذیرفته است.
+فایل با ffmpeg در صورت نیاز مونو ۱۶ کیلوهرتز می‌شود.
+اگر کلید AvalAI باشد از /audio/transcriptions می‌رود؛
+مدل پیش‌فرض gpt-transcribe است چون whisper-1 در آن سرویس قطع شده.
+بدون کلید، Google Web Speech استفاده می‌شود.
 متن خام گفتار در لاگ نمی‌آید.
 """
 
 from pathlib import Path
+import json
+import os
 import shutil
+import ssl
 import subprocess
 import tempfile
+import urllib.error
+import urllib.request
+import uuid
 
 from logging_module import logged_step
 from paths import STT_ROOT, load_crud_symbol
@@ -32,10 +39,16 @@ _QUALITY_ENERGY = {
 
 def _ffmpeg_path() -> str | None:
     """مسیر ffmpeg محلی یا سیستمی را برمی‌گرداند."""
+    configured = (os.environ.get("FFMPEG_PATH") or "").strip()
+    if configured and Path(configured).is_file():
+        return configured
     local_win = STT_ROOT.parent / "ffmpeg.exe"
     if local_win.exists():
         return str(local_win)
-    bundled = STT_ROOT / "ffmpeg.exe"
+    bundled_win = STT_ROOT / "ffmpeg.exe"
+    if bundled_win.exists():
+        return str(bundled_win)
+    bundled = STT_ROOT / "ffmpeg"
     if bundled.exists():
         return str(bundled)
     return shutil.which("ffmpeg")
@@ -96,7 +109,47 @@ def _wav_for_google(src: Path) -> str:
     return wav_path
 
 
-def _recognize(audio_data, language: str) -> str:
+def _cloud_key() -> str:
+    """کلید همان سرویس مدل زبانی سرور است."""
+    return (
+        os.environ.get("NLP_LLM_API_KEY")
+        or os.environ.get("AVALAI_API_KEY")
+        or ""
+    ).strip()
+
+
+_AVALAI_FILES = {
+    ".flac",
+    ".mp3",
+    ".mp4",
+    ".mpeg",
+    ".mpga",
+    ".m4a",
+    ".aac",
+    ".ogg",
+    ".wav",
+    ".webm",
+}
+
+_STT_MODELS = (
+    "gpt-transcribe",
+    "gpt-4o-mini-transcribe",
+    "groq.whisper-large-v3-turbo",
+    "whisper-1",
+)
+
+
+def _stt_models() -> list[str]:
+    """مدل تنظیم‌شده را اول می‌گذارد؛ بقیه فقط اگر آن یکی قطع باشد."""
+    preferred = (os.environ.get("STT_MODEL") or "gpt-transcribe").strip()
+    ordered: list[str] = []
+    for name in [preferred, *_STT_MODELS]:
+        if name and name not in ordered:
+            ordered.append(name)
+    return ordered
+
+
+def _recognize_google(audio_data, language: str) -> str:
     """صدا را با Google Web Speech به متن تبدیل می‌کند."""
     import speech_recognition as sr
 
@@ -118,21 +171,135 @@ def _recognize(audio_data, language: str) -> str:
     return cleaned
 
 
+def _recognize_avalai(file_path: str, language: str, model: str) -> str:
+    """فایل را با مسیر OpenAI-سازگار AvalAI به متن تبدیل می‌کند."""
+    key = _cloud_key()
+    if not key:
+        raise SttProviderError("کلید تبدیل صدا روی سرور نیست")
+    base = (
+        os.environ.get("AVALAI_BASE_URL") or "https://api.avalai.ir/v1"
+    ).strip().rstrip("/")
+    path = Path(file_path)
+    suffix = path.suffix.lower() or ".wav"
+    mime = {
+        ".wav": "audio/wav",
+        ".webm": "audio/webm",
+        ".ogg": "audio/ogg",
+        ".mp3": "audio/mpeg",
+        ".m4a": "audio/mp4",
+        ".mp4": "audio/mp4",
+        ".aac": "audio/aac",
+        ".flac": "audio/flac",
+    }.get(suffix, "application/octet-stream")
+    lang = (language or "fa").split("-", 1)[0]
+    boundary = "----mgmtstt" + uuid.uuid4().hex
+
+    def field(name: str, value: str) -> list[bytes]:
+        return [
+            f"--{boundary}\r\n".encode("utf-8"),
+            f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode("utf-8"),
+            value.encode("utf-8"),
+            b"\r\n",
+        ]
+
+    parts: list[bytes] = []
+    parts.extend(field("model", model))
+    if "whisper" in model.lower():
+        parts.extend(field("language", lang))
+    parts.extend(
+        [
+            f"--{boundary}\r\n".encode("utf-8"),
+            (
+                'Content-Disposition: form-data; name="file"; '
+                f'filename="speech{suffix}"\r\n'
+                f"Content-Type: {mime}\r\n\r\n"
+            ).encode("utf-8"),
+            path.read_bytes(),
+            b"\r\n",
+            f"--{boundary}--\r\n".encode("utf-8"),
+        ]
+    )
+    request = urllib.request.Request(
+        base + "/audio/transcriptions",
+        data=b"".join(parts),
+        method="POST",
+        headers={
+            "Authorization": "Bearer " + key,
+            "Content-Type": "multipart/form-data; boundary=" + boundary,
+        },
+    )
+    context = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(request, timeout=45, context=context) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except TimeoutError as exc:
+        raise SttTimeoutError("زمان پاسخ سرویس تبدیل صدا تمام شد") from exc
+    except urllib.error.HTTPError as exc:
+        if exc.code in {401, 403}:
+            raise SttProviderError("کلید تبدیل صدا روی این سرور پذیرفته نشد") from exc
+        if exc.code in {404, 410}:
+            raise SttProviderError("مدل تبدیل صدا روی این حساب فعال نیست") from exc
+        raise SttProviderError("سرویس تبدیل صدا پاسخ نامعتبر داد") from exc
+    except urllib.error.URLError as exc:
+        raise SttProviderError("ارتباط با سرویس تبدیل صدا برقرار نشد") from exc
+    text = ""
+    if isinstance(payload, dict):
+        text = str(payload.get("text") or "").strip()
+    if not text:
+        raise SttUnrecognizedError("صحبت تشخیص داده نشد")
+    return text
+
+
+def _cloud_file(src: Path) -> str:
+    """فرمت‌های پذیرفتهٔ AvalAI را همان‌طور می‌فرستد؛ بقیه WAV می‌شوند."""
+    if src.suffix.lower() in _AVALAI_FILES:
+        return str(src)
+    return _wav_for_google(src)
+
+
+def _recognize_cloud(file_path: str, language: str) -> str:
+    """مدل تنظیم‌شده را می‌زند؛ اگر قطع باشد مدل بعدی همان سرویس."""
+    last_error: Exception | None = None
+    for model in _stt_models():
+        try:
+            return _recognize_avalai(file_path, language, model)
+        except (SttUnrecognizedError, EmptyTranscriptError, SttTimeoutError):
+            raise
+        except SttProviderError as exc:
+            if "پذیرفته نشد" in str(exc):
+                raise
+            last_error = exc
+            continue
+    if last_error is not None:
+        raise last_error
+    raise SttProviderError("سرویس تبدیل صدا پاسخ نامعتبر داد")
+
+
+def _recognize_google_file(wav_path: str, language: str) -> str:
+    """WAV را با Google Web Speech می‌خواند."""
+    import speech_recognition as sr
+
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(wav_path) as source:
+        audio_data = recognizer.record(source)
+    return _recognize_google(audio_data, language)
+
+
 @logged_step("transcribe")
 def transcribe_file(file_path: str, language: str = "fa-IR") -> str:
     """فایل صوتی را به wav سبک تبدیل می‌کند و متن فارسی برمی‌گرداند."""
-    import speech_recognition as sr
-
     path = Path(file_path).expanduser()
     if not path.is_file():
         raise InvalidInputError("فایل صوتی پیدا نشد")
     wav_path = None
     try:
+        if _cloud_key():
+            cloud_path = _cloud_file(path)
+            if cloud_path != str(path):
+                wav_path = cloud_path
+            return _recognize_cloud(cloud_path, language)
         wav_path = _wav_for_google(path)
-        recognizer = sr.Recognizer()
-        with sr.AudioFile(wav_path) as source:
-            audio_data = recognizer.record(source)
-        return _recognize(audio_data, language)
+        return _recognize_google_file(wav_path, language)
     except (
         InvalidInputError,
         EmptyTranscriptError,
@@ -174,7 +341,7 @@ def listen_and_transcribe(
         raise SttTimeoutError("زمان انتظار شروع صحبت تمام شد") from exc
     except OSError as exc:
         raise ConfigError("میکروفون در دسترس نیست") from exc
-    return _recognize(audio_data, language)
+    return _recognize_google(audio_data, language)
 
 
 @logged_step("insert")
@@ -235,6 +402,8 @@ def save_voice_from_path(
         ".ogg": "audio/ogg",
         ".mp3": "audio/mpeg",
         ".m4a": "audio/mp4",
+        ".3gp": "audio/3gpp",
+        ".amr": "audio/amr",
     }.get(path.suffix.lower(), "application/octet-stream")
     return save_voice_and_transcript(
         text,

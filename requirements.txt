@@ -3,3 +3,7 @@ pydantic==2.13.5
 psycopg2-binary==2.9.12
 PyYAML==6.0.3
 uvicorn==0.53.0
+starlette==1.6.0
+python-multipart==0.0.32
+pydub==0.25.1
+SpeechRecognition==3.17.0

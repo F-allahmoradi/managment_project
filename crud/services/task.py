@@ -5,6 +5,7 @@
 عوض کردن وضعیت کار ردیف پیگیری نمی‌سازد.
 """
 
+from auth.permissions import is_director, is_org_manager
 from errors.crud import InvalidInputError, TaskNotFoundError
 from logging_module import logged_step
 from repository import (
@@ -91,8 +92,20 @@ def fetch_tasks_for_actor(
     offset: int,
     project_id=None,
 ) -> list:
-    """وظایف پروژه‌هایی را می‌خواند که کاربر عضو فعال‌شان است."""
-    return fetch_tasks_for_actor_records(user_id, limit, offset, project_id)
+    """مدیر کل همه، مدیر سازمان پروژهٔ خودش، عضو فقط وظیفهٔ خودش."""
+    if is_director(user_id):
+        scope = "all"
+    elif is_org_manager(user_id):
+        scope = "member"
+    else:
+        scope = "assigned"
+    return fetch_tasks_for_actor_records(
+        user_id,
+        limit,
+        offset,
+        project_id,
+        scope=scope,
+    )
 
 
 def _lookup_name(entity_key: str, lookup_id) -> str:

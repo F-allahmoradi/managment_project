@@ -166,10 +166,10 @@
       </div>
 
       <form id="auth-form" novalidate>
-        <label id="server-label">آدرس سرور
+        <label id="server-label" hidden>آدرس سرور
           <input id="server-url" dir="ltr" inputmode="url" autocomplete="url" placeholder="http://192.168.1.10:8080" spellcheck="false">
         </label>
-        <p class="note" id="server-note">آی‌پی رایانهٔ سرور در همین شبکه، با درگاه ۸۰۸۰. گوشی و رایانه باید روی یک وای‌فای باشند.</p>
+        <p class="note" id="server-note" hidden>روی سرور عمومی: http://آی‌پی بدون پورت ۸۰۸۰ و بدون /api. روی وای‌فای محلی: http://آی‌پی-رایانه:8080</p>
         <div class="row" data-register hidden>
           <label>نام<input id="first-name" autocomplete="given-name"></label>
           <label>نام خانوادگی<input id="last-name" autocomplete="family-name"></label>
@@ -204,11 +204,11 @@
     var serverNote = document.getElementById("server-note");
     var serverField = document.getElementById("server-url");
     var onVite = location.port === "5188";
+    var askServer = !onVite && MobileSession.needsServer();
 
-    if (onVite) {
-      serverLabel.hidden = true;
-      serverNote.hidden = true;
-    } else {
+    serverLabel.hidden = !askServer;
+    serverNote.hidden = !askServer;
+    if (askServer) {
       serverField.value = MobileSession.getApiBase();
     }
 
@@ -265,17 +265,16 @@
         return;
       }
 
-      if (!onVite) {
+      if (askServer) {
         var server = serverField.value.trim();
-        if (!server && MobileSession.needsServer()) {
+        if (!server) {
           showError("آدرس سرور را وارد کنید. مثلاً http://192.168.1.10:8080");
           return;
         }
-        if (server && MobileSession.setApiBase(server) === null) {
+        if (MobileSession.setApiBase(server) === null) {
           showError("آدرس سرور باید با http:// یا https:// شروع شود");
           return;
         }
-        if (!server) MobileSession.setApiBase("");
       }
 
       submit.disabled = true;

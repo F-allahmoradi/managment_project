@@ -7,6 +7,7 @@ project_members پروژه را محدود می‌کند. عضویت در chat_m
 
 from logging_module import logged_step
 
+from auth.permissions import is_director
 from errors.crud import ChatNotFoundError, PermissionDeniedError, ProjectNotFoundError
 from services.project import fetch_active_membership, project_exists
 
@@ -14,19 +15,18 @@ from services.project import fetch_active_membership, project_exists
 def require_active_project_member(user_id: int, project_id: int) -> dict:
     """اگر کاربر عضو فعال پروژه نباشد خطا می‌دهد.
 
-    ورودی:
-        user_id: شناسه کاربر جاری.
-        project_id: شناسه پروژه هدف.
-    خروجی:
-        دیکشنری عضویت فعال در صورت مجاز بودن.
-    فراخوانی‌ها:
-        project_exists، fetch_active_membership.
-    علت:
-        مجوز Project/Update سراسری است؛ محدوده می‌گوید کدام پروژه.
-    خطاها:
-        PROJECT_NOT_FOUND اگر پروژه نباشد.
-        PERMISSION_DENIED اگر عضو فعال نباشد.
+    مدیر کل بدون عضویت هم به همهٔ پروژه‌ها راه دارد.
     """
+    if is_director(user_id):
+        if not project_exists(project_id):
+            raise ProjectNotFoundError(f"پروژه با شناسه {project_id} پیدا نشد")
+        return {
+            "id": None,
+            "project_id": project_id,
+            "user_id": user_id,
+            "project_role_id": None,
+            "is_active": True,
+        }
     membership = fetch_active_membership(project_id, user_id)
     if membership is not None:
         return membership

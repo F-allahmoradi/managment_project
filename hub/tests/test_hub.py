@@ -5,6 +5,7 @@ from hub.bootstrap import install_hub_import_path
 install_hub_import_path()
 
 import os
+import threading
 import time
 import unittest
 
@@ -274,6 +275,30 @@ class AnalysisPipelineTests(unittest.TestCase):
         self.assertEqual(len(first), 10)
         self.assertEqual(calls, first)
 
+    def test_preview_job_first_snapshot_is_not_ready(self) -> None:
+        gate = threading.Event()
+
+        class FakePool:
+            def call(self, domain, tool, arguments, actor_id):
+                gate.wait(2)
+                if tool.startswith("extract_"):
+                    return {"status": "success", "mentions": [{"canonical_name": "سارا"}]}
+                raise AssertionError(tool)
+
+        started = start_preview_job(FakePool(), ("ner",), 4, "message", 21)
+        self.assertEqual(started["phase"], "running")
+        self.assertFalse(started["ready"])
+        self.assertEqual((started.get("fields") or {}).get("mentions") or [], [])
+        gate.set()
+        snapshot = started
+        for _ in range(80):
+            snapshot = get_preview_job(started["job_id"], 4)
+            if snapshot.get("ready"):
+                break
+            time.sleep(0.01)
+        self.assertTrue(snapshot.get("ready"))
+        self.assertEqual(snapshot["phase"], "done")
+
     def test_preview_job_polls_until_layers_complete(self) -> None:
         class FakePool:
             def call(self, domain, tool, arguments, actor_id):
@@ -291,6 +316,7 @@ class AnalysisPipelineTests(unittest.TestCase):
                 break
             time.sleep(0.01)
         self.assertEqual(snapshot["phase"], "done")
+        self.assertTrue(snapshot.get("ready"))
         self.assertEqual(len(snapshot["completed_layers"]), 10)
         self.assertEqual(len(snapshot["planned_layers"]), 10)
 

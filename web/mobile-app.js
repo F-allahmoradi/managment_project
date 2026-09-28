@@ -1681,8 +1681,14 @@
       var sheet = document.createElement("div");
       sheet.className = "review-sheet";
       var blocks = reviewLines(fields);
-      var body = blocks.length
-        ? blocks.map(function (block) {
+      var errors = preview.layer_errors || {};
+      var errorKeys = Object.keys(errors);
+      var unfinished = preview.phase && preview.phase !== "done" && preview.ready !== true;
+      var body;
+      if (unfinished) {
+        body = "<p class='review-note'>" + escapeHtml(preview.message || "استخراج هنوز تمام نشده. چند لحظه صبر کنید و دوباره بزنید.") + "</p>";
+      } else if (blocks.length) {
+        body = blocks.map(function (block) {
             return (
               "<section class='review-group'><strong>" +
               block.title +
@@ -1695,9 +1701,17 @@
               }).join("") +
               "</ul></section>"
             );
-          }).join("")
-        : "<p class='review-note'>موردی از این متن استخراج نشد.</p>";
-      var warn = preview.layer_errors && Object.keys(preview.layer_errors).length
+          }).join("");
+      } else if (errorKeys.length) {
+        body = "<p class='review-note'>استخراج این لایه‌ها انجام نشد:</p><ul>" +
+          errorKeys.map(function (key) {
+            return "<li>" + escapeHtml(key) + " — " + escapeHtml(errors[key]) + "</li>";
+          }).join("") +
+          "</ul>";
+      } else {
+        body = "<p class='review-note'>موردی از این متن استخراج نشد.</p>";
+      }
+      var warn = errorKeys.length && blocks.length
         ? "<p class='review-note'>برخی لایه‌ها نیامدند.</p>"
         : "";
       sheet.innerHTML =
@@ -1707,8 +1721,10 @@
         warn +
         body +
         "<div class='review-actions'>" +
-        "<button class='primary-btn' type='button' data-act='save'>ذخیره در پایگاه</button>" +
-        "<button class='ghost-btn' type='button' data-act='cancel'>انصراف</button>" +
+        (unfinished
+          ? "<button class='ghost-btn' type='button' data-act='cancel'>بستن</button>"
+          : "<button class='primary-btn' type='button' data-act='save'>ذخیره در پایگاه</button>" +
+            "<button class='ghost-btn' type='button' data-act='cancel'>انصراف</button>") +
         "</div></div>";
       document.body.appendChild(sheet);
       sheet.addEventListener("click", async function (event) {
@@ -1739,7 +1755,9 @@
   async function analyzeSaved(sourceType, sourceId) {
     toast("متن خام ذخیره شد. در حال استخراج…");
     try {
-      var preview = await S.previewAnalysis(sourceType, sourceId);
+      var preview = await S.previewAnalysis(sourceType, sourceId, function (snapshot) {
+        if (snapshot && snapshot.message) toast(snapshot.message);
+      });
       return await openReview(preview);
     } catch (error) {
       toast("متن خام ذخیره شد، اما استخراج انجام نشد: " + error.message);

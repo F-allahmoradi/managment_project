@@ -1,10 +1,12 @@
 """اتصال PostgreSQL با سقف زمانی ۱۰ ثانیه برای هر کوئری.
 
-جزئیات host و رمز از config/datasets.yaml خوانده می‌شود.
+جزئیات پیش‌فرض از config/datasets.yaml می‌آید.
+در Production همان فیلدها با POSTGRES_* از محیط جایگزین می‌شوند.
 مدت timeout از config/policies.yaml می‌آید.
 """
 
 from pathlib import Path
+import os
 
 import psycopg2
 import yaml
@@ -23,13 +25,35 @@ def _read_yaml(relative_path: str) -> dict:
         return yaml.safe_load(handle)
 
 
+def _overlay_env(source: dict) -> dict:
+    """مقادیر اتصال را در صورت وجود متغیر محیط روی YAML می‌گذارد."""
+    merged = dict(source)
+    host = (os.environ.get("POSTGRES_HOST") or "").strip()
+    if host:
+        merged["host"] = host
+    port = (os.environ.get("POSTGRES_PORT") or "").strip()
+    if port:
+        merged["port"] = int(port)
+    database = (os.environ.get("POSTGRES_DB") or "").strip()
+    if database:
+        merged["database"] = database
+    user = (os.environ.get("POSTGRES_USER") or "").strip()
+    if user:
+        merged["user"] = user
+    if os.environ.get("POSTGRES_PASSWORD") is not None:
+        password = os.environ.get("POSTGRES_PASSWORD")
+        if str(password).strip() != "":
+            merged["password"] = password
+    return merged
+
+
 def load_database_config() -> dict:
-    """بلوک اتصال management را از datasets.yaml برمی‌گرداند."""
+    """بلوک اتصال management را از YAML و متغیر محیط برمی‌گرداند."""
     datasets = _read_yaml("config/datasets.yaml")
     source = datasets[_SOURCE_KEY]
     if source.get("type") != "postgresql":
         raise DatabaseError("منبع management باید از نوع postgresql باشد")
-    return source
+    return _overlay_env(source)
 
 
 def open_connection():

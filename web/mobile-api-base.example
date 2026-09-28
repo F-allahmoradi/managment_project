@@ -1,0 +1,3 @@
+# کپی: cp web/mobile-api-base.example web/mobile-api-base.txt
+# فقط هنگام ساخت APK لازم است. کاربر در صفحه ورود آدرس نمی‌نویسد.
+http://45.156.186.141

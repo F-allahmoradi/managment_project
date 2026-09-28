@@ -464,6 +464,7 @@ def _job_snapshot(job) -> dict:
         payload["completed_layers"] = completed
         payload["current_layers"] = []
         payload["cached"] = from_cache
+        payload["ready"] = False
         return payload
     fields = pack_save_fields(source_type, source_id, layers)
     current = [{"key": item.key, "label": item.label} for item in active]
@@ -480,6 +481,7 @@ def _job_snapshot(job) -> dict:
         "status": "success",
         "job_id": job_id,
         "phase": phase,
+        "ready": phase == "done",
         "cached": from_cache,
         "message": status_message if phase != "error" else (message or status_message),
         "error_code": error_code,

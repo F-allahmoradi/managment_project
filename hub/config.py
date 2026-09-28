@@ -30,7 +30,7 @@ def load_settings() -> dict:
         "port": _positive_int(os.environ.get("API_PORT"), 8080),
         "cors_origins": origins or ["*"],
         "session_ttl_hours": _positive_int(os.environ.get("API_SESSION_TTL_HOURS"), 336),
-        "tool_timeout_seconds": _positive_int(os.environ.get("API_TOOL_TIMEOUT_SECONDS"), 180),
+        "tool_timeout_seconds": _positive_int(os.environ.get("API_TOOL_TIMEOUT_SECONDS"), 300),
         "max_body_bytes": _positive_int(os.environ.get("API_MAX_BODY_BYTES"), 8 * 1024 * 1024),
         "domains": domains,
     }

@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import asyncio
+import os
 import sys
 import tempfile
 import unittest
@@ -47,6 +48,50 @@ class ServerPlumbingTests(unittest.TestCase):
         self.assertEqual(by_name["record_audio_to_text"].title, TITLE_RECORD_AUDIO_TO_TEXT)
         self.assertFalse(by_name["record_audio_to_text"].annotations.read_only_hint)
         self.assertEqual(by_name["save_transcript"].title, TITLE_SAVE_TRANSCRIPT)
+
+
+class AvalaiSttTests(unittest.TestCase):
+    """رونویسی ابری وقتی کلید AvalAI باشد."""
+
+    def test_avalai_reads_text_field(self) -> None:
+        from business_logic.transcribe import _recognize_avalai
+
+        class FakeResponse:
+            def read(self):
+                return '{"text": "جلسه فردا ساعت ده"}'.encode("utf-8")
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp.write(b"RIFF")
+            path = tmp.name
+        try:
+            with patch.dict(
+                os.environ,
+                {
+                    "AVALAI_API_KEY": "test-key",
+                    "AVALAI_BASE_URL": "https://example.test/v1",
+                    "STT_MODEL": "whisper-1",
+                },
+                clear=False,
+            ):
+                with patch("urllib.request.urlopen", return_value=FakeResponse()):
+                    text = _recognize_avalai(path, "fa-IR", "whisper-1")
+            self.assertEqual(text, "جلسه فردا ساعت ده")
+        finally:
+            Path(path).unlink(missing_ok=True)
+
+    def test_stt_models_prefer_gpt_transcribe(self) -> None:
+        from business_logic.transcribe import _stt_models
+
+        with patch.dict(os.environ, {"STT_MODEL": ""}, clear=False):
+            models = _stt_models()
+        self.assertEqual(models[0], "gpt-transcribe")
+        self.assertIn("whisper-1", models)
 
 
 class DownsampleCommandTests(unittest.TestCase):

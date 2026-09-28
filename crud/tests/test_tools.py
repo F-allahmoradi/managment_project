@@ -1046,6 +1046,89 @@ class ProjectScopeTests(unittest.TestCase):
             delete_temp_user(reza_id)
             ali.close()
 
+    def test_director_sees_foreign_project_without_membership(self) -> None:
+        ali = bind_actor_as_role("مدیر پروژه")
+        created = run_create_project(
+            name=unique_project_name("مال‌علی"),
+            project_type="نرم‌افزاری",
+            project_status="در حال اجرا",
+        )
+        project_id = created["id"]
+        director = None
+        try:
+            director = bind_actor_as_role("مدیر کل")
+            listed = run_list_projects(limit=50, offset=0)
+            self.assertIn(project_id, {row["id"] for row in listed["records"]})
+            fetched = run_get_project(id=project_id)
+            self.assertEqual(fetched["status"], "success")
+            self.assertEqual(fetched["id"], project_id)
+        finally:
+            if director is not None:
+                director.close()
+            delete_temp_project(project_id)
+            ali.close()
+
+    def test_member_lists_only_own_assigned_task(self) -> None:
+        ali = bind_actor_as_role("مدیر پروژه")
+        reza_id = insert_temp_user(first_name="رضا", last_name="عضو")
+        assign_seed_role(reza_id, "کاربر")
+        project_id = None
+        ali_task_id = None
+        reza_task_id = None
+        try:
+            created = run_create_project(
+                name=unique_project_name("تیم"),
+                project_type="نرم‌افزاری",
+                project_status="در حال اجرا",
+            )
+            project_id = created["id"]
+            run_create_project_member(
+                project_id=project_id,
+                user_id=reza_id,
+                project_role="عضو",
+            )
+            ali_task = run_create_task(
+                project_id=project_id,
+                title=unique_task_title("کار-علی"),
+                status="شروع نشده",
+                priority="کم",
+                importance="متوسط",
+                assigned_to_user_id=ali.user_id,
+            )
+            ali_task_id = ali_task["id"]
+            reza_task = run_create_task(
+                project_id=project_id,
+                title=unique_task_title("کار-رضا"),
+                status="شروع نشده",
+                priority="کم",
+                importance="متوسط",
+                assigned_to_user_id=reza_id,
+            )
+            reza_task_id = reza_task["id"]
+            manager_ids = {row["id"] for row in run_list_tasks(project_id=project_id, limit=50)["records"]}
+            self.assertIn(ali_task_id, manager_ids)
+            self.assertIn(reza_task_id, manager_ids)
+            from tests.conftest import _restore_actor_env, _snapshot_actor_env
+
+            previous = _snapshot_actor_env()
+            try:
+                os.environ["MCP_ACTOR_USER_ID"] = str(reza_id)
+                os.environ.pop("MCP_ACTOR_USERNAME", None)
+                member_ids = {row["id"] for row in run_list_tasks(project_id=project_id, limit=50)["records"]}
+                self.assertIn(reza_task_id, member_ids)
+                self.assertNotIn(ali_task_id, member_ids)
+            finally:
+                _restore_actor_env(previous)
+        finally:
+            if ali_task_id is not None:
+                delete_temp_task(ali_task_id)
+            if reza_task_id is not None:
+                delete_temp_task(reza_task_id)
+            if project_id is not None:
+                delete_temp_project(project_id)
+            delete_temp_user(reza_id)
+            ali.close()
+
     def test_outsider_with_update_cannot_change_foreign_project(self) -> None:
         ali = bind_actor_as_role("مدیر پروژه")
         created = run_create_project(
